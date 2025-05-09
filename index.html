@@ -40,8 +40,8 @@
             <label for="wantsToAttendNo" style="display: inline-block;">لا</label>
         </div>
 
-        <div id="phoneFieldDiv" class="hidden-field"> <!-- سيتم إظهاره بـ JS -->
-            <label for="phoneNumber">رقم الهاتف (اختياري إذا حضر):</label>
+        <div> <!-- تم تعديل هذا القسم: حقل الهاتف ظاهر دائمًا -->
+            <label for="phoneNumber">رقم الهاتف (اختياري):</label>
             <input type="tel" id="phoneNumber" name="phoneNumber">
         </div>
 
@@ -122,20 +122,22 @@
       console.log("Firestore instance:", db);
 
       // --- JavaScript للتحكم في إظهار/إخفاء الحقول ---
-      const wantsToAttendYesRadio = document.getElementById('wantsToAttendYes');
-      const wantsToAttendNoRadio = document.getElementById('wantsToAttendNo');
-      const phoneFieldDiv = document.getElementById('phoneFieldDiv');
+      // لا نحتاج لمتغيرات wantsToAttend بعد الآن للتحكم في حقل الهاتف
+      // const wantsToAttendYesRadio = document.getElementById('wantsToAttendYes'); 
+      // const wantsToAttendNoRadio = document.getElementById('wantsToAttendNo');
+      // const phoneFieldDiv = document.getElementById('phoneFieldDiv'); // لم يعد phoneFieldDiv مخفيًا
 
       const wantsPortionYesRadio = document.getElementById('wantsPortionYes');
       const wantsPortionNoRadio = document.getElementById('wantsPortionNo');
       const portionDetailsDiv = document.getElementById('portionDetailsDiv');
-      const addressFieldDiv = document.getElementById('addressFieldDiv'); // أضفنا هذا
+      const addressFieldDiv = document.getElementById('addressFieldDiv');
 
       const paymentDoneYesRadio = document.getElementById('paymentDoneYes');
       const paymentDoneNoRadio = document.getElementById('paymentDoneNo');
       const paymentDetailsDiv = document.getElementById('paymentDetailsDiv');
 
-      // التحكم في حقل الهاتف
+      // التحكم في حقل الهاتف لم يعد مطلوبًا هنا، فهو ظاهر دائمًا
+      /*
       wantsToAttendYesRadio.addEventListener('change', function() {
           if (this.checked) {
               phoneFieldDiv.style.display = 'block';
@@ -146,18 +148,19 @@
               phoneFieldDiv.style.display = 'none';
           }
       });
+      */
 
       // التحكم في حقول الجزء من الأضحية والعنوان
       wantsPortionYesRadio.addEventListener('change', function() {
           if (this.checked) {
               portionDetailsDiv.style.display = 'block';
-              addressFieldDiv.style.display = 'block'; // إظهار حقل العنوان
+              addressFieldDiv.style.display = 'block'; 
           }
       });
       wantsPortionNoRadio.addEventListener('change', function() {
           if (this.checked) {
               portionDetailsDiv.style.display = 'none';
-              addressFieldDiv.style.display = 'none'; // إخفاء حقل العنوان
+              addressFieldDiv.style.display = 'none'; 
           }
       });
       
