@@ -5,14 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تسجيل الأضاحي</title>
     <style>
-        /* بعض التنسيقات البسيطة لتحسين المظهر قليلاً */
+        /* ... (التنسيقات كما هي) ... */
         body { font-family: sans-serif; margin: 20px; }
         label { display: block; margin-top: 10px; }
         input[type="text"], input[type="tel"], textarea, select { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; }
         button { padding: 10px 15px; background-color: #007bff; color: white; border: none; cursor: pointer; margin-top: 20px; }
         button:hover { background-color: #0056b3; }
-        .hidden-field { display: none; } /* لإخفاء الحقول مبدئيًا */
+        .hidden-field { display: none; } 
         hr { margin: 20px 0; }
+        #statusMessage { margin-top: 15px; padding: 10px; border-radius: 5px; }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
     </style>
 </head>
 <body>
@@ -40,7 +43,7 @@
             <label for="wantsToAttendNo" style="display: inline-block;">لا</label>
         </div>
 
-        <div> <!-- تم تعديل هذا القسم: حقل الهاتف ظاهر دائمًا -->
+        <div> 
             <label for="phoneNumber">رقم الهاتف (اختياري):</label>
             <input type="tel" id="phoneNumber" name="phoneNumber">
         </div>
@@ -53,12 +56,12 @@
             <label for="wantsPortionNo" style="display: inline-block;">لا</label>
         </div>
 
-        <div id="portionDetailsDiv" class="hidden-field"> <!-- سيتم إظهاره بـ JS -->
+        <div id="portionDetailsDiv" class="hidden-field"> 
             <label for="portionDetails">ماذا يريد من الأضحية؟</label>
             <textarea id="portionDetails" name="portionDetails" rows="3"></textarea>
         </div>
         
-        <div id="addressFieldDiv" class="hidden-field"> <!-- سيتم إظهاره بـ JS إذا اختار "يريد جزءًا" -->
+        <div id="addressFieldDiv" class="hidden-field"> 
             <label for="address">العنوان (اختياري لتوصيل الجزء):</label>
             <input type="text" id="address" name="address">
         </div>
@@ -71,7 +74,7 @@
             <label for="paymentDoneNo" style="display: inline-block;">لا</label>
         </div>
 
-        <div id="paymentDetailsDiv" class="hidden-field"> <!-- سيتم إظهاره بـ JS -->
+        <div id="paymentDetailsDiv" class="hidden-field"> 
             <div>
                 <label for="receiptBookNumber">رقم الدفتر:</label>
                 <input type="text" id="receiptBookNumber" name="receiptBookNumber">
@@ -93,17 +96,19 @@
         <br>
         <button type="submit">تسجيل البيانات</button>
     </form>
+    <!-- لإظهار رسائل الحالة (نجاح/فشل) -->
+    <div id="statusMessage"></div> 
     <hr>
 
     <script type="module">
     
-      // Import the functions you need from the SDKs you need
       import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
       import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-analytics.js";
-      import { getFirestore } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-firestore.js"; 
+      // *** إضافة جديدة: استيراد دوال Firestore اللازمة ***
+      import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-firestore.js"; 
       
-      // Your web app's Firebase configuration
       const firebaseConfig = {
+        // ... (firebaseConfig الخاصة بك كما هي) ...
         apiKey: "AIzaSyAOV5iF6t5kdAeBIZPNcmINB4Ya66Yx9Pg",
         authDomain: "adahi-app.firebaseapp.com",
         projectId: "adahi-app",
@@ -113,20 +118,14 @@
         measurementId: "G-1T2TGPK72K"
       };
 
-      // Initialize Firebase
       const app = initializeApp(firebaseConfig);
       const analytics = getAnalytics(app);
       const db = getFirestore(app);
 
       console.log("Firebase, Analytics, and Firestore initialized!");
-      console.log("Firestore instance:", db);
+      // console.log("Firestore instance:", db); // يمكن إبقاء هذا أو حذفه
 
       // --- JavaScript للتحكم في إظهار/إخفاء الحقول ---
-      // لا نحتاج لمتغيرات wantsToAttend بعد الآن للتحكم في حقل الهاتف
-      // const wantsToAttendYesRadio = document.getElementById('wantsToAttendYes'); 
-      // const wantsToAttendNoRadio = document.getElementById('wantsToAttendNo');
-      // const phoneFieldDiv = document.getElementById('phoneFieldDiv'); // لم يعد phoneFieldDiv مخفيًا
-
       const wantsPortionYesRadio = document.getElementById('wantsPortionYes');
       const wantsPortionNoRadio = document.getElementById('wantsPortionNo');
       const portionDetailsDiv = document.getElementById('portionDetailsDiv');
@@ -136,21 +135,6 @@
       const paymentDoneNoRadio = document.getElementById('paymentDoneNo');
       const paymentDetailsDiv = document.getElementById('paymentDetailsDiv');
 
-      // التحكم في حقل الهاتف لم يعد مطلوبًا هنا، فهو ظاهر دائمًا
-      /*
-      wantsToAttendYesRadio.addEventListener('change', function() {
-          if (this.checked) {
-              phoneFieldDiv.style.display = 'block';
-          }
-      });
-      wantsToAttendNoRadio.addEventListener('change', function() {
-          if (this.checked) {
-              phoneFieldDiv.style.display = 'none';
-          }
-      });
-      */
-
-      // التحكم في حقول الجزء من الأضحية والعنوان
       wantsPortionYesRadio.addEventListener('change', function() {
           if (this.checked) {
               portionDetailsDiv.style.display = 'block';
@@ -164,7 +148,6 @@
           }
       });
       
-      // التحكم في حقول تفاصيل الدفع
       paymentDoneYesRadio.addEventListener('change', function() {
           if (this.checked) {
               paymentDetailsDiv.style.display = 'block';
@@ -175,10 +158,86 @@
               paymentDetailsDiv.style.display = 'none';
           }
       });
-
       // --- نهاية JavaScript للتحكم في إظهار/إخفاء الحقول ---
 
-      // (سنضيف هنا لاحقًا شيفرة إرسال النموذج إلى Firestore)
+
+      // --- *** بداية: JavaScript لإرسال النموذج إلى Firestore *** ---
+      const adahiForm = document.getElementById('adahiForm');
+      const statusMessage = document.getElementById('statusMessage'); // لعرض رسائل الحالة
+
+      adahiForm.addEventListener('submit', async (event) => {
+          event.preventDefault(); // منع السلوك الافتراضي للنموذج (إعادة تحميل الصفحة)
+
+          // عرض رسالة "جاري الحفظ..."
+          statusMessage.textContent = 'جاري حفظ البيانات...';
+          statusMessage.className = ''; // إزالة أي تنسيقات سابقة
+
+          try {
+              // جمع البيانات من النموذج
+              const donorName = document.getElementById('donorName').value;
+              const sacrificeFor = document.getElementById('sacrificeFor').value;
+              const wantsToAttend = document.querySelector('input[name="wantsToAttend"]:checked').value;
+              const phoneNumber = document.getElementById('phoneNumber').value;
+              const wantsPortion = document.querySelector('input[name="wantsPortion"]:checked').value;
+              let portionDetails = '';
+              if (wantsPortion === 'yes') {
+                  portionDetails = document.getElementById('portionDetails').value;
+              }
+              let address = '';
+              if (wantsPortion === 'yes') { // العنوان مرتبط بخيار "يريد جزءًا"
+                  address = document.getElementById('address').value;
+              }
+              const paymentDone = document.querySelector('input[name="paymentDone"]:checked').value;
+              let receiptBookNumber = '';
+              let receiptNumber = '';
+              if (paymentDone === 'yes') {
+                  receiptBookNumber = document.getElementById('receiptBookNumber').value;
+                  receiptNumber = document.getElementById('receiptNumber').value;
+              }
+              const assistanceFor = document.getElementById('assistanceFor').value;
+
+              // إنشاء كائن بالبيانات
+              const adahiData = {
+                  donorName: donorName,
+                  sacrificeFor: sacrificeFor,
+                  wantsToAttend: wantsToAttend === 'yes', // تحويلها إلى boolean
+                  phoneNumber: phoneNumber,
+                  wantsPortion: wantsPortion === 'yes', // تحويلها إلى boolean
+                  portionDetails: portionDetails,
+                  address: address,
+                  paymentDone: paymentDone === 'yes', // تحويلها إلى boolean
+                  receiptBookNumber: receiptBookNumber,
+                  receiptNumber: receiptNumber,
+                  assistanceFor: assistanceFor,
+                  status: 'pending_approval', // حالة أولية للبيانات
+                  createdAt: serverTimestamp() // إضافة وقت إنشاء المستند من الخادم
+              };
+
+              // إضافة البيانات إلى مجموعة "sacrifices" في Firestore
+              // إذا لم تكن مجموعة "sacrifices" موجودة، سيقوم Firestore بإنشائها تلقائيًا.
+              const docRef = await addDoc(collection(db, "sacrifices"), adahiData);
+              
+              console.log("Document written with ID: ", docRef.id);
+              statusMessage.textContent = 'تم حفظ البيانات بنجاح! رقم المرجع: ' + docRef.id;
+              statusMessage.className = 'success'; // تطبيق تنسيق النجاح
+              adahiForm.reset(); // مسح حقول النموذج بعد الإرسال الناجح
+
+              // إخفاء الحقول التي تعتمد على الاختيارات مرة أخرى (لأن النموذج تم مسحه)
+              portionDetailsDiv.style.display = 'none';
+              addressFieldDiv.style.display = 'none';
+              paymentDetailsDiv.style.display = 'none';
+              document.getElementById('wantsToAttendNo').checked = true; // إعادة الافتراضي
+              document.getElementById('wantsPortionNo').checked = true; // إعادة الافتراضي
+              document.getElementById('paymentDoneNo').checked = true; // إعادة الافتراضي
+
+
+          } catch (e) {
+              console.error("Error adding document: ", e);
+              statusMessage.textContent = 'حدث خطأ أثناء حفظ البيانات: ' + e.message;
+              statusMessage.className = 'error'; // تطبيق تنسيق الخطأ
+          }
+      });
+      // --- *** نهاية: JavaScript لإرسال النموذج إلى Firestore *** ---
 
     </script>
 </body>
