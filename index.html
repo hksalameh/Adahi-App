@@ -28,7 +28,7 @@
     <div id="authStatus"></div> 
 
     <div id="loginSection">
-        <h2>تسجيل الدخول</h2> <!-- تم تغيير العنوان قليلاً -->
+        <h2>تسجيل الدخول</h2>
         <form id="loginForm">
             <div><label for="email">البريد الإلكتروني:</label><input type="email" id="email" name="email" required></div>
             <div><label for="password">كلمة المرور:</label><input type="password" id="password" name="password" required></div>
@@ -39,7 +39,7 @@
     <button id="logoutButton" class="hidden-field">تسجيل الخروج</button> <hr class="hidden-field" id="hrAfterLogout">
 
     <div id="dataEntrySection" class="user-section"> 
-        <p>مرحباً، يمكنك الآن تسجيل البيانات.</p> <!-- تم تغيير النص قليلاً -->
+        <p>مرحباً، يمكنك الآن تسجيل البيانات.</p>
         <hr>
         <h2>تسجيل أضحية/تبرع جديد</h2>
         <form id="adahiForm">
@@ -75,7 +75,7 @@
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
       import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-analytics.js";
-      import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-auth.js"; // أزلت createUser، لا نحتاجها هنا
+      import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-auth.js";
       import { getFirestore, collection, addDoc, serverTimestamp, onSnapshot, query, orderBy, where, doc, updateDoc } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-firestore.js"; 
       
       const firebaseConfig = { 
@@ -89,9 +89,11 @@
       };
 
       const app = initializeApp(firebaseConfig);
-      const analytics = getAnalytics(app);
+      const analytics = getAnalytics(app); // يمكنك إزالة هذا إذا كنت لا تستخدم Analytics
       const db = getFirestore(app);
       const auth = getAuth(app); 
+
+      // console.log("Firebase, Analytics, and Firestore initialized!"); // تم التعليق
 
       const loginSection = document.getElementById('loginSection');
       const dataEntrySection = document.getElementById('dataEntrySection'); 
@@ -112,15 +114,13 @@
           statusMessage.textContent = 'جاري حفظ البيانات...';
           statusMessage.className = '';
 
-          // *** بداية التعديل: التحقق من المستخدم الحالي وإضافة userId ***
           const currentUser = auth.currentUser;
           if (!currentUser) {
               statusMessage.textContent = 'يجب تسجيل الدخول أولاً لإضافة البيانات.';
               statusMessage.className = 'error';
-              console.error("User not logged in, cannot submit form.");
+              // console.error("User not logged in, cannot submit form."); // تم التعليق
               return; 
           }
-          // *** نهاية التعديل ***
 
           try {
               const donorName = document.getElementById('donorName').value;
@@ -136,23 +136,15 @@
               const assistanceFor = document.getElementById('assistanceFor').value;
               
               const adahiData = {
-                  userId: currentUser.uid, // <-- *** تمت إضافة userId هنا ***
-                  donorName, 
-                  sacrificeFor,
-                  wantsToAttend: wantsToAttend === 'yes', 
-                  phoneNumber,
-                  wantsPortion: wantsPortion === 'yes', 
-                  portionDetails, 
-                  address,
-                  paymentDone: paymentDone === 'yes', 
-                  receiptBookNumber, 
-                  receiptNumber,
-                  assistanceFor, 
-                  status: 'pending_approval', 
-                  createdAt: serverTimestamp()
+                  userId: currentUser.uid, 
+                  donorName, sacrificeFor,
+                  wantsToAttend: wantsToAttend === 'yes', phoneNumber,
+                  wantsPortion: wantsPortion === 'yes', portionDetails, address,
+                  paymentDone: paymentDone === 'yes', receiptBookNumber, receiptNumber,
+                  assistanceFor, status: 'pending_approval', createdAt: serverTimestamp()
               };
               const docRef = await addDoc(collection(db, "sacrifices"), adahiData);
-              console.log("Document written with ID: ", docRef.id, "by user:", currentUser.uid);
+              // console.log("Document written with ID: ", docRef.id, "by user:", currentUser.uid); // تم التعليق
               statusMessage.textContent = 'تم حفظ البيانات بنجاح! رقم المرجع: ' + docRef.id;
               statusMessage.className = 'success';
               adahiForm.reset();
@@ -163,17 +155,21 @@
               document.getElementById('wantsPortionNo').checked = true;
               document.getElementById('paymentDoneNo').checked = true;
           } catch (e) {
-              console.error("Error adding document: ", e);
+              console.error("Error adding document: ", e); // مهم إبقاء هذا لتتبع أخطاء الإضافة
               statusMessage.textContent = 'حدث خطأ أثناء حفظ البيانات: ' + e.message;
               statusMessage.className = 'error';
           }
       });
 
-      const sacrificesTableBody = document.getElementById('sacrificesTableBody');const loadingMessage = document.getElementById('loadingMessage');let currentFilter = null;function formatFirestoreTimestamp(timestamp) {if (!timestamp || !timestamp.toDate) {return 'غير متوفر';}const date = timestamp.toDate();return date.toLocaleString('ar-EG', {year: 'numeric', month: 'short', day: 'numeric',hour: '2-digit', minute: '2-digit'});}function renderSacrifices(docs) {sacrificesTableBody.innerHTML = '';if (docs.empty) {loadingMessage.textContent = 'لا توجد بيانات لعرضها حسب الفلتر الحالي.';loadingMessage.style.display = 'block';sacrificesTableBody.innerHTML = '<tr><td colspan="14">لا توجد بيانات.</td></tr>';return;}loadingMessage.style.display = 'none';docs.forEach((docSnapshot) => {const data = docSnapshot.data();const row = sacrificesTableBody.insertRow();row.insertCell().textContent = data.donorName || '';row.insertCell().textContent = data.sacrificeFor || '';row.insertCell().textContent = data.wantsToAttend ? 'نعم' : 'لا';row.insertCell().textContent = data.phoneNumber || '';row.insertCell().textContent = data.wantsPortion ? 'نعم' : 'لا';row.insertCell().textContent = data.portionDetails || '';row.insertCell().textContent = data.address || '';row.insertCell().textContent = data.paymentDone ? 'نعم' : 'لا';row.insertCell().textContent = data.receiptBookNumber || '';row.insertCell().textContent = data.receiptNumber || '';row.insertCell().textContent = data.assistanceFor ? (data.assistanceFor === 'inside_ramtha' ? 'داخل الرمثا' : data.assistanceFor === 'gaza_people' ? 'لأهل غزة' : data.assistanceFor === 'for_himself' ? 'لنفسه' : data.assistanceFor) : '';row.insertCell().textContent = formatFirestoreTimestamp(data.createdAt);row.insertCell().textContent = data.status === 'pending_approval' ? 'قيد المراجعة' : data.status === 'approved' ? 'موافق عليه' : data.status === 'rejected' ? 'مرفوض' : data.status;const actionsCell = row.insertCell();if (data.status === 'pending_approval') {const approveButton = document.createElement('button');approveButton.textContent = 'موافقة';approveButton.onclick = () => updateSacrificeStatus(docSnapshot.id, 'approved');actionsCell.appendChild(approveButton);const rejectButton = document.createElement('button');rejectButton.textContent = 'رفض';rejectButton.style.backgroundColor = '#dc3545';rejectButton.style.marginRight = '5px';rejectButton.onclick = () => updateSacrificeStatus(docSnapshot.id, 'rejected');actionsCell.appendChild(rejectButton);} else if (data.status === 'approved' || data.status === 'rejected') {const revertButton = document.createElement('button');revertButton.textContent = 'إعادة للمراجعة';revertButton.style.backgroundColor = '#ffc107';revertButton.onclick = () => updateSacrificeStatus(docSnapshot.id, 'pending_approval');actionsCell.appendChild(revertButton);}});}async function updateSacrificeStatus(docId, newStatus) {const sacrificeRef = doc(db, "sacrifices", docId);try {await updateDoc(sacrificeRef, {status: newStatus});console.log(`Document ${docId} status updated to ${newStatus}`);} catch (error) {console.error("Error updating document status: ", error);alert('حدث خطأ أثناء تحديث الحالة: ' + error.message);}}function fetchAndRenderSacrifices(statusFilter = null) {loadingMessage.textContent = 'جاري تحميل البيانات...';loadingMessage.style.display = 'block';sacrificesTableBody.innerHTML = '';let q = collection(db, "sacrifices");if (statusFilter) {q = query(q, where("status", "==", statusFilter), orderBy("createdAt", "desc"));} else {q = query(q, orderBy("createdAt", "desc"));}onSnapshot(q, (querySnapshot) => {renderSacrifices(querySnapshot);}, (error) => {console.error("Error fetching documents: ", error);loadingMessage.textContent = 'حدث خطأ أثناء جلب البيانات: ' + error.message;sacrificesTableBody.innerHTML = `<tr><td colspan="14">خطأ في تحميل البيانات.</td></tr>`;});}document.getElementById('filterPending').addEventListener('click', () => fetchAndRenderSacrifices('pending_approval'));document.getElementById('filterApproved').addEventListener('click', () => fetchAndRenderSacrifices('approved'));document.getElementById('filterRejected').addEventListener('click', () => fetchAndRenderSacrifices('rejected'));document.getElementById('filterAll').addEventListener('click', () => fetchAndRenderSacrifices(null));
+      const sacrificesTableBody = document.getElementById('sacrificesTableBody');const loadingMessage = document.getElementById('loadingMessage');let currentFilter = null;function formatFirestoreTimestamp(timestamp) {if (!timestamp || !timestamp.toDate) {return 'غير متوفر';}const date = timestamp.toDate();return date.toLocaleString('ar-EG', {year: 'numeric', month: 'short', day: 'numeric',hour: '2-digit', minute: '2-digit'});}function renderSacrifices(docs) {sacrificesTableBody.innerHTML = '';if (docs.empty) {loadingMessage.textContent = 'لا توجد بيانات لعرضها حسب الفلتر الحالي.';loadingMessage.style.display = 'block';sacrificesTableBody.innerHTML = '<tr><td colspan="14">لا توجد بيانات.</td></tr>';return;}loadingMessage.style.display = 'none';docs.forEach((docSnapshot) => {const data = docSnapshot.data();const row = sacrificesTableBody.insertRow();row.insertCell().textContent = data.donorName || '';row.insertCell().textContent = data.sacrificeFor || '';row.insertCell().textContent = data.wantsToAttend ? 'نعم' : 'لا';row.insertCell().textContent = data.phoneNumber || '';row.insertCell().textContent = data.wantsPortion ? 'نعم' : 'لا';row.insertCell().textContent = data.portionDetails || '';row.insertCell().textContent = data.address || '';row.insertCell().textContent = data.paymentDone ? 'نعم' : 'لا';row.insertCell().textContent = data.receiptBookNumber || '';row.insertCell().textContent = data.receiptNumber || '';row.insertCell().textContent = data.assistanceFor ? (data.assistanceFor === 'inside_ramtha' ? 'داخل الرمثا' : data.assistanceFor === 'gaza_people' ? 'لأهل غزة' : data.assistanceFor === 'for_himself' ? 'لنفسه' : data.assistanceFor) : '';row.insertCell().textContent = formatFirestoreTimestamp(data.createdAt);row.insertCell().textContent = data.status === 'pending_approval' ? 'قيد المراجعة' : data.status === 'approved' ? 'موافق عليه' : data.status === 'rejected' ? 'مرفوض' : data.status;const actionsCell = row.insertCell();if (data.status === 'pending_approval') {const approveButton = document.createElement('button');approveButton.textContent = 'موافقة';approveButton.onclick = () => updateSacrificeStatus(docSnapshot.id, 'approved');actionsCell.appendChild(approveButton);const rejectButton = document.createElement('button');rejectButton.textContent = 'رفض';rejectButton.style.backgroundColor = '#dc3545';rejectButton.style.marginRight = '5px';rejectButton.onclick = () => updateSacrificeStatus(docSnapshot.id, 'rejected');actionsCell.appendChild(rejectButton);} else if (data.status === 'approved' || data.status === 'rejected') {const revertButton = document.createElement('button');revertButton.textContent = 'إعادة للمراجعة';revertButton.style.backgroundColor = '#ffc107';revertButton.onclick = () => updateSacrificeStatus(docSnapshot.id, 'pending_approval');actionsCell.appendChild(revertButton);}});}async function updateSacrificeStatus(docId, newStatus) {const sacrificeRef = doc(db, "sacrifices", docId);try {await updateDoc(sacrificeRef, {status: newStatus});/* console.log(`Document ${docId} status updated to ${newStatus}`); */ } catch (error) {console.error("Error updating document status: ", error); alert('حدث خطأ أثناء تحديث الحالة: ' + error.message);}}function fetchAndRenderSacrifices(statusFilter = null) {loadingMessage.textContent = 'جاري تحميل البيانات...';loadingMessage.style.display = 'block';sacrificesTableBody.innerHTML = '';let q = collection(db, "sacrifices");if (statusFilter) {q = query(q, where("status", "==", statusFilter), orderBy("createdAt", "desc"));} else {q = query(q, orderBy("createdAt", "desc"));}onSnapshot(q, (querySnapshot) => {renderSacrifices(querySnapshot);}, (error) => {console.error("Error fetching documents: ", error);loadingMessage.textContent = 'حدث خطأ أثناء جلب البيانات: ' + error.message;sacrificesTableBody.innerHTML = `<tr><td colspan="14">خطأ في تحميل البيانات.</td></tr>`;});}document.getElementById('filterPending').addEventListener('click', () => fetchAndRenderSacrifices('pending_approval'));document.getElementById('filterApproved').addEventListener('click', () => fetchAndRenderSacrifices('approved'));document.getElementById('filterRejected').addEventListener('click', () => fetchAndRenderSacrifices('rejected'));document.getElementById('filterAll').addEventListener('click', () => fetchAndRenderSacrifices(null));
 
       onAuthStateChanged(auth, (user) => {
-          // أزلت أسطر console.log التشخيصية من هنا، يمكنك إعادتها إذا احتجت
           if (user) {
+              // console.log("--- onAuthStateChanged: User is SIGNED IN ---"); // تم التعليق
+              // console.log("User object:", user); // تم التعليق
+              // console.log("User UID from auth state:", user.uid); // تم التعليق
+              // console.log("ADMIN_UID defined in code:", ADMIN_UID); // تم التعليق
+              // console.log("Comparison (user.uid === ADMIN_UID):", user.uid === ADMIN_UID); // تم التعليق
               authStatus.textContent = `مرحباً بك، ${user.email}`;
               authStatus.className = 'success';
               loginSection.style.display = 'none'; 
@@ -181,12 +177,15 @@
               hrAfterLogout.style.display = 'block';
               dataEntrySection.style.display = 'block'; 
               if (user.uid === ADMIN_UID) {
+                  // console.log("ADMIN ACCESS GRANTED: Showing admin section."); // تم التعليق
                   adminViewSection.style.display = 'block'; 
                   fetchAndRenderSacrifices(null); 
               } else {
+                  // console.log("ADMIN ACCESS DENIED: Hiding admin section. User is not the defined admin."); // تم التعليق
                   adminViewSection.style.display = 'none';
               }
           } else {
+              // console.log("--- onAuthStateChanged: User is SIGNED OUT ---"); // تم التعليق
               authStatus.textContent = 'يرجى تسجيل الدخول للوصول.';
               authStatus.className = '';
               loginSection.style.display = 'block'; 
@@ -204,10 +203,13 @@
             e.preventDefault();
             const email = loginForm.email.value;
             const password = loginForm.password.value;
+            // console.log("Login form submitted. Attempting to sign in with email:", email); // تم التعليق
             signInWithEmailAndPassword(auth, email, password)
-                .then((userCredential) => { /* onAuthStateChanged handles UI */ })
+                .then((userCredential) => {
+                    // console.log("signInWithEmailAndPassword successful:", userCredential.user); // تم التعليق
+                })
                 .catch((error) => {
-                    console.error("Error signing in:", error);
+                    console.error("Error signing in:", error); // مهم إبقاء هذا
                     authStatus.textContent = `خطأ في تسجيل الدخول: ${error.message}`;
                     authStatus.className = 'error';
                 });
@@ -216,9 +218,11 @@
 
       if (logoutButton) {
         logoutButton.addEventListener('click', () => {
-            signOut(auth).then(() => { /* onAuthStateChanged handles UI */ })
-            .catch((error) => {
-                console.error("Error signing out:", error);
+            // console.log("Logout button clicked. Attempting to sign out."); // تم التعليق
+            signOut(auth).then(() => {
+                // console.log("Signed out successfully (from signOut promise)"); // تم التعليق
+            }).catch((error) => {
+                console.error("Error signing out:", error); // مهم إبقاء هذا
                 authStatus.textContent = `خطأ في تسجيل الخروج: ${error.message}`;
                 authStatus.className = 'error';
             });
