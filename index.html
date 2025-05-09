@@ -10,7 +10,7 @@
         input[type="text"], input[type="email"], input[type="password"], input[type="tel"], textarea, select { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; }
         button { padding: 10px 15px; background-color: #007bff; color: white; border: none; cursor: pointer; margin-top: 20px; }
         button:hover { background-color: #0056b3; }
-        .hidden-field, .admin-section, .user-section { display: none; } 
+        .hidden-field, .admin-section, .user-section, .user-data-section { display: none; } /* إضافة .user-data-section */
         hr { margin: 20px 0; }
         #statusMessage, #authStatus { margin-top: 15px; padding: 10px; border-radius: 5px; }
         .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
@@ -58,6 +58,23 @@
         <div id="statusMessage"></div><hr>
     </div>
 
+    <!-- *** بداية: قسم عرض بيانات المستخدم العادي *** -->
+    <div id="userDataViewSection" class="user-data-section">
+        <h2>تسجيلاتك الحالية</h2>
+        <p id="userLoadingMessage">جاري تحميل تسجيلاتك...</p>
+        <table id="userSacrificesTable" border="1">
+            <thead>
+                <tr>
+                    <th>اسم المتبرع</th><th>الأضحية عن</th><th>تاريخ التسجيل</th><th>الحالة</th>
+                    <!-- يمكنك إضافة المزيد من الأعمدة إذا أردت أن يراها المستخدم العادي -->
+                </tr>
+            </thead>
+            <tbody id="userSacrificesTableBody"></tbody>
+        </table>
+        <hr>
+    </div>
+    <!-- *** نهاية: قسم عرض بيانات المستخدم العادي *** -->
+
     <div id="adminViewSection" class="admin-section"> 
         <h2>سجلات الأضاحي المسجلة (للمسؤول)</h2>
         <div id="adminActions">
@@ -78,156 +95,161 @@
       import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-auth.js";
       import { getFirestore, collection, addDoc, serverTimestamp, onSnapshot, query, orderBy, where, doc, updateDoc } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-firestore.js"; 
       
-      const firebaseConfig = { 
-        apiKey: "AIzaSyAOV5iF6t5kdAeBIZPNcmINB4Ya66Yx9Pg",
-        authDomain: "adahi-app.firebaseapp.com",
-        projectId: "adahi-app",
-        storageBucket: "adahi-app.firebasestorage.app", 
-        messagingSenderId: "42370235858",
-        appId: "1:42370235858:web:6f839b92404afafdae9c0b",
-        measurementId: "G-1T2TGPK72K"
-      };
+      const firebaseConfig = { /* ... (firebaseConfig كما هي) ... */ };
 
       const app = initializeApp(firebaseConfig);
-      const analytics = getAnalytics(app); // يمكنك إزالة هذا إذا كنت لا تستخدم Analytics
+      // const analytics = getAnalytics(app); // يمكنك إبقائه أو إزالته
       const db = getFirestore(app);
       const auth = getAuth(app); 
-
-      // console.log("Firebase, Analytics, and Firestore initialized!"); // تم التعليق
 
       const loginSection = document.getElementById('loginSection');
       const dataEntrySection = document.getElementById('dataEntrySection'); 
       const adminViewSection = document.getElementById('adminViewSection'); 
+      const userDataViewSection = document.getElementById('userDataViewSection'); // *** إضافة جديدة ***
       const loginForm = document.getElementById('loginForm');
       const logoutButton = document.getElementById('logoutButton');
       const hrAfterLogout = document.getElementById('hrAfterLogout');
       const authStatus = document.getElementById('authStatus');
       const ADMIN_UID = 'AKpJLStGGnRC2Albb8bpZ0KtTGq1'; 
 
-      const wantsPortionYesRadio = document.getElementById('wantsPortionYes');const wantsPortionNoRadio = document.getElementById('wantsPortionNo');const portionDetailsDiv = document.getElementById('portionDetailsDiv');const addressFieldDiv = document.getElementById('addressFieldDiv');const paymentDoneYesRadio = document.getElementById('paymentDoneYes');const paymentDoneNoRadio = document.getElementById('paymentDoneNo');const paymentDetailsDiv = document.getElementById('paymentDetailsDiv');wantsPortionYesRadio.addEventListener('change', function() {if (this.checked) {portionDetailsDiv.style.display = 'block';addressFieldDiv.style.display = 'block';}});wantsPortionNoRadio.addEventListener('change', function() {if (this.checked) {portionDetailsDiv.style.display = 'none';addressFieldDiv.style.display = 'none';}});paymentDoneYesRadio.addEventListener('change', function() {if (this.checked) {paymentDetailsDiv.style.display = 'block';}});paymentDoneNoRadio.addEventListener('change', function() {if (this.checked) {paymentDetailsDiv.style.display = 'none';}});
+      const wantsPortionYesRadio = document.getElementById('wantsPortionYes'); /* ... (بقية متغيرات نموذج الإدخال كما هي) ... */
+      const wantsPortionNoRadio = document.getElementById('wantsPortionNo');
+      const portionDetailsDiv = document.getElementById('portionDetailsDiv');
+      const addressFieldDiv = document.getElementById('addressFieldDiv');
+      const paymentDoneYesRadio = document.getElementById('paymentDoneYes');
+      const paymentDoneNoRadio = document.getElementById('paymentDoneNo');
+      const paymentDetailsDiv = document.getElementById('paymentDetailsDiv');
+      wantsPortionYesRadio.addEventListener('change', function() {if (this.checked) {portionDetailsDiv.style.display = 'block';addressFieldDiv.style.display = 'block';}});
+      wantsPortionNoRadio.addEventListener('change', function() {if (this.checked) {portionDetailsDiv.style.display = 'none';addressFieldDiv.style.display = 'none';}});
+      paymentDoneYesRadio.addEventListener('change', function() {if (this.checked) {paymentDetailsDiv.style.display = 'block';}});
+      paymentDoneNoRadio.addEventListener('change', function() {if (this.checked) {paymentDetailsDiv.style.display = 'none';}});
 
       const adahiForm = document.getElementById('adahiForm');
       const statusMessage = document.getElementById('statusMessage');
       
-      adahiForm.addEventListener('submit', async (event) => {
-          event.preventDefault();
-          statusMessage.textContent = 'جاري حفظ البيانات...';
-          statusMessage.className = '';
+      adahiForm.addEventListener('submit', async (event) => { /* ... (دالة إرسال النموذج كما هي) ... */ });
 
-          const currentUser = auth.currentUser;
-          if (!currentUser) {
-              statusMessage.textContent = 'يجب تسجيل الدخول أولاً لإضافة البيانات.';
-              statusMessage.className = 'error';
-              // console.error("User not logged in, cannot submit form."); // تم التعليق
-              return; 
+      // --- دوال عرض البيانات للمسؤول (كما هي) ---
+      const sacrificesTableBody = document.getElementById('sacrificesTableBody');
+      const loadingMessage = document.getElementById('loadingMessage');
+      // let currentFilter = null; // لم نعد نستخدمه بشكل مباشر هنا
+      function formatFirestoreTimestamp(timestamp) { /* ... (كما هي) ... */ }
+      function renderSacrificesForAdmin(docs) { /* ... (أعدت تسميتها من renderSacrifices إلى renderSacrificesForAdmin) ... */ 
+          sacrificesTableBody.innerHTML = '';
+          if (docs.empty) {
+              loadingMessage.textContent = 'لا توجد بيانات لعرضها.';
+              loadingMessage.style.display = 'block';
+              sacrificesTableBody.innerHTML = '<tr><td colspan="14">لا توجد بيانات.</td></tr>';
+              return;
           }
-
-          try {
-              const donorName = document.getElementById('donorName').value;
-              const sacrificeFor = document.getElementById('sacrificeFor').value;
-              const wantsToAttend = document.querySelector('input[name="wantsToAttend"]:checked').value;
-              const phoneNumber = document.getElementById('phoneNumber').value;
-              const wantsPortion = document.querySelector('input[name="wantsPortion"]:checked').value;
-              let portionDetails = wantsPortion === 'yes' ? document.getElementById('portionDetails').value : '';
-              let address = wantsPortion === 'yes' ? document.getElementById('address').value : '';
-              const paymentDone = document.querySelector('input[name="paymentDone"]:checked').value;
-              let receiptBookNumber = paymentDone === 'yes' ? document.getElementById('receiptBookNumber').value : '';
-              let receiptNumber = paymentDone === 'yes' ? document.getElementById('receiptNumber').value : '';
-              const assistanceFor = document.getElementById('assistanceFor').value;
-              
-              const adahiData = {
-                  userId: currentUser.uid, 
-                  donorName, sacrificeFor,
-                  wantsToAttend: wantsToAttend === 'yes', phoneNumber,
-                  wantsPortion: wantsPortion === 'yes', portionDetails, address,
-                  paymentDone: paymentDone === 'yes', receiptBookNumber, receiptNumber,
-                  assistanceFor, status: 'pending_approval', createdAt: serverTimestamp()
-              };
-              const docRef = await addDoc(collection(db, "sacrifices"), adahiData);
-              // console.log("Document written with ID: ", docRef.id, "by user:", currentUser.uid); // تم التعليق
-              statusMessage.textContent = 'تم حفظ البيانات بنجاح! رقم المرجع: ' + docRef.id;
-              statusMessage.className = 'success';
-              adahiForm.reset();
-              portionDetailsDiv.style.display = 'none';
-              addressFieldDiv.style.display = 'none';
-              paymentDetailsDiv.style.display = 'none';
-              document.getElementById('wantsToAttendNo').checked = true;
-              document.getElementById('wantsPortionNo').checked = true;
-              document.getElementById('paymentDoneNo').checked = true;
-          } catch (e) {
-              console.error("Error adding document: ", e); // مهم إبقاء هذا لتتبع أخطاء الإضافة
-              statusMessage.textContent = 'حدث خطأ أثناء حفظ البيانات: ' + e.message;
-              statusMessage.className = 'error';
+          loadingMessage.style.display = 'none';
+          docs.forEach((docSnapshot) => {
+              const data = docSnapshot.data();
+              const row = sacrificesTableBody.insertRow();
+              // ... (ملء خلايا جدول المسؤول كما كان)
+              row.insertCell().textContent = data.donorName || '';row.insertCell().textContent = data.sacrificeFor || '';row.insertCell().textContent = data.wantsToAttend ? 'نعم' : 'لا';row.insertCell().textContent = data.phoneNumber || '';row.insertCell().textContent = data.wantsPortion ? 'نعم' : 'لا';row.insertCell().textContent = data.portionDetails || '';row.insertCell().textContent = data.address || '';row.insertCell().textContent = data.paymentDone ? 'نعم' : 'لا';row.insertCell().textContent = data.receiptBookNumber || '';row.insertCell().textContent = data.receiptNumber || '';row.insertCell().textContent = data.assistanceFor ? (data.assistanceFor === 'inside_ramtha' ? 'داخل الرمثا' : data.assistanceFor === 'gaza_people' ? 'لأهل غزة' : data.assistanceFor === 'for_himself' ? 'لنفسه' : data.assistanceFor) : '';row.insertCell().textContent = formatFirestoreTimestamp(data.createdAt);row.insertCell().textContent = data.status === 'pending_approval' ? 'قيد المراجعة' : data.status === 'approved' ? 'موافق عليه' : data.status === 'rejected' ? 'مرفوض' : data.status;const actionsCell = row.insertCell();if (data.status === 'pending_approval') {const approveButton = document.createElement('button');approveButton.textContent = 'موافقة';approveButton.onclick = () => updateSacrificeStatus(docSnapshot.id, 'approved');actionsCell.appendChild(approveButton);const rejectButton = document.createElement('button');rejectButton.textContent = 'رفض';rejectButton.style.backgroundColor = '#dc3545';rejectButton.style.marginRight = '5px';rejectButton.onclick = () => updateSacrificeStatus(docSnapshot.id, 'rejected');actionsCell.appendChild(rejectButton);} else if (data.status === 'approved' || data.status === 'rejected') {const revertButton = document.createElement('button');revertButton.textContent = 'إعادة للمراجعة';revertButton.style.backgroundColor = '#ffc107';revertButton.onclick = () => updateSacrificeStatus(docSnapshot.id, 'pending_approval');actionsCell.appendChild(revertButton);}
+          });
+      }
+      async function updateSacrificeStatus(docId, newStatus) { /* ... (كما هي) ... */ }
+      function fetchAndRenderSacrificesForAdmin(statusFilter = null) { /* ... (أعدت تسميتها، والمنطق كما هو) ... */ 
+          loadingMessage.textContent = 'جاري تحميل البيانات...';
+          loadingMessage.style.display = 'block';
+          sacrificesTableBody.innerHTML = '';
+          let q = collection(db, "sacrifices");
+          if (statusFilter) {
+              q = query(q, where("status", "==", statusFilter), orderBy("createdAt", "desc"));
+          } else {
+              q = query(q, orderBy("createdAt", "desc"));
           }
-      });
+          onSnapshot(q, (querySnapshot) => {
+              renderSacrificesForAdmin(querySnapshot); // استدعاء الدالة بالاسم الجديد
+          }, (error) => { /* ... (معالجة الخطأ كما هي) ... */ });
+      }
+      document.getElementById('filterPending').addEventListener('click', () => fetchAndRenderSacrificesForAdmin('pending_approval'));
+      document.getElementById('filterApproved').addEventListener('click', () => fetchAndRenderSacrificesForAdmin('approved'));
+      document.getElementById('filterRejected').addEventListener('click', () => fetchAndRenderSacrificesForAdmin('rejected'));
+      document.getElementById('filterAll').addEventListener('click', () => fetchAndRenderSacrificesForAdmin(null));
+      
+      // --- *** بداية: دوال عرض البيانات للمستخدم العادي *** ---
+      const userSacrificesTableBody = document.getElementById('userSacrificesTableBody');
+      const userLoadingMessage = document.getElementById('userLoadingMessage');
 
-      const sacrificesTableBody = document.getElementById('sacrificesTableBody');const loadingMessage = document.getElementById('loadingMessage');let currentFilter = null;function formatFirestoreTimestamp(timestamp) {if (!timestamp || !timestamp.toDate) {return 'غير متوفر';}const date = timestamp.toDate();return date.toLocaleString('ar-EG', {year: 'numeric', month: 'short', day: 'numeric',hour: '2-digit', minute: '2-digit'});}function renderSacrifices(docs) {sacrificesTableBody.innerHTML = '';if (docs.empty) {loadingMessage.textContent = 'لا توجد بيانات لعرضها حسب الفلتر الحالي.';loadingMessage.style.display = 'block';sacrificesTableBody.innerHTML = '<tr><td colspan="14">لا توجد بيانات.</td></tr>';return;}loadingMessage.style.display = 'none';docs.forEach((docSnapshot) => {const data = docSnapshot.data();const row = sacrificesTableBody.insertRow();row.insertCell().textContent = data.donorName || '';row.insertCell().textContent = data.sacrificeFor || '';row.insertCell().textContent = data.wantsToAttend ? 'نعم' : 'لا';row.insertCell().textContent = data.phoneNumber || '';row.insertCell().textContent = data.wantsPortion ? 'نعم' : 'لا';row.insertCell().textContent = data.portionDetails || '';row.insertCell().textContent = data.address || '';row.insertCell().textContent = data.paymentDone ? 'نعم' : 'لا';row.insertCell().textContent = data.receiptBookNumber || '';row.insertCell().textContent = data.receiptNumber || '';row.insertCell().textContent = data.assistanceFor ? (data.assistanceFor === 'inside_ramtha' ? 'داخل الرمثا' : data.assistanceFor === 'gaza_people' ? 'لأهل غزة' : data.assistanceFor === 'for_himself' ? 'لنفسه' : data.assistanceFor) : '';row.insertCell().textContent = formatFirestoreTimestamp(data.createdAt);row.insertCell().textContent = data.status === 'pending_approval' ? 'قيد المراجعة' : data.status === 'approved' ? 'موافق عليه' : data.status === 'rejected' ? 'مرفوض' : data.status;const actionsCell = row.insertCell();if (data.status === 'pending_approval') {const approveButton = document.createElement('button');approveButton.textContent = 'موافقة';approveButton.onclick = () => updateSacrificeStatus(docSnapshot.id, 'approved');actionsCell.appendChild(approveButton);const rejectButton = document.createElement('button');rejectButton.textContent = 'رفض';rejectButton.style.backgroundColor = '#dc3545';rejectButton.style.marginRight = '5px';rejectButton.onclick = () => updateSacrificeStatus(docSnapshot.id, 'rejected');actionsCell.appendChild(rejectButton);} else if (data.status === 'approved' || data.status === 'rejected') {const revertButton = document.createElement('button');revertButton.textContent = 'إعادة للمراجعة';revertButton.style.backgroundColor = '#ffc107';revertButton.onclick = () => updateSacrificeStatus(docSnapshot.id, 'pending_approval');actionsCell.appendChild(revertButton);}});}async function updateSacrificeStatus(docId, newStatus) {const sacrificeRef = doc(db, "sacrifices", docId);try {await updateDoc(sacrificeRef, {status: newStatus});/* console.log(`Document ${docId} status updated to ${newStatus}`); */ } catch (error) {console.error("Error updating document status: ", error); alert('حدث خطأ أثناء تحديث الحالة: ' + error.message);}}function fetchAndRenderSacrifices(statusFilter = null) {loadingMessage.textContent = 'جاري تحميل البيانات...';loadingMessage.style.display = 'block';sacrificesTableBody.innerHTML = '';let q = collection(db, "sacrifices");if (statusFilter) {q = query(q, where("status", "==", statusFilter), orderBy("createdAt", "desc"));} else {q = query(q, orderBy("createdAt", "desc"));}onSnapshot(q, (querySnapshot) => {renderSacrifices(querySnapshot);}, (error) => {console.error("Error fetching documents: ", error);loadingMessage.textContent = 'حدث خطأ أثناء جلب البيانات: ' + error.message;sacrificesTableBody.innerHTML = `<tr><td colspan="14">خطأ في تحميل البيانات.</td></tr>`;});}document.getElementById('filterPending').addEventListener('click', () => fetchAndRenderSacrifices('pending_approval'));document.getElementById('filterApproved').addEventListener('click', () => fetchAndRenderSacrifices('approved'));document.getElementById('filterRejected').addEventListener('click', () => fetchAndRenderSacrifices('rejected'));document.getElementById('filterAll').addEventListener('click', () => fetchAndRenderSacrifices(null));
+      function renderSacrificesForUser(docs) {
+          userSacrificesTableBody.innerHTML = '';
+          if (docs.empty) {
+              userLoadingMessage.textContent = 'ليس لديك أي تسجيلات حالية.';
+              userLoadingMessage.style.display = 'block';
+              userSacrificesTableBody.innerHTML = '<tr><td colspan="4">لا توجد تسجيلات.</td></tr>';
+              return;
+          }
+          userLoadingMessage.style.display = 'none';
+
+          docs.forEach((docSnapshot) => {
+              const data = docSnapshot.data();
+              const row = userSacrificesTableBody.insertRow();
+              row.insertCell().textContent = data.donorName || '';
+              row.insertCell().textContent = data.sacrificeFor || '';
+              row.insertCell().textContent = formatFirestoreTimestamp(data.createdAt);
+              row.insertCell().textContent = data.status === 'pending_approval' ? 'قيد المراجعة' : 
+                                           data.status === 'approved' ? 'موافق عليه' :
+                                           data.status === 'rejected' ? 'مرفوض' : data.status;
+          });
+      }
+
+      function fetchAndRenderSacrificesForUser(userId) {
+          userLoadingMessage.textContent = 'جاري تحميل تسجيلاتك...';
+          userLoadingMessage.style.display = 'block';
+          userSacrificesTableBody.innerHTML = '';
+
+          const q = query(collection(db, "sacrifices"), where("userId", "==", userId), orderBy("createdAt", "desc"));
+          
+          onSnapshot(q, (querySnapshot) => {
+              renderSacrificesForUser(querySnapshot);
+          }, (error) => {
+              console.error("Error fetching user documents: ", error);
+              userLoadingMessage.textContent = 'حدث خطأ أثناء جلب تسجيلاتك: ' + error.message;
+              userSacrificesTableBody.innerHTML = `<tr><td colspan="4">خطأ في تحميل البيانات.</td></tr>`;
+          });
+      }
+      // --- *** نهاية: دوال عرض البيانات للمستخدم العادي *** ---
+
 
       onAuthStateChanged(auth, (user) => {
           if (user) {
-              // console.log("--- onAuthStateChanged: User is SIGNED IN ---"); // تم التعليق
-              // console.log("User object:", user); // تم التعليق
-              // console.log("User UID from auth state:", user.uid); // تم التعليق
-              // console.log("ADMIN_UID defined in code:", ADMIN_UID); // تم التعليق
-              // console.log("Comparison (user.uid === ADMIN_UID):", user.uid === ADMIN_UID); // تم التعليق
               authStatus.textContent = `مرحباً بك، ${user.email}`;
               authStatus.className = 'success';
               loginSection.style.display = 'none'; 
               logoutButton.style.display = 'inline-block'; 
               hrAfterLogout.style.display = 'block';
               dataEntrySection.style.display = 'block'; 
+
               if (user.uid === ADMIN_UID) {
-                  // console.log("ADMIN ACCESS GRANTED: Showing admin section."); // تم التعليق
                   adminViewSection.style.display = 'block'; 
-                  fetchAndRenderSacrifices(null); 
+                  userDataViewSection.style.display = 'none'; // إخفاء جدول المستخدم العادي إذا كان المدير
+                  fetchAndRenderSacrificesForAdmin(null); 
               } else {
-                  // console.log("ADMIN ACCESS DENIED: Hiding admin section. User is not the defined admin."); // تم التعليق
                   adminViewSection.style.display = 'none';
+                  userDataViewSection.style.display = 'block'; // إظهار جدول المستخدم العادي
+                  fetchAndRenderSacrificesForUser(user.uid); // جلب بيانات المستخدم العادي
               }
           } else {
-              // console.log("--- onAuthStateChanged: User is SIGNED OUT ---"); // تم التعليق
               authStatus.textContent = 'يرجى تسجيل الدخول للوصول.';
               authStatus.className = '';
               loginSection.style.display = 'block'; 
               dataEntrySection.style.display = 'none'; 
               adminViewSection.style.display = 'none'; 
+              userDataViewSection.style.display = 'none'; // إخفاء جدول المستخدم العادي عند الخروج
               logoutButton.style.display = 'none';
               hrAfterLogout.style.display = 'none';
               if (sacrificesTableBody) sacrificesTableBody.innerHTML = ''; 
+              if (userSacrificesTableBody) userSacrificesTableBody.innerHTML = ''; // مسح جدول المستخدم العادي
               if (loadingMessage) loadingMessage.textContent = 'يرجى تسجيل الدخول لعرض البيانات.';
+              if (userLoadingMessage) userLoadingMessage.textContent = 'يرجى تسجيل الدخول لعرض تسجيلاتك.';
           }
       });
 
-      if (loginForm) {
-        loginForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const email = loginForm.email.value;
-            const password = loginForm.password.value;
-            // console.log("Login form submitted. Attempting to sign in with email:", email); // تم التعليق
-            signInWithEmailAndPassword(auth, email, password)
-                .then((userCredential) => {
-                    // console.log("signInWithEmailAndPassword successful:", userCredential.user); // تم التعليق
-                })
-                .catch((error) => {
-                    console.error("Error signing in:", error); // مهم إبقاء هذا
-                    authStatus.textContent = `خطأ في تسجيل الدخول: ${error.message}`;
-                    authStatus.className = 'error';
-                });
-        });
-      }
-
-      if (logoutButton) {
-        logoutButton.addEventListener('click', () => {
-            // console.log("Logout button clicked. Attempting to sign out."); // تم التعليق
-            signOut(auth).then(() => {
-                // console.log("Signed out successfully (from signOut promise)"); // تم التعليق
-            }).catch((error) => {
-                console.error("Error signing out:", error); // مهم إبقاء هذا
-                authStatus.textContent = `خطأ في تسجيل الخروج: ${error.message}`;
-                authStatus.className = 'error';
-            });
-        });
-      }
+      if (loginForm) { /* ... (دالة تسجيل الدخول كما هي) ... */ }
+      if (logoutButton) { /* ... (دالة تسجيل الخروج كما هي) ... */ }
     </script>
 </body>
 </html>
