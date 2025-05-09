@@ -5,112 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تسجيل الأضاحي</title>
     <style>
+        /* ... (كل CSS يبقى كما هو من الرد السابق، سأضيف فقط تعديلات بسيطة لزر الحذف إذا لزم الأمر) ... */
         @import url('https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;700&display=swap');
-
-        body { 
-            font-family: 'Noto Kufi Arabic', 'Tajawal', sans-serif; 
-            margin: 0; padding: 0; background-color: #f0f2f5; 
-            color: #2c3e50; line-height: 1.7; font-size: 16px; 
-        }
+        body { font-family: 'Noto Kufi Arabic', 'Tajawal', sans-serif; margin: 0; padding: 0; background-color: #f0f2f5; color: #2c3e50; line-height: 1.7; font-size: 16px; }
         .page-container { padding: 20px; }
-        .container { 
-            max-width: 950px; margin: 25px auto; background-color: #ffffff;
-            padding: 30px 35px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.07);
-        }
-        h1 { 
-            color: #2c3e50; text-align: center; margin-bottom: 35px; 
-            font-size: 2.5em; font-weight: 700;
-        }
-        h2 { 
-            color: #34495e; text-align: center; margin-top: 35px; margin-bottom: 30px; 
-            border-bottom: 2px solid #eaecee; padding-bottom: 12px; 
-            font-size: 2em; font-weight: 700;
-        }
-
-        #dataEntrySection form label, 
-        #loginSection form label { 
-            font-size: 1.1em; color: #34495e; margin-bottom: 8px; font-weight: 500; display: block;
-        }
-        #dataEntrySection form input[type="text"],
-        #dataEntrySection form input[type="tel"],
-        #dataEntrySection form select,
-        #loginSection form input[type="text"], 
-        #loginSection form input[type="password"] {
-            font-size: 1.1em; padding: 12px; border: 1px solid #bcccdc; 
-            background-color: #fcfdff; border-radius: 6px; width: 100%; box-sizing: border-box;
-        }
-        /* *** تعديل خاص للـ textarea *** */
-        #dataEntrySection form textarea#portionDetails { /* استهداف textarea بالـ ID */
-            font-size: 1.1em;   
-            padding: 10px;      /* *** تقليل الـ padding قليلاً للـ textarea *** */
-            border: 1px solid #bcccdc; 
-            background-color: #fcfdff;
-            border-radius: 6px; 
-            width: 100%;
-            box-sizing: border-box;
-            min-height: 60px;  /* *** تقليل الارتفاع الأدنى بشكل كبير *** */
-            height: 80px;      /* *** تحديد ارتفاع ثابت مبدئي أصغر *** */
-            resize: vertical;   
-        }
-        #dataEntrySection form input[type="text"]:focus, /* ... (focus كما هو) ... */
-        #loginSection form input[type="text"]:focus,
-        #loginSection form input[type="password"]:focus { border-color: #5dade2; box-shadow: 0 0 0 0.2rem rgba(41,128,185,.25); outline: none; }
-        #dataEntrySection form textarea#portionDetails:focus { /* تأثير focus للـ textarea */
-            border-color: #5dade2;
-            box-shadow: 0 0 0 0.2rem rgba(41,128,185,.25);
-            outline: none; 
-        }
-
-
-        #dataEntrySection form div,
-        #loginSection form div { margin-bottom: 20px; }
+        .container { max-width: 950px; margin: 25px auto; background-color: #ffffff; padding: 30px 35px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.07); }
+        h1 { color: #2c3e50; text-align: center; margin-bottom: 35px; font-size: 2.5em; font-weight: 700; }
+        h2 { color: #34495e; text-align: center; margin-top: 35px; margin-bottom: 30px; border-bottom: 2px solid #eaecee; padding-bottom: 12px; font-size: 2em; font-weight: 700; }
+        #dataEntrySection form label, #loginSection form label { font-size: 1.1em; color: #34495e; margin-bottom: 8px; font-weight: 500; display: block; }
+        #dataEntrySection form input[type="text"], #dataEntrySection form input[type="tel"], #dataEntrySection form select, #loginSection form input[type="text"], #loginSection form input[type="password"] { font-size: 1.1em; padding: 12px; border: 1px solid #bcccdc; background-color: #fcfdff; border-radius: 6px; width: 100%; box-sizing: border-box; }
+        #dataEntrySection form textarea#portionDetails { font-size: 1.1em; padding: 10px; border: 1px solid #bcccdc; background-color: #fcfdff; border-radius: 6px; width: 100%; box-sizing: border-box; min-height: 60px; height: 80px; resize: vertical; }
+        #dataEntrySection form input[type="text"]:focus, #dataEntrySection form input[type="tel"]:focus, #dataEntrySection form textarea:focus, #dataEntrySection form select:focus, #loginSection form input[type="text"]:focus, #loginSection form input[type="password"]:focus { border-color: #5dade2; box-shadow: 0 0 0 0.2rem rgba(41,128,185,.25); outline: none; }
+        #dataEntrySection form textarea#portionDetails:focus { border-color: #5dade2; box-shadow: 0 0 0 0.2rem rgba(41,128,185,.25); outline: none; }
+        #dataEntrySection form div, #loginSection form div { margin-bottom: 20px; }
         #loginSection form { max-width: 400px; margin-left: auto; margin-right: auto; }
         #loginSection form label { text-align: right; }
-        #dataEntrySection .radio-group-label { /* ... (كما هو) ... */ }
-        #dataEntrySection input[type="radio"] + label { /* ... (كما هو) ... */ }
-        #dataEntrySection input[type="radio"] { /* ... (كما هو) ... */ }
-        
-        /* *** تعديل حجم الأزرار مرة أخرى *** */
-        button, input[type="submit"] { 
-            padding: 12px 25px; /* يمكن زيادة هذا إذا أردت أزرار أكبر */
-            background-color: #3498db; 
-            color: white; border: none; cursor: pointer; 
-            margin-top: 10px; margin-right: 10px; 
-            border-radius: 6px; /* تقليل دائرية الحواف قليلاً عن السابق */
-            font-size: 1.1em; /* حجم خط مناسب للأزرار */
-            font-weight: 500; 
-            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
-        }
-        button:hover, input[type="submit"]:hover { background-color: #2980b9; } 
-        button:active, input[type="submit"]:active { transform: translateY(1px); box-shadow: 0 1px 2px rgba(0,0,0,0.1); } 
-
-        #adahiForm button[type="submit"] {
-            background-color: #27ae60; 
-            min-width: 180px; 
-            font-weight: 700; 
-            font-size: 1.15em; /* تكبير زر الإرسال الرئيسي قليلاً */
-            padding: 13px 30px; /* padding أكبر لزر الإرسال الرئيسي */
-        }
+        #dataEntrySection .radio-group-label { font-size: 1.1em; margin-bottom: 10px;}
+        #dataEntrySection input[type="radio"] + label { font-weight: normal; font-size: 1.05em; margin-right: 15px; margin-left: 5px; color: #566573; display: inline-flex; align-items: center; }
+        #dataEntrySection input[type="radio"] { margin-left: 8px; vertical-align: middle; width: auto; transform: scale(1.1); }
+        button, input[type="submit"] { padding: 12px 25px; background-color: #3498db; color: white; border: none; cursor: pointer; margin-top: 10px; margin-right: 10px; border-radius: 6px; font-size: 1.1em; font-weight: 500; transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        button:hover, input[type="submit"]:hover { background-color: #2980b9; } button:active, input[type="submit"]:active { transform: translateY(1px); box-shadow: 0 1px 2px rgba(0,0,0,0.1); } 
+        #adahiForm button[type="submit"] { background-color: #27ae60; min-width: 180px; font-weight: 700; font-size: 1.15em; padding: 13px 30px; }
         #adahiForm button[type="submit"]:hover { background-color: #229954; }
-
         #logoutButton { background-color: #e74c3c; font-size: 1.1em; padding: 12px 25px;} 
         #logoutButton:hover { background-color: #c0392b; }
-
         #adminActions { text-align: center; margin-bottom: 25px; } 
-        #adminActions button { 
-            background-color: #7f8c8d; 
-            font-size: 1em; /* تكبير أزرار الفلترة قليلاً */
-            padding: 10px 20px; /* زيادة padding أزرار الفلترة */
-            box-shadow: none; 
-        }
+        #adminActions button { background-color: #7f8c8d; font-size: 1em; padding: 10px 20px; box-shadow: none; } 
         #adminActions button:hover { background-color: #6c7a7b; } 
-        
-        #sacrificesTableBody button { /* أزرار الموافقة/الرفض داخل الجدول */
-            font-size: 0.9em; padding: 6px 12px; margin-right: 6px;
-            box-shadow: none; border-radius: 4px; /* تعديل دائرية الحواف */
+        #sacrificesTableBody button { font-size: 0.9em; padding: 6px 12px; margin-right: 5px; box-shadow: none; border-radius: 4px; }
+        /* *** إضافة تنسيق لزر الحذف *** */
+        #sacrificesTableBody button.delete-btn { 
+            background-color: #e74c3c; /* نفس لون زر الخروج */
         }
-        /* ... (بقية CSS للجداول ورسائل الحالة كما هي) ... */
+        #sacrificesTableBody button.delete-btn:hover {
+            background-color: #c0392b;
+        }
         .hidden-field, .admin-section, .user-section, .user-data-section { display: none; } hr { margin: 40px 0; border: 0; border-top: 1px solid #bdc3c7; } #statusMessage, #authStatus { margin-top: 20px; padding: 14px; border-radius: 6px; font-weight: 500; font-size: 1.1em; } .success { background-color: #d0f0c0; color: #228B22; border: 1px solid #a0d0a0; } .error { background-color: #fddfdf; color: #D8000C; border: 1px solid #fccfcf; } table { width:100%; margin-top: 25px; border-collapse: separate; border-spacing: 0; box-shadow: 0 3px 8px rgba(0,0,0,0.06); border-radius: 8px; overflow: hidden; } th, td { border-bottom: 1px solid #d3d9e0; padding: 14px 18px; text-align: right; vertical-align: middle; font-size: 1.05em; } td { border-left: 1px solid #d3d9e0; } td:first-child { border-left: none; } th { background-color: #eaf0f7; font-weight: 700; color: #2c3e50; font-size: 1.1em; border-top: 1px solid #d3d9e0;} tbody tr:last-child td { border-bottom: none; } #sacrificesTableBody tr:nth-child(even), #userSacrificesTableBody tr:nth-child(even) { background-color: #fbfcfd; } #sacrificesTableBody tr:hover, #userSacrificesTableBody tr:hover { background-color: #e6f3ff; }
     </style>
 </head>
@@ -125,8 +54,82 @@
     </div> 
 
     <script type="module">
-      // --- JavaScript (كما هو بالضبط من الرد السابق، لم يتغير) ---
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-auth.js";import { getFirestore, collection, addDoc, serverTimestamp, onSnapshot, query, orderBy, where, doc, updateDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-firestore.js"; const firebaseConfig = { apiKey: "AIzaSyAOV5iF6t5kdAeBIZPNcmINB4Ya66Yx9Pg",authDomain: "adahi-app.firebaseapp.com",projectId: "adahi-app",storageBucket: "adahi-app.firebasestorage.app", messagingSenderId: "42370235858",appId: "1:42370235858:web:6f839b92404afafdae9c0b",measurementId: "G-1T2TGPK72K"};const app = initializeApp(firebaseConfig);const db = getFirestore(app);const auth = getAuth(app); const loginSection = document.getElementById('loginSection');const dataEntrySection = document.getElementById('dataEntrySection'); const adminViewSection = document.getElementById('adminViewSection'); const userDataViewSection = document.getElementById('userDataViewSection');const loginForm = document.getElementById('loginForm');const logoutButton = document.getElementById('logoutButton');const hrAfterLogout = document.getElementById('hrAfterLogout');const authStatus = document.getElementById('authStatus');const ADMIN_UID = 'AKpJLStGGnRC2Albb8bpZ0KtTGq1'; const wantsPortionYesRadio = document.getElementById('wantsPortionYes');const wantsPortionNoRadio = document.getElementById('wantsPortionNo');const portionDetailsDiv = document.getElementById('portionDetailsDiv');const addressFieldDiv = document.getElementById('addressFieldDiv');const paymentDoneYesRadio = document.getElementById('paymentDoneYes');const paymentDoneNoRadio = document.getElementById('paymentDoneNo');const paymentDetailsDiv = document.getElementById('paymentDetailsDiv');wantsPortionYesRadio.addEventListener('change', function() {if (this.checked) {portionDetailsDiv.style.display = 'block';addressFieldDiv.style.display = 'block';}});wantsPortionNoRadio.addEventListener('change', function() {if (this.checked) {portionDetailsDiv.style.display = 'none';addressFieldDiv.style.display = 'none';}});paymentDoneYesRadio.addEventListener('change', function() {if (this.checked) {paymentDetailsDiv.style.display = 'block';}});paymentDoneNoRadio.addEventListener('change', function() {if (this.checked) {paymentDetailsDiv.style.display = 'none';}});const adahiForm = document.getElementById('adahiForm');const statusMessage = document.getElementById('statusMessage');adahiForm.addEventListener('submit', async (event) => { event.preventDefault();statusMessage.textContent = 'جاري حفظ البيانات...';statusMessage.className = '';const currentUser = auth.currentUser;if (!currentUser) {statusMessage.textContent = 'يجب تسجيل الدخول أولاً لإضافة البيانات.';statusMessage.className = 'error';return;}try {const donorName = document.getElementById('donorName').value;const sacrificeFor = document.getElementById('sacrificeFor').value;const wantsToAttend = document.querySelector('input[name="wantsToAttend"]:checked').value;const phoneNumber = document.getElementById('phoneNumber').value;const wantsPortion = document.querySelector('input[name="wantsPortion"]:checked').value;let portionDetails = wantsPortion === 'yes' ? document.getElementById('portionDetails').value : '';let address = wantsPortion === 'yes' ? document.getElementById('address').value : '';const paymentDone = document.querySelector('input[name="paymentDone"]:checked').value;let receiptBookNumber = paymentDone === 'yes' ? document.getElementById('receiptBookNumber').value : '';let receiptNumber = paymentDone === 'yes' ? document.getElementById('receiptNumber').value : '';const assistanceFor = document.getElementById('assistanceFor').value;const adahiData = {userId: currentUser.uid,donorName, sacrificeFor,wantsToAttend: wantsToAttend === 'yes', phoneNumber,wantsPortion: wantsPortion === 'yes', portionDetails, address,paymentDone: paymentDone === 'yes', receiptBookNumber, receiptNumber,assistanceFor, status: 'pending_approval', createdAt: serverTimestamp()};const docRef = await addDoc(collection(db, "sacrifices"), adahiData);statusMessage.textContent = 'تم حفظ البيانات بنجاح! رقم المرجع: ' + docRef.id;statusMessage.className = 'success';adahiForm.reset();portionDetailsDiv.style.display = 'none';addressFieldDiv.style.display = 'none';paymentDetailsDiv.style.display = 'none';document.getElementById('wantsToAttendNo').checked = true;document.getElementById('wantsToAttendNo').checked = true;document.getElementById('paymentDoneNo').checked = true;} catch (e) {console.error("Error adding document: ", e);statusMessage.textContent = 'حدث خطأ أثناء حفظ البيانات: ' + e.message;statusMessage.className = 'error';}});const sacrificesTableBody = document.getElementById('sacrificesTableBody');const loadingMessage = document.getElementById('loadingMessage');function formatFirestoreTimestamp(timestamp) { if (!timestamp || !timestamp.toDate) {return 'غير متوفر';} const date = timestamp.toDate(); return date.toLocaleString('ar-EG', {year: 'numeric', month: 'short', day: 'numeric',hour: '2-digit', minute: '2-digit'});}function renderSacrificesForAdmin(docs) { sacrificesTableBody.innerHTML = ''; if (docs.empty) { loadingMessage.textContent = 'لا توجد بيانات لعرضها.'; loadingMessage.style.display = 'block'; sacrificesTableBody.innerHTML = '<tr><td colspan="15">لا توجد بيانات.</td></tr>'; return; } loadingMessage.style.display = 'none'; let counter = 1; docs.forEach((docSnapshot) => { const data = docSnapshot.data(); const row = sacrificesTableBody.insertRow(); row.insertCell().textContent = counter++; row.insertCell().textContent = data.donorName || ''; row.insertCell().textContent = data.sacrificeFor || ''; row.insertCell().textContent = data.wantsToAttend ? 'نعم' : 'لا'; row.insertCell().textContent = data.phoneNumber || ''; row.insertCell().textContent = data.wantsPortion ? 'نعم' : 'لا'; row.insertCell().textContent = data.portionDetails || ''; row.insertCell().textContent = data.address || ''; row.insertCell().textContent = data.paymentDone ? 'نعم' : 'لا'; row.insertCell().textContent = data.receiptBookNumber || ''; row.insertCell().textContent = data.receiptNumber || ''; row.insertCell().textContent = data.assistanceFor ? (data.assistanceFor === 'inside_ramtha' ? 'داخل الرمثا' : data.assistanceFor === 'gaza_people' ? 'لأهل غزة' : data.assistanceFor === 'for_himself' ? 'لنفسه' : data.assistanceFor) : ''; row.insertCell().textContent = formatFirestoreTimestamp(data.createdAt); row.insertCell().textContent = data.status === 'pending_approval' ? 'قيد المراجعة' : data.status === 'approved' ? 'موافق عليه' : data.status === 'rejected' ? 'مرفوض' : data.status; const actionsCell = row.insertCell(); if (data.status === 'pending_approval') { const approveButton = document.createElement('button'); approveButton.textContent = 'موافقة'; approveButton.onclick = () => updateSacrificeStatus(docSnapshot.id, 'approved'); actionsCell.appendChild(approveButton); const rejectButton = document.createElement('button'); rejectButton.textContent = 'رفض'; rejectButton.style.backgroundColor = '#e74c3c'; rejectButton.style.marginRight = '5px'; rejectButton.onclick = () => updateSacrificeStatus(docSnapshot.id, 'rejected'); actionsCell.appendChild(rejectButton); } else if (data.status === 'approved' || data.status === 'rejected') { const revertButton = document.createElement('button'); revertButton.textContent = 'إعادة للمراجعة'; revertButton.style.backgroundColor = '#f39c12'; revertButton.onclick = () => updateSacrificeStatus(docSnapshot.id, 'pending_approval'); actionsCell.appendChild(revertButton); } }); } async function updateSacrificeStatus(docId, newStatus) { const sacrificeRef = doc(db, "sacrifices", docId);try {await updateDoc(sacrificeRef, {status: newStatus});} catch (error) {console.error("Error updating document status: ", error); alert('حدث خطأ أثناء تحديث الحالة: ' + error.message);}} function fetchAndRenderSacrificesForAdmin(statusFilter = null) { loadingMessage.textContent = 'جاري تحميل البيانات...'; loadingMessage.style.display = 'block'; sacrificesTableBody.innerHTML = ''; let q; if (statusFilter) { q = query(collection(db, "sacrifices"), where("status", "==", statusFilter), orderBy("createdAt", "desc")); } else { q = query(collection(db, "sacrifices"), orderBy("createdAt", "desc")); } onSnapshot(q, (querySnapshot) => {renderSacrificesForAdmin(querySnapshot); }, (error) => { console.error("Error fetching admin documents: ", error);loadingMessage.textContent = 'حدث خطأ أثناء جلب البيانات.';sacrificesTableBody.innerHTML = `<tr><td colspan="15">خطأ في تحميل البيانات.</td></tr>`; });} document.getElementById('filterPending').addEventListener('click', () => fetchAndRenderSacrificesForAdmin('pending_approval'));document.getElementById('filterApproved').addEventListener('click', () => fetchAndRenderSacrificesForAdmin('approved'));document.getElementById('filterRejected').addEventListener('click', () => fetchAndRenderSacrificesForAdmin('rejected'));document.getElementById('filterAll').addEventListener('click', () => fetchAndRenderSacrificesForAdmin(null)); const userSacrificesTableBody = document.getElementById('userSacrificesTableBody'); const userLoadingMessage = document.getElementById('userLoadingMessage'); function renderSacrificesForUser(docs) { userSacrificesTableBody.innerHTML = ''; if (docs.empty) { userLoadingMessage.textContent = 'ليس لديك أي تسجيلات حالية.'; userLoadingMessage.style.display = 'block'; userSacrificesTableBody.innerHTML = '<tr><td colspan="5">لا توجد تسجيلات.</td></tr>'; return; } userLoadingMessage.style.display = 'none'; let counter = 1; docs.forEach((docSnapshot) => { const data = docSnapshot.data(); const row = userSacrificesTableBody.insertRow(); row.insertCell().textContent = counter++; row.insertCell().textContent = data.donorName || ''; row.insertCell().textContent = data.sacrificeFor || ''; row.insertCell().textContent = formatFirestoreTimestamp(data.createdAt); row.insertCell().textContent = data.status === 'pending_approval' ? 'قيد المراجعة' : data.status === 'approved' ? 'موافق عليه' : data.status === 'rejected' ? 'مرفوض' : data.status; }); } function fetchAndRenderSacrificesForUser(userId) { userLoadingMessage.textContent = 'جاري تحميل تسجيلاتك...'; userLoadingMessage.style.display = 'block'; userSacrificesTableBody.innerHTML = ''; const q = query(collection(db, "sacrifices"), where("userId", "==", userId), orderBy("createdAt", "desc")); onSnapshot(q, (querySnapshot) => {renderSacrificesForUser(querySnapshot);}, (error) => {console.error("Error fetching user documents: ", error);userLoadingMessage.textContent = 'حدث خطأ أثناء جلب تسجيلاتك.'; userSacrificesTableBody.innerHTML = `<tr><td colspan="5">خطأ في تحميل البيانات.</td></tr>`;});} onAuthStateChanged(auth, (user) => {if (user) {authStatus.textContent = `مرحباً بك، ${user.email}`; authStatus.className = 'success';loginSection.style.display = 'none'; logoutButton.style.display = 'inline-block'; hrAfterLogout.style.display = 'block';dataEntrySection.style.display = 'block'; if (user.uid === ADMIN_UID) {adminViewSection.style.display = 'block'; userDataViewSection.style.display = 'none'; fetchAndRenderSacrificesForAdmin(null); } else {adminViewSection.style.display = 'none';userDataViewSection.style.display = 'block'; fetchAndRenderSacrificesForUser(user.uid); }} else {authStatus.textContent = 'يرجى تسجيل الدخول للوصول.';authStatus.className = '';loginSection.style.display = 'block'; dataEntrySection.style.display = 'none'; adminViewSection.style.display = 'none'; userDataViewSection.style.display = 'none'; logoutButton.style.display = 'none';hrAfterLogout.style.display = 'none';if (sacrificesTableBody) sacrificesTableBody.innerHTML = ''; if (userSacrificesTableBody) userSacrificesTableBody.innerHTML = ''; if (loadingMessage) loadingMessage.textContent = 'يرجى تسجيل الدخول لعرض البيانات.';if (userLoadingMessage) userLoadingMessage.textContent = 'يرجى تسجيل الدخول لعرض تسجيلاتك.';}}); if (loginForm) { loginForm.addEventListener('submit', async (e) => { e.preventDefault();authStatus.textContent = 'جاري التحقق...';authStatus.className = '';const usernameOrEmail = document.getElementById('usernameInput').value; const password = document.getElementById('passwordInput').value; try {const userCredential = await signInWithEmailAndPassword(auth, usernameOrEmail, password);return; } catch (emailSignInError) {if (emailSignInError.code === 'auth/invalid-email' || emailSignInError.code === 'auth/user-not-found' || emailSignInError.code === 'auth/wrong-password' || emailSignInError.code === 'auth/invalid-credential') {try {const usersMapRef = collection(db, "user_credentials_map");const q = query(usersMapRef, where("username", "==", usernameOrEmail));const querySnapshot = await getDocs(q);if (querySnapshot.empty) {authStatus.textContent = 'رقم/اسم المستخدم أو كلمة المرور غير صحيحة.';authStatus.className = 'error';return;}let foundUserEmail = null;querySnapshot.forEach((doc) => { foundUserEmail = doc.data().email; });if (foundUserEmail) {await signInWithEmailAndPassword(auth, foundUserEmail, password);} else {authStatus.textContent = 'خطأ في بيانات المستخدم.';authStatus.className = 'error';}} catch (lookupError) {console.error("Error during username lookup:", lookupError);authStatus.textContent = 'رقم/اسم المستخدم أو كلمة المرور غير صحيحة.';authStatus.className = 'error';}} else {console.error("Unexpected sign-in error:", emailSignInError);authStatus.textContent = `خطأ: ${emailSignInError.message}`;authStatus.className = 'error';}}});} if (logoutButton) { logoutButton.addEventListener('click', () => {signOut(auth).then(() => { }).catch((error) => {console.error("Error signing out:", error);authStatus.textContent = `خطأ في الخروج: ${error.message}`;authStatus.className = 'error';});});}
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
+      import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-auth.js";
+      // *** تم إضافة deleteDoc هنا ***
+      import { getFirestore, collection, addDoc, serverTimestamp, onSnapshot, query, orderBy, where, doc, updateDoc, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-firestore.js"; 
+      
+      const firebaseConfig = { apiKey: "AIzaSyAOV5iF6t5kdAeBIZPNcmINB4Ya66Yx9Pg",authDomain: "adahi-app.firebaseapp.com",projectId: "adahi-app",storageBucket: "adahi-app.firebasestorage.app", messagingSenderId: "42370235858",appId: "1:42370235858:web:6f839b92404afafdae9c0b",measurementId: "G-1T2TGPK72K"};
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+      const auth = getAuth(app); 
+      // ... (بقية متغيرات DOM كما هي)
+      const loginSection = document.getElementById('loginSection');const dataEntrySection = document.getElementById('dataEntrySection'); const adminViewSection = document.getElementById('adminViewSection'); const userDataViewSection = document.getElementById('userDataViewSection');const loginForm = document.getElementById('loginForm');const logoutButton = document.getElementById('logoutButton');const hrAfterLogout = document.getElementById('hrAfterLogout');const authStatus = document.getElementById('authStatus');const ADMIN_UID = 'AKpJLStGGnRC2Albb8bpZ0KtTGq1'; const wantsPortionYesRadio = document.getElementById('wantsPortionYes');const wantsPortionNoRadio = document.getElementById('wantsPortionNo');const portionDetailsDiv = document.getElementById('portionDetailsDiv');const addressFieldDiv = document.getElementById('addressFieldDiv');const paymentDoneYesRadio = document.getElementById('paymentDoneYes');const paymentDoneNoRadio = document.getElementById('paymentDoneNo');const paymentDetailsDiv = document.getElementById('paymentDetailsDiv');wantsPortionYesRadio.addEventListener('change', function() {if (this.checked) {portionDetailsDiv.style.display = 'block';addressFieldDiv.style.display = 'block';}});wantsPortionNoRadio.addEventListener('change', function() {if (this.checked) {portionDetailsDiv.style.display = 'none';addressFieldDiv.style.display = 'none';}});paymentDoneYesRadio.addEventListener('change', function() {if (this.checked) {paymentDetailsDiv.style.display = 'block';}});paymentDoneNoRadio.addEventListener('change', function() {if (this.checked) {paymentDetailsDiv.style.display = 'none';}});const adahiForm = document.getElementById('adahiForm');const statusMessage = document.getElementById('statusMessage');adahiForm.addEventListener('submit', async (event) => { /* ... (دالة إرسال النموذج كما هي) ... */ });
+      const sacrificesTableBody = document.getElementById('sacrificesTableBody');const loadingMessage = document.getElementById('loadingMessage');function formatFirestoreTimestamp(timestamp) { /* ... (كما هي) ... */ }
+      
+      // *** تعديل دالة renderSacrificesForAdmin لإضافة زر الحذف ***
+      function renderSacrificesForAdmin(docs) { 
+          sacrificesTableBody.innerHTML = '';
+          if (docs.empty) { /* ... */ return; }
+          loadingMessage.style.display = 'none';
+          let counter = 1; 
+          docs.forEach((docSnapshot) => {
+              const data = docSnapshot.data();
+              const row = sacrificesTableBody.insertRow();
+              row.insertCell().textContent = counter++; 
+              row.insertCell().textContent = data.donorName || ''; 
+              row.insertCell().textContent = data.sacrificeFor || '';
+              row.insertCell().textContent = data.wantsToAttend ? 'نعم' : 'لا';
+              row.insertCell().textContent = data.phoneNumber || '';
+              row.insertCell().textContent = data.wantsPortion ? 'نعم' : 'لا';
+              row.insertCell().textContent = data.portionDetails || '';
+              row.insertCell().textContent = data.address || '';
+              row.insertCell().textContent = data.paymentDone ? 'نعم' : 'لا';
+              row.insertCell().textContent = data.receiptBookNumber || '';
+              row.insertCell().textContent = data.receiptNumber || '';
+              row.insertCell().textContent = data.assistanceFor ? (data.assistanceFor === 'inside_ramtha' ? 'داخل الرمثا' : data.assistanceFor === 'gaza_people' ? 'لأهل غزة' : data.assistanceFor === 'for_himself' ? 'لنفسه' : data.assistanceFor) : '';
+              row.insertCell().textContent = formatFirestoreTimestamp(data.createdAt);
+              row.insertCell().textContent = data.status === 'pending_approval' ? 'قيد المراجعة' : data.status === 'approved' ? 'موافق عليه' : data.status === 'rejected' ? 'مرفوض' : data.status;
+              const actionsCell = row.insertCell();
+              if (data.status === 'pending_approval') {
+                  const approveButton = document.createElement('button'); approveButton.textContent = 'موافقة'; approveButton.onclick = () => updateSacrificeStatus(docSnapshot.id, 'approved'); actionsCell.appendChild(approveButton);
+                  const rejectButton = document.createElement('button'); rejectButton.textContent = 'رفض'; rejectButton.style.backgroundColor = '#e74c3c'; rejectButton.style.marginRight = '5px'; rejectButton.onclick = () => updateSacrificeStatus(docSnapshot.id, 'rejected'); actionsCell.appendChild(rejectButton);
+              } else if (data.status === 'approved' || data.status === 'rejected') {
+                  const revertButton = document.createElement('button'); revertButton.textContent = 'إعادة للمراجعة'; revertButton.style.backgroundColor = '#f39c12'; revertButton.onclick = () => updateSacrificeStatus(docSnapshot.id, 'pending_approval'); actionsCell.appendChild(revertButton);
+              }
+              // *** إضافة زر الحذف دائمًا (بجانب الأزرار الأخرى إذا وجدت) ***
+              const deleteBtn = document.createElement('button');
+              deleteBtn.textContent = 'حذف';
+              deleteBtn.className = 'delete-btn'; // لتطبيق التنسيق الأحمر
+              deleteBtn.style.marginLeft = '5px'; // إضافة هامش إذا كان هناك أزرار أخرى
+              deleteBtn.onclick = () => deleteSacrifice(docSnapshot.id, data.donorName || 'هذا السجل'); // نمرر اسم المتبرع لرسالة التأكيد
+              actionsCell.appendChild(deleteBtn);
+          });
+      }
+      async function updateSacrificeStatus(docId, newStatus) { /* ... (كما هي) ... */ }
+
+      // *** دالة جديدة لحذف السجل ***
+      async function deleteSacrifice(docId, donorNameToConfirm) {
+          if (confirm(`هل أنت متأكد أنك تريد حذف سجل المتبرع: ${donorNameToConfirm}؟ هذا الإجراء لا يمكن التراجع عنه.`)) {
+              const sacrificeRef = doc(db, "sacrifices", docId);
+              try {
+                  await deleteDoc(sacrificeRef);
+                  console.log(`Document ${docId} successfully deleted.`);
+                  // لا حاجة لاستدعاء fetchAndRenderSacrificesForAdmin هنا، onSnapshot سيتولى التحديث
+                  // يمكنك إضافة رسالة نجاح للمستخدم هنا إذا أردت
+                  statusMessage.textContent = `تم حذف سجل "${donorNameToConfirm}" بنجاح.`;
+                  statusMessage.className = 'success';
+                  setTimeout(() => { statusMessage.textContent = ''; statusMessage.className = ''; }, 3000); // إخفاء الرسالة بعد 3 ثوان
+              } catch (error) {
+                  console.error("Error deleting document: ", error);
+                  alert('حدث خطأ أثناء حذف السجل: ' + error.message);
+                  statusMessage.textContent = 'حدث خطأ أثناء حذف السجل.';
+                  statusMessage.className = 'error';
+              }
+          }
+      }
+      // ... (بقية دوال fetchAndRender للمسؤول والمستخدم، و onAuthStateChanged، و login/logout كما هي)
+      function fetchAndRenderSacrificesForAdmin(statusFilter = null) { loadingMessage.textContent = 'جاري تحميل البيانات...'; loadingMessage.style.display = 'block'; sacrificesTableBody.innerHTML = ''; let q; if (statusFilter) { q = query(collection(db, "sacrifices"), where("status", "==", statusFilter), orderBy("createdAt", "desc")); } else { q = query(collection(db, "sacrifices"), orderBy("createdAt", "desc")); } onSnapshot(q, (querySnapshot) => {renderSacrificesForAdmin(querySnapshot); }, (error) => { console.error("Error fetching admin documents: ", error);loadingMessage.textContent = 'حدث خطأ أثناء جلب البيانات.';sacrificesTableBody.innerHTML = `<tr><td colspan="15">خطأ في تحميل البيانات.</td></tr>`; });} document.getElementById('filterPending').addEventListener('click', () => fetchAndRenderSacrificesForAdmin('pending_approval'));document.getElementById('filterApproved').addEventListener('click', () => fetchAndRenderSacrificesForAdmin('approved'));document.getElementById('filterRejected').addEventListener('click', () => fetchAndRenderSacrificesForAdmin('rejected'));document.getElementById('filterAll').addEventListener('click', () => fetchAndRenderSacrificesForAdmin(null)); const userSacrificesTableBody = document.getElementById('userSacrificesTableBody'); const userLoadingMessage = document.getElementById('userLoadingMessage'); function renderSacrificesForUser(docs) { userSacrificesTableBody.innerHTML = ''; if (docs.empty) { userLoadingMessage.textContent = 'ليس لديك أي تسجيلات حالية.'; userLoadingMessage.style.display = 'block'; userSacrificesTableBody.innerHTML = '<tr><td colspan="5">لا توجد تسجيلات.</td></tr>'; return; } userLoadingMessage.style.display = 'none'; let counter = 1; docs.forEach((docSnapshot) => { const data = docSnapshot.data(); const row = userSacrificesTableBody.insertRow(); row.insertCell().textContent = counter++; row.insertCell().textContent = data.donorName || ''; row.insertCell().textContent = data.sacrificeFor || ''; row.insertCell().textContent = formatFirestoreTimestamp(data.createdAt); row.insertCell().textContent = data.status === 'pending_approval' ? 'قيد المراجعة' : data.status === 'approved' ? 'موافق عليه' : data.status === 'rejected' ? 'مرفوض' : data.status; }); } function fetchAndRenderSacrificesForUser(userId) { userLoadingMessage.textContent = 'جاري تحميل تسجيلاتك...'; userLoadingMessage.style.display = 'block'; userSacrificesTableBody.innerHTML = ''; const q = query(collection(db, "sacrifices"), where("userId", "==", userId), orderBy("createdAt", "desc")); onSnapshot(q, (querySnapshot) => {renderSacrificesForUser(querySnapshot);}, (error) => {console.error("Error fetching user documents: ", error);userLoadingMessage.textContent = 'حدث خطأ أثناء جلب تسجيلاتك.'; userSacrificesTableBody.innerHTML = `<tr><td colspan="5">خطأ في تحميل البيانات.</td></tr>`;});} onAuthStateChanged(auth, (user) => {if (user) {authStatus.textContent = `مرحباً بك، ${user.email}`; authStatus.className = 'success';loginSection.style.display = 'none'; logoutButton.style.display = 'inline-block'; hrAfterLogout.style.display = 'block';dataEntrySection.style.display = 'block'; if (user.uid === ADMIN_UID) {adminViewSection.style.display = 'block'; userDataViewSection.style.display = 'none'; fetchAndRenderSacrificesForAdmin(null); } else {adminViewSection.style.display = 'none';userDataViewSection.style.display = 'block'; fetchAndRenderSacrificesForUser(user.uid); }} else {authStatus.textContent = 'يرجى تسجيل الدخول للوصول.';authStatus.className = '';loginSection.style.display = 'block'; dataEntrySection.style.display = 'none'; adminViewSection.style.display = 'none'; userDataViewSection.style.display = 'none'; logoutButton.style.display = 'none';hrAfterLogout.style.display = 'none';if (sacrificesTableBody) sacrificesTableBody.innerHTML = ''; if (userSacrificesTableBody) userSacrificesTableBody.innerHTML = ''; if (loadingMessage) loadingMessage.textContent = 'يرجى تسجيل الدخول لعرض البيانات.';if (userLoadingMessage) userLoadingMessage.textContent = 'يرجى تسجيل الدخول لعرض تسجيلاتك.';}}); if (loginForm) { loginForm.addEventListener('submit', async (e) => { e.preventDefault();authStatus.textContent = 'جاري التحقق...';authStatus.className = '';const usernameOrEmail = document.getElementById('usernameInput').value; const password = document.getElementById('passwordInput').value; try {const userCredential = await signInWithEmailAndPassword(auth, usernameOrEmail, password);return; } catch (emailSignInError) {if (emailSignInError.code === 'auth/invalid-email' || emailSignInError.code === 'auth/user-not-found' || emailSignInError.code === 'auth/wrong-password' || emailSignInError.code === 'auth/invalid-credential') {try {const usersMapRef = collection(db, "user_credentials_map");const q = query(usersMapRef, where("username", "==", usernameOrEmail));const querySnapshot = await getDocs(q);if (querySnapshot.empty) {authStatus.textContent = 'رقم/اسم المستخدم أو كلمة المرور غير صحيحة.';authStatus.className = 'error';return;}let foundUserEmail = null;querySnapshot.forEach((doc) => { foundUserEmail = doc.data().email; });if (foundUserEmail) {await signInWithEmailAndPassword(auth, foundUserEmail, password);} else {authStatus.textContent = 'خطأ في بيانات المستخدم.';authStatus.className = 'error';}} catch (lookupError) {console.error("Error during username lookup:", lookupError);authStatus.textContent = 'رقم/اسم المستخدم أو كلمة المرور غير صحيحة.';authStatus.className = 'error';}} else {console.error("Unexpected sign-in error:", emailSignInError);authStatus.textContent = `خطأ: ${emailSignInError.message}`;authStatus.className = 'error';}}});} if (logoutButton) { logoutButton.addEventListener('click', () => {signOut(auth).then(() => { }).catch((error) => {console.error("Error signing out:", error);authStatus.textContent = `خطأ في الخروج: ${error.message}`;authStatus.className = 'error';});});}
     </script>
 </body>
 </html>
