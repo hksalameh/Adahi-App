@@ -31,16 +31,12 @@
         <h2>تسجيل الدخول</h2>
         <form id="loginForm">
             <div>
-                <!-- *** التعديل هنا *** -->
                 <label for="usernameInput">رقم/اسم المستخدم:</label>
                 <input type="text" id="usernameInput" name="usernameInput" required> 
-                <!-- كان سابقًا حقل "email" -->
             </div>
             <div>
-                <!-- *** التعديل هنا (اختياري للتناسق، لكن مهم تغيير الـ id و name إذا كان JavaScript يعتمد عليهما للاسم القديم) *** -->
                 <label for="passwordInput">كلمة المرور:</label>
                 <input type="password" id="passwordInput" name="passwordInput" required>
-                <!-- كان سابقًا "password"، لكن تغيير الـ id و name هنا قد يكون جيدًا إذا أردنا التمييز -->
             </div>
             <button type="submit">دخول</button>
         </form>
@@ -94,6 +90,7 @@
       import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
       // import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-analytics.js";
       import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-auth.js";
+      // *** تم إضافة getDocs هنا ***
       import { getFirestore, collection, addDoc, serverTimestamp, onSnapshot, query, orderBy, where, doc, updateDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-firestore.js"; 
       
       const firebaseConfig = { 
@@ -127,7 +124,7 @@
 
       onAuthStateChanged(auth, (user) => {
           if (user) {
-              authStatus.textContent = `مرحباً بك، ${user.email}`;
+              authStatus.textContent = `مرحباً بك، ${user.email}`; // سيعرض البريد الإلكتروني حتى لو دخل بالرقم
               authStatus.className = 'success';
               loginSection.style.display = 'none'; 
               logoutButton.style.display = 'inline-block'; 
@@ -158,27 +155,78 @@
           }
       });
 
-      // *** الكود الخاص بتسجيل الدخول هنا لم يتم تعديله بعد ليتعامل مع "رقم/اسم المستخدم" ***
-      // *** سيبقى يعمل بالبريد الإلكتروني مؤقتًا حتى نعدله في الخطوة التالية ***
+      // --- *** بداية: تعديل منطق تسجيل الدخول ليدعم رقم/اسم المستخدم *** ---
       if (loginForm) { 
-          loginForm.addEventListener('submit', (e) => {
+          loginForm.addEventListener('submit', async (e) => { 
             e.preventDefault();
-            // الشيفرة الحالية تقرأ من loginForm.email.value و loginForm.password.value
-            // بسبب تغيير الـ id في HTML، يجب أن نقرأ من الـ ids الجديدة
-            const usernameOrEmail = document.getElementById('usernameInput').value; // *** تم التعديل ليقرأ من الحقل الجديد ***
-            const password = document.getElementById('passwordInput').value; // *** تم التعديل ليقرأ من الحقل الجديد ***
+            authStatus.textContent = 'جاري التحقق...';
+            authStatus.className = '';
 
-            // مؤقتًا، سنحاول تسجيل الدخول كما لو أن usernameOrEmail هو بريد إلكتروني
-            // سنعدل هذا المنطق بالكامل في الخطوة التالية
-            signInWithEmailAndPassword(auth, usernameOrEmail, password)
-                .then((userCredential) => { /* onAuthStateChanged handles UI */ })
-                .catch((error) => {
-                    console.error("Error signing in:", error);
-                    authStatus.textContent = `خطأ في تسجيل الدخول: ${error.message}`;
+            const usernameOrEmail = document.getElementById('usernameInput').value; 
+            const password = document.getElementById('passwordInput').value; 
+
+            // الخطوة 1: محاولة تسجيل الدخول مباشرة بالمدخل كبريد إلكتروني
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, usernameOrEmail, password);
+                // نجح تسجيل الدخول بالبريد الإلكتروني، onAuthStateChanged سيتولى الباقي
+                // console.log("Signed in directly with email:", userCredential.user.email);
+                return; 
+            } catch (emailSignInError) {
+                // فشل تسجيل الدخول بالبريد، قد يكون المدخل هو رقم مستخدم أو خطأ في كلمة المرور للبريد
+                // console.log("Direct email sign-in failed, attempting username lookup. Error code:", emailSignInError.code);
+
+                // الخطوة 2: إذا فشل تسجيل الدخول بالبريد، نفترض أن المدخل هو رقم/اسم مستخدم ونبحث عنه
+                // نستمر فقط إذا كان الخطأ يشير إلى أن البريد غير صالح أو المستخدم غير موجود أو بيانات اعتماد خاطئة
+                // (لتجنب محاولة البحث إذا كان هناك خطأ شبكة مثلاً)
+                if (emailSignInError.code === 'auth/invalid-email' || 
+                    emailSignInError.code === 'auth/user-not-found' || 
+                    emailSignInError.code === 'auth/wrong-password' || // خطأ شائع آخر
+                    emailSignInError.code === 'auth/invalid-credential') {
+                    try {
+                        const usersMapRef = collection(db, "user_credentials_map");
+                        const q = query(usersMapRef, where("username", "==", usernameOrEmail));
+                        const querySnapshot = await getDocs(q);
+
+                        if (querySnapshot.empty) {
+                            authStatus.textContent = 'رقم/اسم المستخدم أو كلمة المرور غير صحيحة.';
+                            authStatus.className = 'error';
+                            // console.log("Username not found in map:", usernameOrEmail);
+                            return;
+                        }
+
+                        let foundUserEmail = null;
+                        querySnapshot.forEach((doc) => { // يجب أن يكون هناك مستند واحد فقط إذا كان username فريدًا
+                            foundUserEmail = doc.data().email; 
+                        });
+
+                        if (foundUserEmail) {
+                            // تم العثور على البريد الإلكتروني، حاول تسجيل الدخول به
+                            await signInWithEmailAndPassword(auth, foundUserEmail, password);
+                            // نجح تسجيل الدخول، onAuthStateChanged سيتولى الباقي
+                            // console.log("Signed in via username lookup, actual email used:", foundUserEmail);
+                        } else {
+                            // هذا لا يجب أن يحدث إذا لم تكن querySnapshot فارغة، لكن كاحتياط
+                            authStatus.textContent = 'خطأ في بيانات المستخدم (لم يتم العثور على بريد مطابق).';
+                            authStatus.className = 'error';
+                        }
+
+                    } catch (lookupError) {
+                        console.error("Error during username lookup or secondary sign-in:", lookupError);
+                        // عرض رسالة خطأ أكثر عمومية للمستخدم إذا فشل البحث أو تسجيل الدخول الثاني
+                        authStatus.textContent = 'رقم/اسم المستخدم أو كلمة المرور غير صحيحة.';
+                        authStatus.className = 'error';
+                    }
+                } else {
+                    // خطأ آخر في تسجيل الدخول بالبريد غير متوقع (مثل خطأ شبكة)
+                    console.error("Unexpected error signing in with email:", emailSignInError);
+                    authStatus.textContent = `خطأ في تسجيل الدخول: ${emailSignInError.message}`;
                     authStatus.className = 'error';
-                });
+                }
+            }
           });
       }
+      // --- *** نهاية: تعديل منطق تسجيل الدخول *** ---
+
       if (logoutButton) { 
           logoutButton.addEventListener('click', () => {
             signOut(auth).then(() => { /* onAuthStateChanged handles UI */ })
