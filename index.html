@@ -8,12 +8,12 @@
         @import url('https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;700&display=swap');
 
         body { 
-            font-family: 'Noto Kufi Arabic', 'Tajawal', sans-serif; /* تغيير الخط الأساسي إلى Noto Kufi Arabic */
+            font-family: 'Noto Kufi Arabic', 'Tajawal', sans-serif; 
             margin: 0; padding: 0; 
-            background-color: #f0f2f5; /* درجة أفتح قليلاً للخلفية */
-            color: #2c3e50;  /* لون نص أغمق قليلاً وأكثر دفئًا */
-            line-height: 1.7; /* زيادة تباعد الأسطر */
-            font-size: 16px; /* تحديد حجم خط أساسي للصفحة */
+            background-color: #f0f2f5; 
+            color: #2c3e50;  
+            line-height: 1.7; 
+            font-size: 16px; 
         }
         .page-container { padding: 20px; }
         .container { 
@@ -28,7 +28,7 @@
             color: #2c3e50; 
             text-align: center;
             margin-bottom: 35px; 
-            font-size: 2.5em; /* تكبير خط العنوان الرئيسي */
+            font-size: 2.5em; 
             font-weight: 700;
         }
         h2 { 
@@ -38,17 +38,16 @@
             margin-bottom: 30px; 
             border-bottom: 2px solid #eaecee; 
             padding-bottom: 12px; 
-            font-size: 2em; /* تكبير خط H2 */
+            font-size: 2em; 
             font-weight: 700;
         }
 
-        /* --- تحسينات نموذج الإدخال --- */
         #dataEntrySection form label, 
         #loginSection form label { 
-            font-size: 1.2em; /* *** تكبير خط الـ label *** */
+            font-size: 1.2em; 
             color: #34495e; 
             margin-bottom: 10px; 
-            font-weight: 500; /* متوسط الثقل */
+            font-weight: 500; 
         }
         #dataEntrySection form input[type="text"],
         #dataEntrySection form input[type="tel"],
@@ -56,13 +55,16 @@
         #dataEntrySection form select,
         #loginSection form input[type="text"],
         #loginSection form input[type="password"] {
-            font-size: 1.1em; /* *** تكبير خط حقول الإدخال *** */
-            padding: 14px; /* *** زيادة الـ padding داخل الحقول *** */
+            font-size: 1.1em; 
+            padding: 14px; 
             border: 1px solid #bcccdc; 
             background-color: #fcfdff;
-            border-radius: 6px; /* زيادة دائرية الحواف */
+            border-radius: 6px; 
         }
-        #dataEntrySection form input[type="text"]:focus, /* ... (تأثير focus كما هو) ... */
+        #dataEntrySection form input[type="text"]:focus,
+        #dataEntrySection form input[type="tel"]:focus,
+        #dataEntrySection form textarea:focus,
+        #dataEntrySection form select:focus,
         #loginSection form input[type="text"]:focus,
         #loginSection form input[type="password"]:focus { 
             border-color: #5dade2;
@@ -71,47 +73,45 @@
         }
         #dataEntrySection form div,
         #loginSection form div { 
-            margin-bottom: 25px; /* *** زيادة التباعد بين مجموعات الحقول *** */
+            margin-bottom: 25px; 
         }
-        /* تنسيق خاص لأزرار الراديو */
-        #dataEntrySection .radio-group-label { /* Label لمجموعة الراديو */
-             margin-bottom: 10px; /* تباعد سفلي للسؤال الرئيسي للراديو */
+        #dataEntrySection .radio-group-label {
+             margin-bottom: 10px; 
         }
         #dataEntrySection input[type="radio"] + label {
             font-weight: normal; 
-            font-size: 1.05em; /* *** تكبير خط خيارات الراديو *** */
+            font-size: 1.05em; 
             margin-right: 15px; 
             margin-left: 5px;
             color: #566573;
-            display: inline-flex; /* لتحسين المحاذاة */
-            align-items: center; /* محاذاة رأسية */
+            display: inline-flex; 
+            align-items: center; 
         }
         #dataEntrySection input[type="radio"] {
             margin-left: 8px; 
             vertical-align: middle;
-            width: auto; /* لمنع الراديو من أخذ عرض كامل */
-            transform: scale(1.1); /* تكبير حجم زر الراديو قليلاً */
+            width: auto; 
+            transform: scale(1.1); 
         }
-        /* --- نهاية تحسينات نموذج الإدخال --- */
         
         button, input[type="submit"] { 
             padding: 12px 28px; 
-            background-color: #3498db; /* لون أزرق مختلف قليلاً */
+            background-color: #3498db; 
             color: white; border: none; cursor: pointer; 
             margin-top: 10px; margin-right: 10px; 
             border-radius: 8px; 
-            font-size: 1.1em; /* *** تكبير خط الأزرار *** */
+            font-size: 1.1em; 
             font-weight: 500; 
             transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* إضافة ظل خفيف للأزرار */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
         }
         button:hover, input[type="submit"]:hover { background-color: #2980b9; }
         button:active, input[type="submit"]:active { transform: translateY(1px); box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
 
         #adahiForm button[type="submit"] {
-            background-color: #27ae60; /* أخضر مختلف */
+            background-color: #27ae60; 
             min-width: 180px; 
-            font-weight: 700; /* أثقل لزر الإرسال الرئيسي */
+            font-weight: 700; 
         }
         #adahiForm button[type="submit"]:hover { background-color: #229954; }
 
@@ -123,7 +123,7 @@
             background-color: #7f8c8d; 
             font-size: 0.95em; 
             padding: 10px 18px;
-            box-shadow: none; /* إزالة الظل من أزرار الفلترة */
+            box-shadow: none; 
         }
         #adminActions button:hover { background-color: #6c7a7b; }
         
@@ -135,21 +135,20 @@
         .hidden-field, .admin-section, .user-section, .user-data-section { display: none; }
         hr { margin: 40px 0; border: 0; border-top: 1px solid #bdc3c7; }
         #statusMessage, #authStatus { margin-top: 20px; padding: 14px; border-radius: 6px; font-weight: 500; font-size: 1.1em; }
-        .success { background-color: #d0f0c0; color: #228B22; border: 1px solid #a0d0a0; } /* أخضر فاتح للنجاح */
-        .error { background-color: #fddfdf; color: #D8000C; border: 1px solid #fccfcf; } /* أحمر فاتح للخطأ */
+        .success { background-color: #d0f0c0; color: #228B22; border: 1px solid #a0d0a0; } 
+        .error { background-color: #fddfdf; color: #D8000C; border: 1px solid #fccfcf; } 
         
-        table { width:100%; margin-top: 25px; border-collapse: separate; border-spacing: 0; box-shadow: 0 3px 8px rgba(0,0,0,0.06); border-radius: 8px; overflow: hidden; /* لإظهار الحواف الدائرية مع الحدود */ }
-        th, td { border-bottom: 1px solid #d3d9e0; padding: 14px 18px; text-align: right; vertical-align: middle; font-size: 1.05em; /* *** تكبير خط الجدول *** */ }
-        td { border-left: 1px solid #d3d9e0; } /* إضافة حدود يسارية للخلايا للتمييز */
-        td:first-child { border-left: none; } /* إزالة الحد الأيسر لأول خلية */
+        table { width:100%; margin-top: 25px; border-collapse: separate; border-spacing: 0; box-shadow: 0 3px 8px rgba(0,0,0,0.06); border-radius: 8px; overflow: hidden; }
+        th, td { border-bottom: 1px solid #d3d9e0; padding: 14px 18px; text-align: right; vertical-align: middle; font-size: 1.05em; }
+        td { border-left: 1px solid #d3d9e0; } 
+        td:first-child { border-left: none; } 
         th { background-color: #eaf0f7; font-weight: 700; color: #2c3e50; font-size: 1.1em; border-top: 1px solid #d3d9e0;}
-        /* إزالة الحدود من آخر صف في الجدول */
         tbody tr:last-child td { border-bottom: none; }
 
         #sacrificesTableBody tr:nth-child(even),
         #userSacrificesTableBody tr:nth-child(even) { background-color: #fbfcfd; }
         #sacrificesTableBody tr:hover,
-        #userSacrificesTableBody tr:hover { background-color: #e6f3ff; } /* لون hover أزرق فاتح */
+        #userSacrificesTableBody tr:hover { background-color: #e6f3ff; }
     </style>
 </head>
 <body>
@@ -158,7 +157,15 @@
             <h1>موقع تسجيل الأضاحي</h1>
             <div id="authStatus"></div> 
 
-            <div id="loginSection"> /* ... (بقية HTML كما هو بدون تغيير في الهيكل، فقط التنسيقات أعلاه ستؤثر عليه) ... */ </div>
+            <div id="loginSection">
+                <h2>تسجيل الدخول</h2>
+                <form id="loginForm">
+                    <div><label for="usernameInput">رقم/اسم المستخدم:</label><input type="text" id="usernameInput" name="usernameInput" required></div>
+                    <div><label for="passwordInput">كلمة المرور:</label><input type="password" id="passwordInput" name="passwordInput" required></div>
+                    <button type="submit">دخول</button>
+                </form>
+            </div>
+            
             <button id="logoutButton" class="hidden-field">تسجيل الخروج</button> <hr class="hidden-field" id="hrAfterLogout">
 
             <div id="dataEntrySection" class="user-section"> 
@@ -206,7 +213,9 @@
 
             <div id="adminViewSection" class="admin-section"> 
                 <h2>سجلات الأضاحي المسجلة</h2>
-                <div id="adminActions"> /* ... (أزرار الفلترة كما هي) ... */ </div>
+                <div id="adminActions">
+                    <button id="filterPending">عرض قيد المراجعة فقط</button><button id="filterApproved">عرض الموافق عليها فقط</button><button id="filterRejected">عرض المرفوضة فقط</button><button id="filterAll">عرض الكل</button>
+                </div>
                 <div id="sacrificesTableContainer">
                     <p id="loadingMessage">جاري تحميل البيانات...</p>
                     <table id="sacrificesTable" border="1">
@@ -219,45 +228,117 @@
     </div> 
 
     <script type="module">
-      // --- JavaScript ---
-      // (الكود هنا سيحتوي على تعديلات لإضافة الرقم التسلسلي "م." إلى الجداول)
-      // سأقوم بوضع الكود كاملاً مع تعديلات JavaScript في الرد التالي لتجنب طول هذا الرد.
-      // حاليًا، هذا الكود أعلاه يركز على تعديلات CSS و HTML للهيكل.
-      // انسخ الجزء الخاص بالـ JavaScript من الكود السابق الذي كان يعمل لديك وضعه هنا مؤقتًا.
-      // أو انتظر الكود الكامل مع تعديلات JavaScript في ردي التالي.
-      // --- نهاية JavaScript ---
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-auth.js";import { getFirestore, collection, addDoc, serverTimestamp, onSnapshot, query, orderBy, where, doc, updateDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-firestore.js"; const firebaseConfig = { apiKey: "AIzaSyAOV5iF6t5kdAeBIZPNcmINB4Ya66Yx9Pg",authDomain: "adahi-app.firebaseapp.com",projectId: "adahi-app",storageBucket: "adahi-app.firebasestorage.app", messagingSenderId: "42370235858",appId: "1:42370235858:web:6f839b92404afafdae9c0b",measurementId: "G-1T2TGPK72K"};const app = initializeApp(firebaseConfig);const db = getFirestore(app);const auth = getAuth(app); const loginSection = document.getElementById('loginSection');const dataEntrySection = document.getElementById('dataEntrySection'); const adminViewSection = document.getElementById('adminViewSection'); const userDataViewSection = document.getElementById('userDataViewSection');const loginForm = document.getElementById('loginForm');const logoutButton = document.getElementById('logoutButton');const hrAfterLogout = document.getElementById('hrAfterLogout');const authStatus = document.getElementById('authStatus');const ADMIN_UID = 'AKpJLStGGnRC2Albb8bpZ0KtTGq1'; const wantsPortionYesRadio = document.getElementById('wantsPortionYes');const wantsPortionNoRadio = document.getElementById('wantsPortionNo');const portionDetailsDiv = document.getElementById('portionDetailsDiv');const addressFieldDiv = document.getElementById('addressFieldDiv');const paymentDoneYesRadio = document.getElementById('paymentDoneYes');const paymentDoneNoRadio = document.getElementById('paymentDoneNo');const paymentDetailsDiv = document.getElementById('paymentDetailsDiv');wantsPortionYesRadio.addEventListener('change', function() {if (this.checked) {portionDetailsDiv.style.display = 'block';addressFieldDiv.style.display = 'block';}});wantsPortionNoRadio.addEventListener('change', function() {if (this.checked) {portionDetailsDiv.style.display = 'none';addressFieldDiv.style.display = 'none';}});paymentDoneYesRadio.addEventListener('change', function() {if (this.checked) {paymentDetailsDiv.style.display = 'block';}});paymentDoneNoRadio.addEventListener('change', function() {if (this.checked) {paymentDetailsDiv.style.display = 'none';}});const adahiForm = document.getElementById('adahiForm');const statusMessage = document.getElementById('statusMessage');adahiForm.addEventListener('submit', async (event) => { event.preventDefault();statusMessage.textContent = 'جاري حفظ البيانات...';statusMessage.className = '';const currentUser = auth.currentUser;if (!currentUser) {statusMessage.textContent = 'يجب تسجيل الدخول أولاً لإضافة البيانات.';statusMessage.className = 'error';return;}try {const donorName = document.getElementById('donorName').value;const sacrificeFor = document.getElementById('sacrificeFor').value;const wantsToAttend = document.querySelector('input[name="wantsToAttend"]:checked').value;const phoneNumber = document.getElementById('phoneNumber').value;const wantsPortion = document.querySelector('input[name="wantsPortion"]:checked').value;let portionDetails = wantsPortion === 'yes' ? document.getElementById('portionDetails').value : '';let address = wantsPortion === 'yes' ? document.getElementById('address').value : '';const paymentDone = document.querySelector('input[name="paymentDone"]:checked').value;let receiptBookNumber = paymentDone === 'yes' ? document.getElementById('receiptBookNumber').value : '';let receiptNumber = paymentDone === 'yes' ? document.getElementById('receiptNumber').value : '';const assistanceFor = document.getElementById('assistanceFor').value;const adahiData = {userId: currentUser.uid,donorName, sacrificeFor,wantsToAttend: wantsToAttend === 'yes', phoneNumber,wantsPortion: wantsPortion === 'yes', portionDetails, address,paymentDone: paymentDone === 'yes', receiptBookNumber, receiptNumber,assistanceFor, status: 'pending_approval', createdAt: serverTimestamp()};const docRef = await addDoc(collection(db, "sacrifices"), adahiData);statusMessage.textContent = 'تم حفظ البيانات بنجاح! رقم المرجع: ' + docRef.id;statusMessage.className = 'success';adahiForm.reset();portionDetailsDiv.style.display = 'none';addressFieldDiv.style.display = 'none';paymentDetailsDiv.style.display = 'none';document.getElementById('wantsToAttendNo').checked = true;document.getElementById('wantsToAttendNo').checked = true;document.getElementById('paymentDoneNo').checked = true;} catch (e) {console.error("Error adding document: ", e);statusMessage.textContent = 'حدث خطأ أثناء حفظ البيانات: ' + e.message;statusMessage.className = 'error';}});const sacrificesTableBody = document.getElementById('sacrificesTableBody');const loadingMessage = document.getElementById('loadingMessage');function formatFirestoreTimestamp(timestamp) { if (!timestamp || !timestamp.toDate) {return 'غير متوفر';}const date = timestamp.toDate();return date.toLocaleString('ar-EG', {year: 'numeric', month: 'short', day: 'numeric',hour: '2-digit', minute: '2-digit'});}
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
+      import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-auth.js";
+      import { getFirestore, collection, addDoc, serverTimestamp, onSnapshot, query, orderBy, where, doc, updateDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-firestore.js"; 
+      
+      const firebaseConfig = { 
+        apiKey: "AIzaSyAOV5iF6t5kdAeBIZPNcmINB4Ya66Yx9Pg",
+        authDomain: "adahi-app.firebaseapp.com",
+        projectId: "adahi-app",
+        storageBucket: "adahi-app.firebasestorage.app", 
+        messagingSenderId: "42370235858",
+        appId: "1:42370235858:web:6f839b92404afafdae9c0b",
+        measurementId: "G-1T2TGPK72K"
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+      const auth = getAuth(app); 
+
+      const loginSection = document.getElementById('loginSection');
+      const dataEntrySection = document.getElementById('dataEntrySection'); 
+      const adminViewSection = document.getElementById('adminViewSection'); 
+      const userDataViewSection = document.getElementById('userDataViewSection');
+      const loginForm = document.getElementById('loginForm');
+      const logoutButton = document.getElementById('logoutButton');
+      const hrAfterLogout = document.getElementById('hrAfterLogout');
+      const authStatus = document.getElementById('authStatus');
+      const ADMIN_UID = 'AKpJLStGGnRC2Albb8bpZ0KtTGq1'; 
+
+      const wantsPortionYesRadio = document.getElementById('wantsPortionYes');const wantsPortionNoRadio = document.getElementById('wantsPortionNo');const portionDetailsDiv = document.getElementById('portionDetailsDiv');const addressFieldDiv = document.getElementById('addressFieldDiv');const paymentDoneYesRadio = document.getElementById('paymentDoneYes');const paymentDoneNoRadio = document.getElementById('paymentDoneNo');const paymentDetailsDiv = document.getElementById('paymentDetailsDiv');wantsPortionYesRadio.addEventListener('change', function() {if (this.checked) {portionDetailsDiv.style.display = 'block';addressFieldDiv.style.display = 'block';}});wantsPortionNoRadio.addEventListener('change', function() {if (this.checked) {portionDetailsDiv.style.display = 'none';addressFieldDiv.style.display = 'none';}});paymentDoneYesRadio.addEventListener('change', function() {if (this.checked) {paymentDetailsDiv.style.display = 'block';}});paymentDoneNoRadio.addEventListener('change', function() {if (this.checked) {paymentDetailsDiv.style.display = 'none';}});
+      const adahiForm = document.getElementById('adahiForm');const statusMessage = document.getElementById('statusMessage');adahiForm.addEventListener('submit', async (event) => { event.preventDefault();statusMessage.textContent = 'جاري حفظ البيانات...';statusMessage.className = '';const currentUser = auth.currentUser;if (!currentUser) {statusMessage.textContent = 'يجب تسجيل الدخول أولاً لإضافة البيانات.';statusMessage.className = 'error';return;}try {const donorName = document.getElementById('donorName').value;const sacrificeFor = document.getElementById('sacrificeFor').value;const wantsToAttend = document.querySelector('input[name="wantsToAttend"]:checked').value;const phoneNumber = document.getElementById('phoneNumber').value;const wantsPortion = document.querySelector('input[name="wantsPortion"]:checked').value;let portionDetails = wantsPortion === 'yes' ? document.getElementById('portionDetails').value : '';let address = wantsPortion === 'yes' ? document.getElementById('address').value : '';const paymentDone = document.querySelector('input[name="paymentDone"]:checked').value;let receiptBookNumber = paymentDone === 'yes' ? document.getElementById('receiptBookNumber').value : '';let receiptNumber = paymentDone === 'yes' ? document.getElementById('receiptNumber').value : '';const assistanceFor = document.getElementById('assistanceFor').value;const adahiData = {userId: currentUser.uid,donorName, sacrificeFor,wantsToAttend: wantsToAttend === 'yes', phoneNumber,wantsPortion: wantsPortion === 'yes', portionDetails, address,paymentDone: paymentDone === 'yes', receiptBookNumber, receiptNumber,assistanceFor, status: 'pending_approval', createdAt: serverTimestamp()};const docRef = await addDoc(collection(db, "sacrifices"), adahiData);statusMessage.textContent = 'تم حفظ البيانات بنجاح! رقم المرجع: ' + docRef.id;statusMessage.className = 'success';adahiForm.reset();portionDetailsDiv.style.display = 'none';addressFieldDiv.style.display = 'none';paymentDetailsDiv.style.display = 'none';document.getElementById('wantsToAttendNo').checked = true;document.getElementById('wantsToAttendNo').checked = true;document.getElementById('paymentDoneNo').checked = true;} catch (e) {console.error("Error adding document: ", e);statusMessage.textContent = 'حدث خطأ أثناء حفظ البيانات: ' + e.message;statusMessage.className = 'error';}});
+      
+      const sacrificesTableBody = document.getElementById('sacrificesTableBody');
+      const loadingMessage = document.getElementById('loadingMessage');
+      function formatFirestoreTimestamp(timestamp) { if (!timestamp || !timestamp.toDate) {return 'غير متوفر';} const date = timestamp.toDate(); return date.toLocaleString('ar-EG', {year: 'numeric', month: 'short', day: 'numeric',hour: '2-digit', minute: '2-digit'});}
+      
       function renderSacrificesForAdmin(docs) { 
           sacrificesTableBody.innerHTML = '';
-          if (docs.empty) { /* ... */ return; }
+          if (docs.empty) { 
+              loadingMessage.textContent = 'لا توجد بيانات لعرضها.';
+              loadingMessage.style.display = 'block';
+              sacrificesTableBody.innerHTML = '<tr><td colspan="15">لا توجد بيانات.</td></tr>'; // تم زيادة colspan ليناسب عمود "م."
+              return; 
+          }
           loadingMessage.style.display = 'none';
-          let counter = 1; // *** إضافة عداد للترقيم ***
+          let counter = 1; 
           docs.forEach((docSnapshot) => {
               const data = docSnapshot.data();
               const row = sacrificesTableBody.insertRow();
-              row.insertCell().textContent = counter++; // *** إضافة خلية الرقم التسلسلي ***
-              row.insertCell().textContent = data.donorName || ''; /* ... بقية الخلايا كما هي ... */
-              row.insertCell().textContent = data.sacrificeFor || '';row.insertCell().textContent = data.wantsToAttend ? 'نعم' : 'لا';row.insertCell().textContent = data.phoneNumber || '';row.insertCell().textContent = data.wantsPortion ? 'نعم' : 'لا';row.insertCell().textContent = data.portionDetails || '';row.insertCell().textContent = data.address || '';row.insertCell().textContent = data.paymentDone ? 'نعم' : 'لا';row.insertCell().textContent = data.receiptBookNumber || '';row.insertCell().textContent = data.receiptNumber || '';row.insertCell().textContent = data.assistanceFor ? (data.assistanceFor === 'inside_ramtha' ? 'داخل الرمثا' : data.assistanceFor === 'gaza_people' ? 'لأهل غزة' : data.assistanceFor === 'for_himself' ? 'لنفسه' : data.assistanceFor) : '';row.insertCell().textContent = formatFirestoreTimestamp(data.createdAt);row.insertCell().textContent = data.status === 'pending_approval' ? 'قيد المراجعة' : data.status === 'approved' ? 'موافق عليه' : data.status === 'rejected' ? 'مرفوض' : data.status;const actionsCell = row.insertCell();if (data.status === 'pending_approval') {const approveButton = document.createElement('button');approveButton.textContent = 'موافقة';approveButton.onclick = () => updateSacrificeStatus(docSnapshot.id, 'approved');actionsCell.appendChild(approveButton);const rejectButton = document.createElement('button');rejectButton.textContent = 'رفض';rejectButton.style.backgroundColor = '#e74c3c';rejectButton.style.marginRight = '5px';rejectButton.onclick = () => updateSacrificeStatus(docSnapshot.id, 'rejected');actionsCell.appendChild(rejectButton);} else if (data.status === 'approved' || data.status === 'rejected') {const revertButton = document.createElement('button');revertButton.textContent = 'إعادة للمراجعة';revertButton.style.backgroundColor = '#f39c12';revertButton.onclick = () => updateSacrificeStatus(docSnapshot.id, 'pending_approval');actionsCell.appendChild(revertButton);}
+              row.insertCell().textContent = counter++; 
+              row.insertCell().textContent = data.donorName || '';
+              row.insertCell().textContent = data.sacrificeFor || '';
+              row.insertCell().textContent = data.wantsToAttend ? 'نعم' : 'لا';
+              row.insertCell().textContent = data.phoneNumber || '';
+              row.insertCell().textContent = data.wantsPortion ? 'نعم' : 'لا';
+              row.insertCell().textContent = data.portionDetails || '';
+              row.insertCell().textContent = data.address || '';
+              row.insertCell().textContent = data.paymentDone ? 'نعم' : 'لا';
+              row.insertCell().textContent = data.receiptBookNumber || '';
+              row.insertCell().textContent = data.receiptNumber || '';
+              row.insertCell().textContent = data.assistanceFor ? (data.assistanceFor === 'inside_ramtha' ? 'داخل الرمثا' : data.assistanceFor === 'gaza_people' ? 'لأهل غزة' : data.assistanceFor === 'for_himself' ? 'لنفسه' : data.assistanceFor) : '';
+              row.insertCell().textContent = formatFirestoreTimestamp(data.createdAt);
+              row.insertCell().textContent = data.status === 'pending_approval' ? 'قيد المراجعة' : data.status === 'approved' ? 'موافق عليه' : data.status === 'rejected' ? 'مرفوض' : data.status;
+              const actionsCell = row.insertCell();
+              if (data.status === 'pending_approval') {
+                  const approveButton = document.createElement('button'); approveButton.textContent = 'موافقة'; approveButton.onclick = () => updateSacrificeStatus(docSnapshot.id, 'approved'); actionsCell.appendChild(approveButton);
+                  const rejectButton = document.createElement('button'); rejectButton.textContent = 'رفض'; rejectButton.style.backgroundColor = '#e74c3c'; rejectButton.style.marginRight = '5px'; rejectButton.onclick = () => updateSacrificeStatus(docSnapshot.id, 'rejected'); actionsCell.appendChild(rejectButton);
+              } else if (data.status === 'approved' || data.status === 'rejected') {
+                  const revertButton = document.createElement('button'); revertButton.textContent = 'إعادة للمراجعة'; revertButton.style.backgroundColor = '#f39c12'; revertButton.onclick = () => updateSacrificeStatus(docSnapshot.id, 'pending_approval'); actionsCell.appendChild(revertButton);
+              }
           });
       }
       async function updateSacrificeStatus(docId, newStatus) { const sacrificeRef = doc(db, "sacrifices", docId);try {await updateDoc(sacrificeRef, {status: newStatus});} catch (error) {console.error("Error updating document status: ", error); alert('حدث خطأ أثناء تحديث الحالة: ' + error.message);}}
-      function fetchAndRenderSacrificesForAdmin(statusFilter = null) { /* ... كما هي ... */ onSnapshot(query(collection(db, "sacrifices"), statusFilter ? where("status", "==", statusFilter) : null, orderBy("createdAt", "desc")), (querySnapshot) => {renderSacrificesForAdmin(querySnapshot); }, (error) => { console.error("Error fetching admin documents: ", error);/* ... */ });}
+      function fetchAndRenderSacrificesForAdmin(statusFilter = null) { 
+          loadingMessage.textContent = 'جاري تحميل البيانات...'; loadingMessage.style.display = 'block'; sacrificesTableBody.innerHTML = '';
+          let q;
+          if (statusFilter) {
+              q = query(collection(db, "sacrifices"), where("status", "==", statusFilter), orderBy("createdAt", "desc"));
+          } else {
+              q = query(collection(db, "sacrifices"), orderBy("createdAt", "desc"));
+          }
+          onSnapshot(q, (querySnapshot) => {renderSacrificesForAdmin(querySnapshot); }, (error) => { console.error("Error fetching admin documents: ", error);loadingMessage.textContent = 'حدث خطأ أثناء جلب البيانات.';sacrificesTableBody.innerHTML = `<tr><td colspan="15">خطأ في تحميل البيانات.</td></tr>`; });
+      }
       document.getElementById('filterPending').addEventListener('click', () => fetchAndRenderSacrificesForAdmin('pending_approval'));document.getElementById('filterApproved').addEventListener('click', () => fetchAndRenderSacrificesForAdmin('approved'));document.getElementById('filterRejected').addEventListener('click', () => fetchAndRenderSacrificesForAdmin('rejected'));document.getElementById('filterAll').addEventListener('click', () => fetchAndRenderSacrificesForAdmin(null));
-      const userSacrificesTableBody = document.getElementById('userSacrificesTableBody');const userLoadingMessage = document.getElementById('userLoadingMessage');
+      
+      const userSacrificesTableBody = document.getElementById('userSacrificesTableBody');
+      const userLoadingMessage = document.getElementById('userLoadingMessage');
       function renderSacrificesForUser(docs) {
           userSacrificesTableBody.innerHTML = '';
-          if (docs.empty) { /* ... */ return; }
+          if (docs.empty) { 
+              userLoadingMessage.textContent = 'ليس لديك أي تسجيلات حالية.'; 
+              userLoadingMessage.style.display = 'block'; 
+              userSacrificesTableBody.innerHTML = '<tr><td colspan="5">لا توجد تسجيلات.</td></tr>'; // تم زيادة colspan ليناسب عمود "م."
+              return; 
+          }
           userLoadingMessage.style.display = 'none';
-          let counter = 1; // *** إضافة عداد للترقيم ***
+          let counter = 1;
           docs.forEach((docSnapshot) => {
               const data = docSnapshot.data();
               const row = userSacrificesTableBody.insertRow();
-              row.insertCell().textContent = counter++; // *** إضافة خلية الرقم التسلسلي ***
-              row.insertCell().textContent = data.donorName || ''; /* ... بقية الخلايا كما هي ... */
-              row.insertCell().textContent = data.sacrificeFor || '';row.insertCell().textContent = formatFirestoreTimestamp(data.createdAt);row.insertCell().textContent = data.status === 'pending_approval' ? 'قيد المراجعة' : data.status === 'approved' ? 'موافق عليه' : data.status === 'rejected' ? 'مرفوض' : data.status;
+              row.insertCell().textContent = counter++;
+              row.insertCell().textContent = data.donorName || '';
+              row.insertCell().textContent = data.sacrificeFor || '';
+              row.insertCell().textContent = formatFirestoreTimestamp(data.createdAt);
+              row.insertCell().textContent = data.status === 'pending_approval' ? 'قيد المراجعة' : data.status === 'approved' ? 'موافق عليه' : data.status === 'rejected' ? 'مرفوض' : data.status;
           });
       }
-      function fetchAndRenderSacrificesForUser(userId) { /* ... كما هي ... */ onSnapshot(query(collection(db, "sacrifices"), where("userId", "==", userId), orderBy("createdAt", "desc")), (querySnapshot) => {renderSacrificesForUser(querySnapshot);}, (error) => {console.error("Error fetching user documents: ", error);/* ... */});}
+      function fetchAndRenderSacrificesForUser(userId) { 
+          userLoadingMessage.textContent = 'جاري تحميل تسجيلاتك...'; userLoadingMessage.style.display = 'block'; userSacrificesTableBody.innerHTML = '';
+          const q = query(collection(db, "sacrifices"), where("userId", "==", userId), orderBy("createdAt", "desc"));
+          onSnapshot(q, (querySnapshot) => {renderSacrificesForUser(querySnapshot);}, (error) => {console.error("Error fetching user documents: ", error);userLoadingMessage.textContent = 'حدث خطأ أثناء جلب تسجيلاتك.'; userSacrificesTableBody.innerHTML = `<tr><td colspan="5">خطأ في تحميل البيانات.</td></tr>`;});
+      }
       onAuthStateChanged(auth, (user) => {if (user) {authStatus.textContent = `مرحباً بك، ${user.email}`; authStatus.className = 'success';loginSection.style.display = 'none'; logoutButton.style.display = 'inline-block'; hrAfterLogout.style.display = 'block';dataEntrySection.style.display = 'block'; if (user.uid === ADMIN_UID) {adminViewSection.style.display = 'block'; userDataViewSection.style.display = 'none'; fetchAndRenderSacrificesForAdmin(null); } else {adminViewSection.style.display = 'none';userDataViewSection.style.display = 'block'; fetchAndRenderSacrificesForUser(user.uid); }} else {authStatus.textContent = 'يرجى تسجيل الدخول للوصول.';authStatus.className = '';loginSection.style.display = 'block'; dataEntrySection.style.display = 'none'; adminViewSection.style.display = 'none'; userDataViewSection.style.display = 'none'; logoutButton.style.display = 'none';hrAfterLogout.style.display = 'none';if (sacrificesTableBody) sacrificesTableBody.innerHTML = ''; if (userSacrificesTableBody) userSacrificesTableBody.innerHTML = ''; if (loadingMessage) loadingMessage.textContent = 'يرجى تسجيل الدخول لعرض البيانات.';if (userLoadingMessage) userLoadingMessage.textContent = 'يرجى تسجيل الدخول لعرض تسجيلاتك.';}});
       if (loginForm) { loginForm.addEventListener('submit', async (e) => { e.preventDefault();authStatus.textContent = 'جاري التحقق...';authStatus.className = '';const usernameOrEmail = document.getElementById('usernameInput').value; const password = document.getElementById('passwordInput').value; try {const userCredential = await signInWithEmailAndPassword(auth, usernameOrEmail, password);return; } catch (emailSignInError) {if (emailSignInError.code === 'auth/invalid-email' || emailSignInError.code === 'auth/user-not-found' || emailSignInError.code === 'auth/wrong-password' || emailSignInError.code === 'auth/invalid-credential') {try {const usersMapRef = collection(db, "user_credentials_map");const q = query(usersMapRef, where("username", "==", usernameOrEmail));const querySnapshot = await getDocs(q);if (querySnapshot.empty) {authStatus.textContent = 'رقم/اسم المستخدم أو كلمة المرور غير صحيحة.';authStatus.className = 'error';return;}let foundUserEmail = null;querySnapshot.forEach((doc) => { foundUserEmail = doc.data().email; });if (foundUserEmail) {await signInWithEmailAndPassword(auth, foundUserEmail, password);} else {authStatus.textContent = 'خطأ في بيانات المستخدم.';authStatus.className = 'error';}} catch (lookupError) {console.error("Error during username lookup:", lookupError);authStatus.textContent = 'رقم/اسم المستخدم أو كلمة المرور غير صحيحة.';authStatus.className = 'error';}} else {console.error("Unexpected sign-in error:", emailSignInError);authStatus.textContent = `خطأ: ${emailSignInError.message}`;authStatus.className = 'error';}}});}
       if (logoutButton) { logoutButton.addEventListener('click', () => {signOut(auth).then(() => { }).catch((error) => {console.error("Error signing out:", error);authStatus.textContent = `خطأ في الخروج: ${error.message}`;authStatus.className = 'error';});});}
