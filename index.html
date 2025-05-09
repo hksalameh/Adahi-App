@@ -5,152 +5,107 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تسجيل الأضاحي</title>
     <style>
-        /* ... (التنسيقات كما هي) ... */
         body { font-family: sans-serif; margin: 20px; }
         label { display: block; margin-top: 10px; }
-        input[type="text"], input[type="tel"], textarea, select { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; }
+        input[type="text"], input[type="email"], input[type="password"], input[type="tel"], textarea, select { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; }
         button { padding: 10px 15px; background-color: #007bff; color: white; border: none; cursor: pointer; margin-top: 20px; }
         button:hover { background-color: #0056b3; }
-        .hidden-field { display: none; } 
+        .hidden-field, .admin-section, .user-section { display: none; } /* .admin-section و .user-section لإخفاء الأقسام مبدئيًا */
         hr { margin: 20px 0; }
-        #statusMessage { margin-top: 15px; padding: 10px; border-radius: 5px; }
+        #statusMessage, #authStatus { margin-top: 15px; padding: 10px; border-radius: 5px; }
         .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-        /* تنسيقات إضافية للجدول وأزرار الفلترة */
         #adminActions button { margin-left: 10px; margin-bottom: 10px; background-color: #6c757d; }
         #adminActions button:hover { background-color: #5a6268; }
         table { width:100%; margin-top: 15px; border-collapse: collapse; }
         th, td { border: 1px solid #dee2e6; padding: 8px; text-align: right; }
         th { background-color: #f8f9fa; }
+        #logoutButton { background-color: #dc3545; } /* لون مختلف لزر الخروج */
     </style>
 </head>
 <body>
     <h1>مرحباً بك في موقع تسجيل الأضاحي</h1>
-    <p>هذا هو الإصدار الأولي لموقعنا.</p>
-    <hr>
+    <div id="authStatus"></div> <!-- لعرض حالة المصادقة أو رسائل الخطأ -->
 
-    <h2>تسجيل أضحية/تبرع جديد</h2>
-    <form id="adahiForm">
-        <div>
+    <!-- *** بداية: قسم تسجيل الدخول *** -->
+    <div id="loginSection">
+        <h2>تسجيل الدخول للمسؤول</h2>
+        <form id="loginForm">
+            <div>
+                <label for="email">البريد الإلكتروني:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div>
+                <label for="password">كلمة المرور:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit">دخول</button>
+        </form>
+    </div>
+    <!-- *** نهاية: قسم تسجيل الدخول *** -->
+    
+    <button id="logoutButton" class="hidden-field">تسجيل الخروج</button> <hr class="hidden-field" id="hrAfterLogout">
+
+
+    <!-- *** بداية: قسم تسجيل أضحية (سيظهر بعد تسجيل الدخول) *** -->
+    <div id="dataEntrySection" class="user-section"> <!-- تم تغيير الـ ID وإضافة class -->
+        <p>هذا هو الإصدار الأولي لموقعنا.</p>
+        <hr>
+        <h2>تسجيل أضحية/تبرع جديد</h2>
+        <form id="adahiForm">
+            <!-- ... (محتوى نموذج adahiForm كما هو بدون تغيير) ... -->
+            <div>
             <label for="donorName">اسم المتبرع:</label>
             <input type="text" id="donorName" name="donorName" required>
-        </div>
-
-        <div>
-            <label for="sacrificeFor">الأضحية عن (اسم الشخص/الجهة):</label>
-            <input type="text" id="sacrificeFor" name="sacrificeFor" required>
-        </div>
-
-        <div>
-            <label>هل يريد الحضور؟</label>
-            <input type="radio" id="wantsToAttendYes" name="wantsToAttend" value="yes">
-            <label for="wantsToAttendYes" style="display: inline-block; margin-right: 10px;">نعم</label>
-            <input type="radio" id="wantsToAttendNo" name="wantsToAttend" value="no" checked>
-            <label for="wantsToAttendNo" style="display: inline-block;">لا</label>
-        </div>
-
-        <div> 
-            <label for="phoneNumber">رقم الهاتف (اختياري):</label>
-            <input type="tel" id="phoneNumber" name="phoneNumber">
-        </div>
-
-        <div>
-            <label>هل يريد جزءًا من الأضحية؟</label>
-            <input type="radio" id="wantsPortionYes" name="wantsPortion" value="yes">
-            <label for="wantsPortionYes" style="display: inline-block; margin-right: 10px;">نعم</label>
-            <input type="radio" id="wantsPortionNo" name="wantsPortion" value="no" checked>
-            <label for="wantsPortionNo" style="display: inline-block;">لا</label>
-        </div>
-
-        <div id="portionDetailsDiv" class="hidden-field"> 
-            <label for="portionDetails">ماذا يريد من الأضحية؟</label>
-            <textarea id="portionDetails" name="portionDetails" rows="3"></textarea>
-        </div>
-        
-        <div id="addressFieldDiv" class="hidden-field"> 
-            <label for="address">العنوان (اختياري لتوصيل الجزء):</label>
-            <input type="text" id="address" name="address">
-        </div>
-
-        <div>
-            <label>هل تم الدفع؟</label>
-            <input type="radio" id="paymentDoneYes" name="paymentDone" value="yes">
-            <label for="paymentDoneYes" style="display: inline-block; margin-right: 10px;">نعم</label>
-            <input type="radio" id="paymentDoneNo" name="paymentDone" value="no" checked>
-            <label for="paymentDoneNo" style="display: inline-block;">لا</label>
-        </div>
-
-        <div id="paymentDetailsDiv" class="hidden-field"> 
-            <div>
-                <label for="receiptBookNumber">رقم الدفتر:</label>
-                <input type="text" id="receiptBookNumber" name="receiptBookNumber">
             </div>
-            <div>
-                <label for="receiptNumber">رقم السند:</label>
-                <input type="text" id="receiptNumber" name="receiptNumber">
-            </div>
-        </div>
-
-        <div>
-            <label for="assistanceFor">لمن المساعدة (توزيع اللحم)؟</label>
-            <select id="assistanceFor" name="assistanceFor">
-                <option value="inside_ramtha">داخل الرمثا</option>
-                <option value="gaza_people">لأهل غزة</option>
-                <option value="for_himself">لنفسه (إذا كان سيأخذها كاملة)</option>
-            </select>
-        </div>
-        <br>
-        <button type="submit">تسجيل البيانات</button>
-    </form>
-    <div id="statusMessage"></div> 
-    <hr>
-
-    <!-- *** بداية: قسم عرض سجلات الأضاحي *** -->
-    <h2>سجلات الأضاحي المسجلة (للمسؤول)</h2>
-    <div id="adminActions">
-        <button id="filterPending">عرض قيد المراجعة فقط</button>
-        <button id="filterApproved">عرض الموافق عليها فقط</button>
-        <button id="filterRejected">عرض المرفوضة فقط</button>
-        <button id="filterAll">عرض الكل</button>
+            <div><label for="sacrificeFor">الأضحية عن (اسم الشخص/الجهة):</label><input type="text" id="sacrificeFor" name="sacrificeFor" required></div>
+            <div><label>هل يريد الحضور؟</label><input type="radio" id="wantsToAttendYes" name="wantsToAttend" value="yes"><label for="wantsToAttendYes" style="display: inline-block; margin-right: 10px;">نعم</label><input type="radio" id="wantsToAttendNo" name="wantsToAttend" value="no" checked><label for="wantsToAttendNo" style="display: inline-block;">لا</label></div>
+            <div><label for="phoneNumber">رقم الهاتف (اختياري):</label><input type="tel" id="phoneNumber" name="phoneNumber"></div>
+            <div><label>هل يريد جزءًا من الأضحية؟</label><input type="radio" id="wantsPortionYes" name="wantsPortion" value="yes"><label for="wantsPortionYes" style="display: inline-block; margin-right: 10px;">نعم</label><input type="radio" id="wantsPortionNo" name="wantsPortion" value="no" checked><label for="wantsPortionNo" style="display: inline-block;">لا</label></div>
+            <div id="portionDetailsDiv" class="hidden-field"><label for="portionDetails">ماذا يريد من الأضحية؟</label><textarea id="portionDetails" name="portionDetails" rows="3"></textarea></div>
+            <div id="addressFieldDiv" class="hidden-field"><label for="address">العنوان (اختياري لتوصيل الجزء):</label><input type="text" id="address" name="address"></div>
+            <div><label>هل تم الدفع؟</label><input type="radio" id="paymentDoneYes" name="paymentDone" value="yes"><label for="paymentDoneYes" style="display: inline-block; margin-right: 10px;">نعم</label><input type="radio" id="paymentDoneNo" name="paymentDone" value="no" checked><label for="paymentDoneNo" style="display: inline-block;">لا</label></div>
+            <div id="paymentDetailsDiv" class="hidden-field"><div><label for="receiptBookNumber">رقم الدفتر:</label><input type="text" id="receiptBookNumber" name="receiptBookNumber"></div><div><label for="receiptNumber">رقم السند:</label><input type="text" id="receiptNumber" name="receiptNumber"></div></div>
+            <div><label for="assistanceFor">لمن المساعدة (توزيع اللحم)؟</label><select id="assistanceFor" name="assistanceFor"><option value="inside_ramtha">داخل الرمثا</option><option value="gaza_people">لأهل غزة</option><option value="for_himself">لنفسه (إذا كان سيأخذها كاملة)</option></select></div>
+            <br><button type="submit">تسجيل البيانات</button>
+        </form>
+        <div id="statusMessage"></div> 
+        <hr>
     </div>
-    <div id="sacrificesTableContainer">
-        <p id="loadingMessage">جاري تحميل البيانات...</p>
-        <table id="sacrificesTable" border="1"> <!-- أزلت بعض التنسيقات المضمنة هنا، واستخدمت CSS أعلاه -->
-            <thead>
-                <tr>
-                    <th>اسم المتبرع</th>
-                    <th>الأضحية عن</th>
-                    <th>يريد الحضور</th>
-                    <th>رقم الهاتف</th>
-                    <th>يريد جزءًا</th>
-                    <th>تفاصيل الجزء</th>
-                    <th>العنوان</th>
-                    <th>تم الدفع</th>
-                    <th>رقم الدفتر</th>
-                    <th>رقم السند</th>
-                    <th>لمن المساعدة</th>
-                    <th>تاريخ التسجيل</th>
-                    <th>الحالة</th>
-                    <th>إجراءات</th>
-                </tr>
-            </thead>
-            <tbody id="sacrificesTableBody">
-                <!-- سيتم ملء الصفوف هنا بواسطة JavaScript -->
-            </tbody>
-        </table>
+    <!-- *** نهاية: قسم تسجيل أضحية *** -->
+
+    <!-- *** بداية: قسم عرض سجلات الأضاحي (سيظهر بعد تسجيل الدخول للمسؤول) *** -->
+    <div id="adminViewSection" class="admin-section"> <!-- تم تغيير الـ ID وإضافة class -->
+        <h2>سجلات الأضاحي المسجلة (للمسؤول)</h2>
+        <div id="adminActions">
+            <button id="filterPending">عرض قيد المراجعة فقط</button>
+            <button id="filterApproved">عرض الموافق عليها فقط</button>
+            <button id="filterRejected">عرض المرفوضة فقط</button>
+            <button id="filterAll">عرض الكل</button>
+        </div>
+        <div id="sacrificesTableContainer">
+            <p id="loadingMessage">جاري تحميل البيانات...</p>
+            <table id="sacrificesTable" border="1">
+                <thead>
+                    <tr>
+                        <th>اسم المتبرع</th><th>الأضحية عن</th><th>يريد الحضور</th><th>رقم الهاتف</th><th>يريد جزءًا</th><th>تفاصيل الجزء</th><th>العنوان</th><th>تم الدفع</th><th>رقم الدفتر</th><th>رقم السند</th><th>لمن المساعدة</th><th>تاريخ التسجيل</th><th>الحالة</th><th>إجراءات</th>
+                    </tr>
+                </thead>
+                <tbody id="sacrificesTableBody"></tbody>
+            </table>
+        </div>
+        <hr>
     </div>
-    <hr>
     <!-- *** نهاية: قسم عرض سجلات الأضاحي *** -->
 
-
     <script type="module">
-    
       import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
       import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-analytics.js";
-      // تم تحديث هذا السطر ليشمل الدوال الجديدة المطلوبة لعرض البيانات وتحديثها
-      import { getFirestore, collection, addDoc, serverTimestamp, getDocs, doc, updateDoc, onSnapshot, query, orderBy, where } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-firestore.js"; 
+      // *** إضافة دوال المصادقة ***
+      import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-auth.js";
+      import { getFirestore, collection, addDoc, serverTimestamp, onSnapshot, query, orderBy, where, doc, updateDoc } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-firestore.js"; 
       
-      const firebaseConfig = {
+      const firebaseConfig = { /* ... (firebaseConfig الخاصة بك كما هي) ... */ 
         apiKey: "AIzaSyAOV5iF6t5kdAeBIZPNcmINB4Ya66Yx9Pg",
         authDomain: "adahi-app.firebaseapp.com",
         projectId: "adahi-app",
@@ -163,214 +118,108 @@
       const app = initializeApp(firebaseConfig);
       const analytics = getAnalytics(app);
       const db = getFirestore(app);
+      const auth = getAuth(app); // *** تهيئة المصادقة ***
 
-      console.log("Firebase, Analytics, and Firestore initialized for display!");
+      // --- عناصر واجهة المستخدم للمصادقة والأقسام ---
+      const loginSection = document.getElementById('loginSection');
+      const dataEntrySection = document.getElementById('dataEntrySection'); // قسم إدخال البيانات
+      const adminViewSection = document.getElementById('adminViewSection'); // قسم عرض بيانات المسؤول
+      const loginForm = document.getElementById('loginForm');
+      const logoutButton = document.getElementById('logoutButton');
+      const hrAfterLogout = document.getElementById('hrAfterLogout');
+      const authStatus = document.getElementById('authStatus');
+
+      // --- تحديد UID الخاص بالمسؤول ---
+      // !!! مهم: استبدل 'YOUR_ADMIN_UID_HERE' بالـ User UID الخاص بك من لوحة تحكم Firebase Authentication
+      const ADMIN_UID = OSszJuz2XTZb8s9m0rGGqDzP9dC3; 
+
+      // --- JavaScript للتحكم في إظهار/إخفاء الحقول في نموذج الإدخال ---
+      // ... (شيفرة إظهار/إخفاء الحقول في adahiForm كما هي بدون تغيير) ...
+      const wantsPortionYesRadio = document.getElementById('wantsPortionYes');const wantsPortionNoRadio = document.getElementById('wantsPortionNo');const portionDetailsDiv = document.getElementById('portionDetailsDiv');const addressFieldDiv = document.getElementById('addressFieldDiv');const paymentDoneYesRadio = document.getElementById('paymentDoneYes');const paymentDoneNoRadio = document.getElementById('paymentDoneNo');const paymentDetailsDiv = document.getElementById('paymentDetailsDiv');wantsPortionYesRadio.addEventListener('change', function() {if (this.checked) {portionDetailsDiv.style.display = 'block';addressFieldDiv.style.display = 'block';}});wantsPortionNoRadio.addEventListener('change', function() {if (this.checked) {portionDetailsDiv.style.display = 'none';addressFieldDiv.style.display = 'none';}});paymentDoneYesRadio.addEventListener('change', function() {if (this.checked) {paymentDetailsDiv.style.display = 'block';}});paymentDoneNoRadio.addEventListener('change', function() {if (this.checked) {paymentDetailsDiv.style.display = 'none';}});
+
+      // --- JavaScript لإرسال نموذج الإدخال إلى Firestore ---
+      // ... (شيفرة إرسال adahiForm كما هي بدون تغيير) ...
+      const adahiForm = document.getElementById('adahiForm');const statusMessage = document.getElementById('statusMessage');adahiForm.addEventListener('submit', async (event) => {event.preventDefault();statusMessage.textContent = 'جاري حفظ البيانات...';statusMessage.className = '';try {const donorName = document.getElementById('donorName').value;const sacrificeFor = document.getElementById('sacrificeFor').value;const wantsToAttend = document.querySelector('input[name="wantsToAttend"]:checked').value;const phoneNumber = document.getElementById('phoneNumber').value;const wantsPortion = document.querySelector('input[name="wantsPortion"]:checked').value;let portionDetails = wantsPortion === 'yes' ? document.getElementById('portionDetails').value : '';let address = wantsPortion === 'yes' ? document.getElementById('address').value : '';const paymentDone = document.querySelector('input[name="paymentDone"]:checked').value;let receiptBookNumber = paymentDone === 'yes' ? document.getElementById('receiptBookNumber').value : '';let receiptNumber = paymentDone === 'yes' ? document.getElementById('receiptNumber').value : '';const assistanceFor = document.getElementById('assistanceFor').value;const adahiData = {donorName, sacrificeFor,wantsToAttend: wantsToAttend === 'yes', phoneNumber,wantsPortion: wantsPortion === 'yes', portionDetails, address,paymentDone: paymentDone === 'yes', receiptBookNumber, receiptNumber,assistanceFor, status: 'pending_approval', createdAt: serverTimestamp()};const docRef = await addDoc(collection(db, "sacrifices"), adahiData);console.log("Document written with ID: ", docRef.id);statusMessage.textContent = 'تم حفظ البيانات بنجاح! رقم المرجع: ' + docRef.id;statusMessage.className = 'success';adahiForm.reset();portionDetailsDiv.style.display = 'none';addressFieldDiv.style.display = 'none';paymentDetailsDiv.style.display = 'none';document.getElementById('wantsToAttendNo').checked = true;document.getElementById('wantsPortionNo').checked = true;document.getElementById('paymentDoneNo').checked = true;} catch (e) {console.error("Error adding document: ", e);statusMessage.textContent = 'حدث خطأ أثناء حفظ البيانات: ' + e.message;statusMessage.className = 'error';}});
+
+      // --- JavaScript لعرض وتحديث سجلات الأضاحي (جدول المسؤول) ---
+      // ... (شيفرة عرض وتحديث sacrificesTable كما هي بدون تغيير) ...
+      const sacrificesTableBody = document.getElementById('sacrificesTableBody');const loadingMessage = document.getElementById('loadingMessage');let currentFilter = null;function formatFirestoreTimestamp(timestamp) {if (!timestamp || !timestamp.toDate) {return 'غير متوفر';}const date = timestamp.toDate();return date.toLocaleString('ar-EG', {year: 'numeric', month: 'short', day: 'numeric',hour: '2-digit', minute: '2-digit'});}function renderSacrifices(docs) {sacrificesTableBody.innerHTML = '';if (docs.empty) {loadingMessage.textContent = 'لا توجد بيانات لعرضها حسب الفلتر الحالي.';loadingMessage.style.display = 'block';sacrificesTableBody.innerHTML = '<tr><td colspan="14">لا توجد بيانات.</td></tr>';return;}loadingMessage.style.display = 'none';docs.forEach((docSnapshot) => {const data = docSnapshot.data();const row = sacrificesTableBody.insertRow();row.insertCell().textContent = data.donorName || '';row.insertCell().textContent = data.sacrificeFor || '';row.insertCell().textContent = data.wantsToAttend ? 'نعم' : 'لا';row.insertCell().textContent = data.phoneNumber || '';row.insertCell().textContent = data.wantsPortion ? 'نعم' : 'لا';row.insertCell().textContent = data.portionDetails || '';row.insertCell().textContent = data.address || '';row.insertCell().textContent = data.paymentDone ? 'نعم' : 'لا';row.insertCell().textContent = data.receiptBookNumber || '';row.insertCell().textContent = data.receiptNumber || '';row.insertCell().textContent = data.assistanceFor ? (data.assistanceFor === 'inside_ramtha' ? 'داخل الرمثا' : data.assistanceFor === 'gaza_people' ? 'لأهل غزة' : data.assistanceFor === 'for_himself' ? 'لنفسه' : data.assistanceFor) : '';row.insertCell().textContent = formatFirestoreTimestamp(data.createdAt);row.insertCell().textContent = data.status === 'pending_approval' ? 'قيد المراجعة' : data.status === 'approved' ? 'موافق عليه' : data.status === 'rejected' ? 'مرفوض' : data.status;const actionsCell = row.insertCell();if (data.status === 'pending_approval') {const approveButton = document.createElement('button');approveButton.textContent = 'موافقة';approveButton.onclick = () => updateSacrificeStatus(docSnapshot.id, 'approved');actionsCell.appendChild(approveButton);const rejectButton = document.createElement('button');rejectButton.textContent = 'رفض';rejectButton.style.backgroundColor = '#dc3545';rejectButton.style.marginRight = '5px';rejectButton.onclick = () => updateSacrificeStatus(docSnapshot.id, 'rejected');actionsCell.appendChild(rejectButton);} else if (data.status === 'approved' || data.status === 'rejected') {const revertButton = document.createElement('button');revertButton.textContent = 'إعادة للمراجعة';revertButton.style.backgroundColor = '#ffc107';revertButton.onclick = () => updateSacrificeStatus(docSnapshot.id, 'pending_approval');actionsCell.appendChild(revertButton);}});}async function updateSacrificeStatus(docId, newStatus) {const sacrificeRef = doc(db, "sacrifices", docId);try {await updateDoc(sacrificeRef, {status: newStatus});console.log(`Document ${docId} status updated to ${newStatus}`);} catch (error) {console.error("Error updating document status: ", error);alert('حدث خطأ أثناء تحديث الحالة: ' + error.message);}}function fetchAndRenderSacrifices(statusFilter = null) {loadingMessage.textContent = 'جاري تحميل البيانات...';loadingMessage.style.display = 'block';sacrificesTableBody.innerHTML = '';let q = collection(db, "sacrifices");if (statusFilter) {q = query(q, where("status", "==", statusFilter), orderBy("createdAt", "desc"));} else {q = query(q, orderBy("createdAt", "desc"));}onSnapshot(q, (querySnapshot) => {renderSacrifices(querySnapshot);}, (error) => {console.error("Error fetching documents: ", error);loadingMessage.textContent = 'حدث خطأ أثناء جلب البيانات: ' + error.message;sacrificesTableBody.innerHTML = `<tr><td colspan="14">خطأ في تحميل البيانات.</td></tr>`;});}document.getElementById('filterPending').addEventListener('click', () => fetchAndRenderSacrifices('pending_approval'));document.getElementById('filterApproved').addEventListener('click', () => fetchAndRenderSacrifices('approved'));document.getElementById('filterRejected').addEventListener('click', () => fetchAndRenderSacrifices('rejected'));document.getElementById('filterAll').addEventListener('click', () => fetchAndRenderSacrifices(null));
+
+
+      // --- *** بداية: JavaScript للمصادقة (Authentication) *** ---
       
-      // --- JavaScript للتحكم في إظهار/إخفاء الحقول في النموذج ---
-      const wantsPortionYesRadio = document.getElementById('wantsPortionYes');
-      const wantsPortionNoRadio = document.getElementById('wantsPortionNo');
-      const portionDetailsDiv = document.getElementById('portionDetailsDiv');
-      const addressFieldDiv = document.getElementById('addressFieldDiv');
+      // الاستماع لتغييرات حالة المصادقة
+      onAuthStateChanged(auth, (user) => {
+          if (user) {
+              // المستخدم قام بتسجيل الدخول
+              console.log("User is signed in:", user);
+              authStatus.textContent = `مرحباً بك، ${user.email}`;
+              authStatus.className = 'success';
+              loginSection.style.display = 'none'; // إخفاء قسم تسجيل الدخول
+              logoutButton.style.display = 'inline-block'; // إظهار زر تسجيل الخروج
+              hrAfterLogout.style.display = 'block';
 
-      const paymentDoneYesRadio = document.getElementById('paymentDoneYes');
-      const paymentDoneNoRadio = document.getElementById('paymentDoneNo');
-      const paymentDetailsDiv = document.getElementById('paymentDetailsDiv');
-
-      wantsPortionYesRadio.addEventListener('change', function() {
-          if (this.checked) {
-              portionDetailsDiv.style.display = 'block';
-              addressFieldDiv.style.display = 'block'; 
-          }
-      });
-      wantsPortionNoRadio.addEventListener('change', function() {
-          if (this.checked) {
-              portionDetailsDiv.style.display = 'none';
-              addressFieldDiv.style.display = 'none'; 
-          }
-      });
-      
-      paymentDoneYesRadio.addEventListener('change', function() {
-          if (this.checked) {
-              paymentDetailsDiv.style.display = 'block';
-          }
-      });
-      paymentDoneNoRadio.addEventListener('change', function() {
-          if (this.checked) {
-              paymentDetailsDiv.style.display = 'none';
-          }
-      });
-      // --- نهاية JavaScript للتحكم في إظهار/إخفاء الحقول ---
-
-      // --- JavaScript لإرسال النموذج إلى Firestore ---
-      const adahiForm = document.getElementById('adahiForm');
-      const statusMessage = document.getElementById('statusMessage'); 
-
-      adahiForm.addEventListener('submit', async (event) => {
-          event.preventDefault(); 
-          statusMessage.textContent = 'جاري حفظ البيانات...';
-          statusMessage.className = ''; 
-          try {
-              const donorName = document.getElementById('donorName').value;
-              const sacrificeFor = document.getElementById('sacrificeFor').value;
-              const wantsToAttend = document.querySelector('input[name="wantsToAttend"]:checked').value;
-              const phoneNumber = document.getElementById('phoneNumber').value;
-              const wantsPortion = document.querySelector('input[name="wantsPortion"]:checked').value;
-              let portionDetails = wantsPortion === 'yes' ? document.getElementById('portionDetails').value : '';
-              let address = wantsPortion === 'yes' ? document.getElementById('address').value : '';
-              const paymentDone = document.querySelector('input[name="paymentDone"]:checked').value;
-              let receiptBookNumber = paymentDone === 'yes' ? document.getElementById('receiptBookNumber').value : '';
-              let receiptNumber = paymentDone === 'yes' ? document.getElementById('receiptNumber').value : '';
-              const assistanceFor = document.getElementById('assistanceFor').value;
-
-              const adahiData = {
-                  donorName, sacrificeFor,
-                  wantsToAttend: wantsToAttend === 'yes', phoneNumber,
-                  wantsPortion: wantsPortion === 'yes', portionDetails, address,
-                  paymentDone: paymentDone === 'yes', receiptBookNumber, receiptNumber,
-                  assistanceFor, status: 'pending_approval', createdAt: serverTimestamp()
-              };
-              const docRef = await addDoc(collection(db, "sacrifices"), adahiData);
-              console.log("Document written with ID: ", docRef.id);
-              statusMessage.textContent = 'تم حفظ البيانات بنجاح! رقم المرجع: ' + docRef.id;
-              statusMessage.className = 'success'; 
-              adahiForm.reset(); 
-              portionDetailsDiv.style.display = 'none';
-              addressFieldDiv.style.display = 'none';
-              paymentDetailsDiv.style.display = 'none';
-              document.getElementById('wantsToAttendNo').checked = true; 
-              document.getElementById('wantsPortionNo').checked = true; 
-              document.getElementById('paymentDoneNo').checked = true; 
-          } catch (e) {
-              console.error("Error adding document: ", e);
-              statusMessage.textContent = 'حدث خطأ أثناء حفظ البيانات: ' + e.message;
-              statusMessage.className = 'error'; 
-          }
-      });
-      // --- نهاية JavaScript لإرسال النموذج إلى Firestore ---
-
-      // --- *** بداية: JavaScript لعرض وتحديث سجلات الأضاحي *** ---
-      const sacrificesTableBody = document.getElementById('sacrificesTableBody');
-      const loadingMessage = document.getElementById('loadingMessage');
-      let currentFilter = null; // لتتبع الفلتر الحالي
-
-      // دالة لتنسيق التاريخ والوقت
-      function formatFirestoreTimestamp(timestamp) {
-          if (!timestamp || !timestamp.toDate) {
-              return 'غير متوفر';
-          }
-          const date = timestamp.toDate();
-          return date.toLocaleString('ar-EG', { // يمكنك تعديل اللغة والخيارات حسب الحاجة
-              year: 'numeric', month: 'short', day: 'numeric',
-              hour: '2-digit', minute: '2-digit'
-          });
-      }
-      
-      // دالة لعرض البيانات في الجدول
-      function renderSacrifices(docs) {
-          sacrificesTableBody.innerHTML = ''; // مسح الصفوف القديمة
-          if (docs.empty) {
-              loadingMessage.textContent = 'لا توجد بيانات لعرضها حسب الفلتر الحالي.';
-              loadingMessage.style.display = 'block';
-              sacrificesTableBody.innerHTML = '<tr><td colspan="14">لا توجد بيانات.</td></tr>';
-              return;
-          }
-          loadingMessage.style.display = 'none';
-
-          docs.forEach((docSnapshot) => {
-              const data = docSnapshot.data();
-              const row = sacrificesTableBody.insertRow();
-              row.insertCell().textContent = data.donorName || '';
-              row.insertCell().textContent = data.sacrificeFor || '';
-              row.insertCell().textContent = data.wantsToAttend ? 'نعم' : 'لا';
-              row.insertCell().textContent = data.phoneNumber || '';
-              row.insertCell().textContent = data.wantsPortion ? 'نعم' : 'لا';
-              row.insertCell().textContent = data.portionDetails || '';
-              row.insertCell().textContent = data.address || '';
-              row.insertCell().textContent = data.paymentDone ? 'نعم' : 'لا';
-              row.insertCell().textContent = data.receiptBookNumber || '';
-              row.insertCell().textContent = data.receiptNumber || '';
-              row.insertCell().textContent = data.assistanceFor ? 
-                (data.assistanceFor === 'inside_ramtha' ? 'داخل الرمثا' : 
-                 data.assistanceFor === 'gaza_people' ? 'لأهل غزة' : 
-                 data.assistanceFor === 'for_himself' ? 'لنفسه' : data.assistanceFor) 
-                : '';
-              row.insertCell().textContent = formatFirestoreTimestamp(data.createdAt);
-              row.insertCell().textContent = data.status === 'pending_approval' ? 'قيد المراجعة' : 
-                                           data.status === 'approved' ? 'موافق عليه' :
-                                           data.status === 'rejected' ? 'مرفوض' : data.status;
-
-              const actionsCell = row.insertCell();
-              if (data.status === 'pending_approval') {
-                  const approveButton = document.createElement('button');
-                  approveButton.textContent = 'موافقة';
-                  approveButton.onclick = () => updateSacrificeStatus(docSnapshot.id, 'approved');
-                  actionsCell.appendChild(approveButton);
-
-                  const rejectButton = document.createElement('button');
-                  rejectButton.textContent = 'رفض';
-                  rejectButton.style.backgroundColor = '#dc3545'; // لون أحمر للرفض
-                  rejectButton.style.marginRight = '5px'; // مسافة بين الأزرار
-                  rejectButton.onclick = () => updateSacrificeStatus(docSnapshot.id, 'rejected');
-                  actionsCell.appendChild(rejectButton);
-              } else if (data.status === 'approved' || data.status === 'rejected') {
-                  const revertButton = document.createElement('button');
-                  revertButton.textContent = 'إعادة للمراجعة';
-                  revertButton.style.backgroundColor = '#ffc107'; // لون أصفر للتراجع
-                  revertButton.onclick = () => updateSacrificeStatus(docSnapshot.id, 'pending_approval');
-                  actionsCell.appendChild(revertButton);
+              // إظهار الأقسام المناسبة بناءً على دور المستخدم
+              dataEntrySection.style.display = 'block'; // جميع المستخدمين المسجلين يمكنهم إدخال البيانات
+              if (user.uid === ADMIN_UID) {
+                  adminViewSection.style.display = 'block'; // فقط المسؤول يرى جدول الإدارة
+                  fetchAndRenderSacrifices(null); // جلب بيانات المسؤول عند تسجيل دخوله
+              } else {
+                  adminViewSection.style.display = 'none';
               }
-          });
-      }
 
-      // دالة لتحديث حالة الأضحية
-      async function updateSacrificeStatus(docId, newStatus) {
-          const sacrificeRef = doc(db, "sacrifices", docId);
-          try {
-              await updateDoc(sacrificeRef, {
-                  status: newStatus
-              });
-              console.log(`Document ${docId} status updated to ${newStatus}`);
-              // لا حاجة لاستدعاء fetchSacrifices هنا، onSnapshot سيتولى التحديث
-          } catch (error) {
-              console.error("Error updating document status: ", error);
-              alert('حدث خطأ أثناء تحديث الحالة: ' + error.message);
-          }
-      }
-
-      // دالة لجلب البيانات مع الفلترة والترتيب (باستخدام onSnapshot للتحديث التلقائي)
-      function fetchAndRenderSacrifices(statusFilter = null) {
-          loadingMessage.textContent = 'جاري تحميل البيانات...';
-          loadingMessage.style.display = 'block';
-          sacrificesTableBody.innerHTML = ''; // مسح الجدول قبل التحميل الجديد
-
-          let q = collection(db, "sacrifices");
-          // تطبيق الفلتر إذا وجد
-          if (statusFilter) {
-              q = query(q, where("status", "==", statusFilter), orderBy("createdAt", "desc"));
           } else {
-              // إذا لم يكن هناك فلتر محدد، اعرض الكل مرتبًا بالتاريخ
-              q = query(q, orderBy("createdAt", "desc"));
-          }
-          
-          // استخدام onSnapshot للاستماع للتغييرات في الوقت الفعلي
-          onSnapshot(q, (querySnapshot) => {
-              renderSacrifices(querySnapshot);
-          }, (error) => {
-              console.error("Error fetching documents: ", error);
-              loadingMessage.textContent = 'حدث خطأ أثناء جلب البيانات: ' + error.message;
-              sacrificesTableBody.innerHTML = `<tr><td colspan="14">خطأ في تحميل البيانات.</td></tr>`;
-          });
-      }
-      
-      // إضافة مستمعي الأحداث لأزرار الفلترة
-      document.getElementById('filterPending').addEventListener('click', () => fetchAndRenderSacrifices('pending_approval'));
-      document.getElementById('filterApproved').addEventListener('click', () => fetchAndRenderSacrifices('approved'));
-      document.getElementById('filterRejected').addEventListener('click', () => fetchAndRenderSacrifices('rejected'));
-      document.getElementById('filterAll').addEventListener('click', () => fetchAndRenderSacrifices(null)); // null لعرض الكل
+              // المستخدم قام بتسجيل الخروج أو لم يسجل دخوله بعد
+              console.log("User is signed out");
+              authStatus.textContent = 'يرجى تسجيل الدخول للوصول.';
+              authStatus.className = '';
+              loginSection.style.display = 'block'; // إظهار قسم تسجيل الدخول
+              dataEntrySection.style.display = 'none'; // إخفاء قسم إدخال البيانات
+              adminViewSection.style.display = 'none'; // إخفاء قسم عرض بيانات المسؤول
+              logoutButton.style.display = 'none';
+              hrAfterLogout.style.display = 'none';
+              if (sacrificesTableBody) sacrificesTableBody.innerHTML = ''; // مسح جدول المسؤول عند الخروج
+              if (loadingMessage) loadingMessage.textContent = 'يرجى تسجيل الدخول لعرض البيانات.';
 
-      // جلب البيانات الأولية عند تحميل الصفحة (عرض الكل مبدئيًا)
-      fetchAndRenderSacrifices(null); 
-      // --- *** نهاية: JavaScript لعرض وتحديث سجلات الأضاحي *** ---
+          }
+      });
+
+      // التعامل مع إرسال نموذج تسجيل الدخول
+      if (loginForm) {
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = loginForm.email.value;
+            const password = loginForm.password.value;
+
+            signInWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    // تم تسجيل الدخول بنجاح
+                    console.log("Signed in successfully", userCredential.user);
+                    // onAuthStateChanged سيتولى تحديث الواجهة
+                })
+                .catch((error) => {
+                    console.error("Error signing in:", error);
+                    authStatus.textContent = `خطأ في تسجيل الدخول: ${error.message}`;
+                    authStatus.className = 'error';
+                });
+        });
+      }
+
+      // التعامل مع تسجيل الخروج
+      if (logoutButton) {
+        logoutButton.addEventListener('click', () => {
+            signOut(auth).then(() => {
+                // تم تسجيل الخروج بنجاح
+                console.log("Signed out successfully");
+                // onAuthStateChanged سيتولى تحديث الواجهة
+            }).catch((error) => {
+                console.error("Error signing out:", error);
+                authStatus.textContent = `خطأ في تسجيل الخروج: ${error.message}`;
+                authStatus.className = 'error';
+            });
+        });
+      }
+      // --- *** نهاية: JavaScript للمصادقة (Authentication) *** ---
 
     </script>
 </body>
