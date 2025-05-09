@@ -16,6 +16,12 @@
         #statusMessage { margin-top: 15px; padding: 10px; border-radius: 5px; }
         .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        /* تنسيقات إضافية للجدول وأزرار الفلترة */
+        #adminActions button { margin-left: 10px; margin-bottom: 10px; background-color: #6c757d; }
+        #adminActions button:hover { background-color: #5a6268; }
+        table { width:100%; margin-top: 15px; border-collapse: collapse; }
+        th, td { border: 1px solid #dee2e6; padding: 8px; text-align: right; }
+        th { background-color: #f8f9fa; }
     </style>
 </head>
 <body>
@@ -96,19 +102,55 @@
         <br>
         <button type="submit">تسجيل البيانات</button>
     </form>
-    <!-- لإظهار رسائل الحالة (نجاح/فشل) -->
     <div id="statusMessage"></div> 
     <hr>
+
+    <!-- *** بداية: قسم عرض سجلات الأضاحي *** -->
+    <h2>سجلات الأضاحي المسجلة (للمسؤول)</h2>
+    <div id="adminActions">
+        <button id="filterPending">عرض قيد المراجعة فقط</button>
+        <button id="filterApproved">عرض الموافق عليها فقط</button>
+        <button id="filterRejected">عرض المرفوضة فقط</button>
+        <button id="filterAll">عرض الكل</button>
+    </div>
+    <div id="sacrificesTableContainer">
+        <p id="loadingMessage">جاري تحميل البيانات...</p>
+        <table id="sacrificesTable" border="1"> <!-- أزلت بعض التنسيقات المضمنة هنا، واستخدمت CSS أعلاه -->
+            <thead>
+                <tr>
+                    <th>اسم المتبرع</th>
+                    <th>الأضحية عن</th>
+                    <th>يريد الحضور</th>
+                    <th>رقم الهاتف</th>
+                    <th>يريد جزءًا</th>
+                    <th>تفاصيل الجزء</th>
+                    <th>العنوان</th>
+                    <th>تم الدفع</th>
+                    <th>رقم الدفتر</th>
+                    <th>رقم السند</th>
+                    <th>لمن المساعدة</th>
+                    <th>تاريخ التسجيل</th>
+                    <th>الحالة</th>
+                    <th>إجراءات</th>
+                </tr>
+            </thead>
+            <tbody id="sacrificesTableBody">
+                <!-- سيتم ملء الصفوف هنا بواسطة JavaScript -->
+            </tbody>
+        </table>
+    </div>
+    <hr>
+    <!-- *** نهاية: قسم عرض سجلات الأضاحي *** -->
+
 
     <script type="module">
     
       import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
       import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-analytics.js";
-      // *** إضافة جديدة: استيراد دوال Firestore اللازمة ***
-      import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-firestore.js"; 
+      // تم تحديث هذا السطر ليشمل الدوال الجديدة المطلوبة لعرض البيانات وتحديثها
+      import { getFirestore, collection, addDoc, serverTimestamp, getDocs, doc, updateDoc, onSnapshot, query, orderBy, where } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-firestore.js"; 
       
       const firebaseConfig = {
-        // ... (firebaseConfig الخاصة بك كما هي) ...
         apiKey: "AIzaSyAOV5iF6t5kdAeBIZPNcmINB4Ya66Yx9Pg",
         authDomain: "adahi-app.firebaseapp.com",
         projectId: "adahi-app",
@@ -122,10 +164,9 @@
       const analytics = getAnalytics(app);
       const db = getFirestore(app);
 
-      console.log("Firebase, Analytics, and Firestore initialized!");
-      // console.log("Firestore instance:", db); // يمكن إبقاء هذا أو حذفه
-
-      // --- JavaScript للتحكم في إظهار/إخفاء الحقول ---
+      console.log("Firebase, Analytics, and Firestore initialized for display!");
+      
+      // --- JavaScript للتحكم في إظهار/إخفاء الحقول في النموذج ---
       const wantsPortionYesRadio = document.getElementById('wantsPortionYes');
       const wantsPortionNoRadio = document.getElementById('wantsPortionNo');
       const portionDetailsDiv = document.getElementById('portionDetailsDiv');
@@ -160,84 +201,176 @@
       });
       // --- نهاية JavaScript للتحكم في إظهار/إخفاء الحقول ---
 
-
-      // --- *** بداية: JavaScript لإرسال النموذج إلى Firestore *** ---
+      // --- JavaScript لإرسال النموذج إلى Firestore ---
       const adahiForm = document.getElementById('adahiForm');
-      const statusMessage = document.getElementById('statusMessage'); // لعرض رسائل الحالة
+      const statusMessage = document.getElementById('statusMessage'); 
 
       adahiForm.addEventListener('submit', async (event) => {
-          event.preventDefault(); // منع السلوك الافتراضي للنموذج (إعادة تحميل الصفحة)
-
-          // عرض رسالة "جاري الحفظ..."
+          event.preventDefault(); 
           statusMessage.textContent = 'جاري حفظ البيانات...';
-          statusMessage.className = ''; // إزالة أي تنسيقات سابقة
-
+          statusMessage.className = ''; 
           try {
-              // جمع البيانات من النموذج
               const donorName = document.getElementById('donorName').value;
               const sacrificeFor = document.getElementById('sacrificeFor').value;
               const wantsToAttend = document.querySelector('input[name="wantsToAttend"]:checked').value;
               const phoneNumber = document.getElementById('phoneNumber').value;
               const wantsPortion = document.querySelector('input[name="wantsPortion"]:checked').value;
-              let portionDetails = '';
-              if (wantsPortion === 'yes') {
-                  portionDetails = document.getElementById('portionDetails').value;
-              }
-              let address = '';
-              if (wantsPortion === 'yes') { // العنوان مرتبط بخيار "يريد جزءًا"
-                  address = document.getElementById('address').value;
-              }
+              let portionDetails = wantsPortion === 'yes' ? document.getElementById('portionDetails').value : '';
+              let address = wantsPortion === 'yes' ? document.getElementById('address').value : '';
               const paymentDone = document.querySelector('input[name="paymentDone"]:checked').value;
-              let receiptBookNumber = '';
-              let receiptNumber = '';
-              if (paymentDone === 'yes') {
-                  receiptBookNumber = document.getElementById('receiptBookNumber').value;
-                  receiptNumber = document.getElementById('receiptNumber').value;
-              }
+              let receiptBookNumber = paymentDone === 'yes' ? document.getElementById('receiptBookNumber').value : '';
+              let receiptNumber = paymentDone === 'yes' ? document.getElementById('receiptNumber').value : '';
               const assistanceFor = document.getElementById('assistanceFor').value;
 
-              // إنشاء كائن بالبيانات
               const adahiData = {
-                  donorName: donorName,
-                  sacrificeFor: sacrificeFor,
-                  wantsToAttend: wantsToAttend === 'yes', // تحويلها إلى boolean
-                  phoneNumber: phoneNumber,
-                  wantsPortion: wantsPortion === 'yes', // تحويلها إلى boolean
-                  portionDetails: portionDetails,
-                  address: address,
-                  paymentDone: paymentDone === 'yes', // تحويلها إلى boolean
-                  receiptBookNumber: receiptBookNumber,
-                  receiptNumber: receiptNumber,
-                  assistanceFor: assistanceFor,
-                  status: 'pending_approval', // حالة أولية للبيانات
-                  createdAt: serverTimestamp() // إضافة وقت إنشاء المستند من الخادم
+                  donorName, sacrificeFor,
+                  wantsToAttend: wantsToAttend === 'yes', phoneNumber,
+                  wantsPortion: wantsPortion === 'yes', portionDetails, address,
+                  paymentDone: paymentDone === 'yes', receiptBookNumber, receiptNumber,
+                  assistanceFor, status: 'pending_approval', createdAt: serverTimestamp()
               };
-
-              // إضافة البيانات إلى مجموعة "sacrifices" في Firestore
-              // إذا لم تكن مجموعة "sacrifices" موجودة، سيقوم Firestore بإنشائها تلقائيًا.
               const docRef = await addDoc(collection(db, "sacrifices"), adahiData);
-              
               console.log("Document written with ID: ", docRef.id);
               statusMessage.textContent = 'تم حفظ البيانات بنجاح! رقم المرجع: ' + docRef.id;
-              statusMessage.className = 'success'; // تطبيق تنسيق النجاح
-              adahiForm.reset(); // مسح حقول النموذج بعد الإرسال الناجح
-
-              // إخفاء الحقول التي تعتمد على الاختيارات مرة أخرى (لأن النموذج تم مسحه)
+              statusMessage.className = 'success'; 
+              adahiForm.reset(); 
               portionDetailsDiv.style.display = 'none';
               addressFieldDiv.style.display = 'none';
               paymentDetailsDiv.style.display = 'none';
-              document.getElementById('wantsToAttendNo').checked = true; // إعادة الافتراضي
-              document.getElementById('wantsPortionNo').checked = true; // إعادة الافتراضي
-              document.getElementById('paymentDoneNo').checked = true; // إعادة الافتراضي
-
-
+              document.getElementById('wantsToAttendNo').checked = true; 
+              document.getElementById('wantsPortionNo').checked = true; 
+              document.getElementById('paymentDoneNo').checked = true; 
           } catch (e) {
               console.error("Error adding document: ", e);
               statusMessage.textContent = 'حدث خطأ أثناء حفظ البيانات: ' + e.message;
-              statusMessage.className = 'error'; // تطبيق تنسيق الخطأ
+              statusMessage.className = 'error'; 
           }
       });
-      // --- *** نهاية: JavaScript لإرسال النموذج إلى Firestore *** ---
+      // --- نهاية JavaScript لإرسال النموذج إلى Firestore ---
+
+      // --- *** بداية: JavaScript لعرض وتحديث سجلات الأضاحي *** ---
+      const sacrificesTableBody = document.getElementById('sacrificesTableBody');
+      const loadingMessage = document.getElementById('loadingMessage');
+      let currentFilter = null; // لتتبع الفلتر الحالي
+
+      // دالة لتنسيق التاريخ والوقت
+      function formatFirestoreTimestamp(timestamp) {
+          if (!timestamp || !timestamp.toDate) {
+              return 'غير متوفر';
+          }
+          const date = timestamp.toDate();
+          return date.toLocaleString('ar-EG', { // يمكنك تعديل اللغة والخيارات حسب الحاجة
+              year: 'numeric', month: 'short', day: 'numeric',
+              hour: '2-digit', minute: '2-digit'
+          });
+      }
+      
+      // دالة لعرض البيانات في الجدول
+      function renderSacrifices(docs) {
+          sacrificesTableBody.innerHTML = ''; // مسح الصفوف القديمة
+          if (docs.empty) {
+              loadingMessage.textContent = 'لا توجد بيانات لعرضها حسب الفلتر الحالي.';
+              loadingMessage.style.display = 'block';
+              sacrificesTableBody.innerHTML = '<tr><td colspan="14">لا توجد بيانات.</td></tr>';
+              return;
+          }
+          loadingMessage.style.display = 'none';
+
+          docs.forEach((docSnapshot) => {
+              const data = docSnapshot.data();
+              const row = sacrificesTableBody.insertRow();
+              row.insertCell().textContent = data.donorName || '';
+              row.insertCell().textContent = data.sacrificeFor || '';
+              row.insertCell().textContent = data.wantsToAttend ? 'نعم' : 'لا';
+              row.insertCell().textContent = data.phoneNumber || '';
+              row.insertCell().textContent = data.wantsPortion ? 'نعم' : 'لا';
+              row.insertCell().textContent = data.portionDetails || '';
+              row.insertCell().textContent = data.address || '';
+              row.insertCell().textContent = data.paymentDone ? 'نعم' : 'لا';
+              row.insertCell().textContent = data.receiptBookNumber || '';
+              row.insertCell().textContent = data.receiptNumber || '';
+              row.insertCell().textContent = data.assistanceFor ? 
+                (data.assistanceFor === 'inside_ramtha' ? 'داخل الرمثا' : 
+                 data.assistanceFor === 'gaza_people' ? 'لأهل غزة' : 
+                 data.assistanceFor === 'for_himself' ? 'لنفسه' : data.assistanceFor) 
+                : '';
+              row.insertCell().textContent = formatFirestoreTimestamp(data.createdAt);
+              row.insertCell().textContent = data.status === 'pending_approval' ? 'قيد المراجعة' : 
+                                           data.status === 'approved' ? 'موافق عليه' :
+                                           data.status === 'rejected' ? 'مرفوض' : data.status;
+
+              const actionsCell = row.insertCell();
+              if (data.status === 'pending_approval') {
+                  const approveButton = document.createElement('button');
+                  approveButton.textContent = 'موافقة';
+                  approveButton.onclick = () => updateSacrificeStatus(docSnapshot.id, 'approved');
+                  actionsCell.appendChild(approveButton);
+
+                  const rejectButton = document.createElement('button');
+                  rejectButton.textContent = 'رفض';
+                  rejectButton.style.backgroundColor = '#dc3545'; // لون أحمر للرفض
+                  rejectButton.style.marginRight = '5px'; // مسافة بين الأزرار
+                  rejectButton.onclick = () => updateSacrificeStatus(docSnapshot.id, 'rejected');
+                  actionsCell.appendChild(rejectButton);
+              } else if (data.status === 'approved' || data.status === 'rejected') {
+                  const revertButton = document.createElement('button');
+                  revertButton.textContent = 'إعادة للمراجعة';
+                  revertButton.style.backgroundColor = '#ffc107'; // لون أصفر للتراجع
+                  revertButton.onclick = () => updateSacrificeStatus(docSnapshot.id, 'pending_approval');
+                  actionsCell.appendChild(revertButton);
+              }
+          });
+      }
+
+      // دالة لتحديث حالة الأضحية
+      async function updateSacrificeStatus(docId, newStatus) {
+          const sacrificeRef = doc(db, "sacrifices", docId);
+          try {
+              await updateDoc(sacrificeRef, {
+                  status: newStatus
+              });
+              console.log(`Document ${docId} status updated to ${newStatus}`);
+              // لا حاجة لاستدعاء fetchSacrifices هنا، onSnapshot سيتولى التحديث
+          } catch (error) {
+              console.error("Error updating document status: ", error);
+              alert('حدث خطأ أثناء تحديث الحالة: ' + error.message);
+          }
+      }
+
+      // دالة لجلب البيانات مع الفلترة والترتيب (باستخدام onSnapshot للتحديث التلقائي)
+      function fetchAndRenderSacrifices(statusFilter = null) {
+          loadingMessage.textContent = 'جاري تحميل البيانات...';
+          loadingMessage.style.display = 'block';
+          sacrificesTableBody.innerHTML = ''; // مسح الجدول قبل التحميل الجديد
+
+          let q = collection(db, "sacrifices");
+          // تطبيق الفلتر إذا وجد
+          if (statusFilter) {
+              q = query(q, where("status", "==", statusFilter), orderBy("createdAt", "desc"));
+          } else {
+              // إذا لم يكن هناك فلتر محدد، اعرض الكل مرتبًا بالتاريخ
+              q = query(q, orderBy("createdAt", "desc"));
+          }
+          
+          // استخدام onSnapshot للاستماع للتغييرات في الوقت الفعلي
+          onSnapshot(q, (querySnapshot) => {
+              renderSacrifices(querySnapshot);
+          }, (error) => {
+              console.error("Error fetching documents: ", error);
+              loadingMessage.textContent = 'حدث خطأ أثناء جلب البيانات: ' + error.message;
+              sacrificesTableBody.innerHTML = `<tr><td colspan="14">خطأ في تحميل البيانات.</td></tr>`;
+          });
+      }
+      
+      // إضافة مستمعي الأحداث لأزرار الفلترة
+      document.getElementById('filterPending').addEventListener('click', () => fetchAndRenderSacrifices('pending_approval'));
+      document.getElementById('filterApproved').addEventListener('click', () => fetchAndRenderSacrifices('approved'));
+      document.getElementById('filterRejected').addEventListener('click', () => fetchAndRenderSacrifices('rejected'));
+      document.getElementById('filterAll').addEventListener('click', () => fetchAndRenderSacrifices(null)); // null لعرض الكل
+
+      // جلب البيانات الأولية عند تحميل الصفحة (عرض الكل مبدئيًا)
+      fetchAndRenderSacrifices(null); 
+      // --- *** نهاية: JavaScript لعرض وتحديث سجلات الأضاحي *** ---
 
     </script>
 </body>
