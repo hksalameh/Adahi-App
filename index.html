@@ -8,28 +8,40 @@
 <body>
     <h1>مرحباً بك في موقع تسجيل الأضاحي</h1>
     <p>هذا هو الإصدار الأولي لموقعنا.</p>
+
     <script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-analytics.js";
+      // *** إضافة جديدة: استيراد Firestore ***
+      import { getFirestore } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-firestore.js"; 
+      // TODO: Add SDKs for Firebase products that you want to use
+      // https://firebase.google.com/docs/web/setup#available-libraries
 
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  const firebaseConfig = {
-    apiKey: "AIzaSyAOV5iF6t5kdAeBIZPNcmINB4Ya66Yx9Pg",
-    authDomain: "adahi-app.firebaseapp.com",
-    projectId: "adahi-app",
-    storageBucket: "adahi-app.firebasestorage.app",
-    messagingSenderId: "42370235858",
-    appId: "1:42370235858:web:6f839b92404afafdae9c0b",
-    measurementId: "G-1T2TGPK72K"
-  };
+      // Your web app's Firebase configuration
+      // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+      const firebaseConfig = {
+        apiKey: "AIzaSyAOV5iF6t5kdAeBIZPNcmINB4Ya66Yx9Pg",
+        authDomain: "adahi-app.firebaseapp.com",
+        projectId: "adahi-app",
+        storageBucket: "adahi-app.firebasestorage.app", // تأكد من أن هذا هو الصحيح من مشروعك، عادة ينتهي بـ .appspot.com
+        messagingSenderId: "42370235858",
+        appId: "1:42370235858:web:6f839b92404afafdae9c0b",
+        measurementId: "G-1T2TGPK72K"
+      };
 
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-</script>
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const analytics = getAnalytics(app);
+
+      // *** إضافة جديدة: تهيئة Firestore ***
+      // Initialize Cloud Firestore and get a reference to the service
+      const db = getFirestore(app);
+
+      // *** إضافة جديدة: للتأكد من أن كل شيء يعمل ***
+      console.log("Firebase, Analytics, and Firestore initialized!");
+      console.log("Firestore instance:", db); // لعرض كائن Firestore في الكونسول
+
+    </script>
 </body>
 </html>
