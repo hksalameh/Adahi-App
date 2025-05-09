@@ -9,11 +9,8 @@
 
         body { 
             font-family: 'Noto Kufi Arabic', 'Tajawal', sans-serif; 
-            margin: 0; padding: 0; 
-            background-color: #f0f2f5; 
-            color: #2c3e50;  
-            line-height: 1.7; 
-            font-size: 16px; 
+            margin: 0; padding: 0; background-color: #f0f2f5; 
+            color: #2c3e50; line-height: 1.7; font-size: 16px; 
         }
         .page-container { padding: 20px; }
         .container { 
@@ -30,66 +27,91 @@
             font-size: 2em; font-weight: 700;
         }
 
-        /* --- تحسينات نموذج الإدخال --- */
         #dataEntrySection form label, 
         #loginSection form label { 
-            font-size: 1.1em;   
-            color: #34495e; 
-            margin-bottom: 8px; 
-            font-weight: 500; 
-            display: block; /* ضمان أن الـ label يأخذ سطراً خاصاً به */
+            font-size: 1.1em; color: #34495e; margin-bottom: 8px; font-weight: 500; display: block;
         }
         #dataEntrySection form input[type="text"],
         #dataEntrySection form input[type="tel"],
         #dataEntrySection form select,
-        #loginSection form input[type="text"], /* usernameInput */
+        #loginSection form input[type="text"], 
         #loginSection form input[type="password"] {
-            font-size: 1.1em;  /* *** تعديل حجم خط حقول الإدخال (أقل قليلاً من السابق) *** */
-            padding: 12px;     /* تعديل الـ padding */
-            border: 1px solid #bcccdc; 
-            background-color: #fcfdff;
-            border-radius: 6px; 
-            width: 100%; /* ضمان أن الحقول تأخذ العرض الكامل المتاح */
-            box-sizing: border-box; /* لضمان أن الـ padding والـ border لا يزيدان العرض */
+            font-size: 1.1em; padding: 12px; border: 1px solid #bcccdc; 
+            background-color: #fcfdff; border-radius: 6px; width: 100%; box-sizing: border-box;
         }
-        /* *** تعديل خاص للـ textarea لتحديد ارتفاعها بشكل أفضل *** */
-        #dataEntrySection form textarea {
-            font-size: 1.1em;   /* نفس حجم خط الحقول الأخرى */
-            padding: 12px;      /* نفس الـ padding */
+        /* *** تعديل خاص للـ textarea *** */
+        #dataEntrySection form textarea#portionDetails { /* استهداف textarea بالـ ID */
+            font-size: 1.1em;   
+            padding: 10px;      /* *** تقليل الـ padding قليلاً للـ textarea *** */
             border: 1px solid #bcccdc; 
             background-color: #fcfdff;
             border-radius: 6px; 
             width: 100%;
             box-sizing: border-box;
-            min-height: 100px;  /* ارتفاع أدنى ثابت */
-            height: auto;      /* السماح بالتمدد إذا كان النص أكبر */
-            resize: vertical;   /* السماح للمستخدم بتغيير الارتفاع رأسيًا فقط */
+            min-height: 60px;  /* *** تقليل الارتفاع الأدنى بشكل كبير *** */
+            height: 80px;      /* *** تحديد ارتفاع ثابت مبدئي أصغر *** */
+            resize: vertical;   
         }
-        /* ... (تأثير focus كما هو) ... */
-        #dataEntrySection form input[type="text"]:focus, #dataEntrySection form input[type="tel"]:focus, #dataEntrySection form textarea:focus, #dataEntrySection form select:focus, #loginSection form input[type="text"]:focus, #loginSection form input[type="password"]:focus { border-color: #5dade2; box-shadow: 0 0 0 0.2rem rgba(41,128,185,.25); outline: none; }
+        #dataEntrySection form input[type="text"]:focus, /* ... (focus كما هو) ... */
+        #loginSection form input[type="text"]:focus,
+        #loginSection form input[type="password"]:focus { border-color: #5dade2; box-shadow: 0 0 0 0.2rem rgba(41,128,185,.25); outline: none; }
+        #dataEntrySection form textarea#portionDetails:focus { /* تأثير focus للـ textarea */
+            border-color: #5dade2;
+            box-shadow: 0 0 0 0.2rem rgba(41,128,185,.25);
+            outline: none; 
+        }
+
 
         #dataEntrySection form div,
-        #loginSection form div { 
-            margin-bottom: 20px; /* تقليل التباعد قليلاً بين مجموعات الحقول */
-        }
-        /* *** تعديل لتناسق نموذج تسجيل الدخول *** */
-        #loginSection form {
-            max-width: 400px; /* تحديد عرض أقصى لنموذج تسجيل الدخول */
-            margin-left: auto;  /* لتوسيط النموذج */
-            margin-right: auto; /* لتوسيط النموذج */
-        }
-        #loginSection form label {
-            text-align: right; /* ضمان محاذاة نص الـ label لليمين */
-        }
-
+        #loginSection form div { margin-bottom: 20px; }
+        #loginSection form { max-width: 400px; margin-left: auto; margin-right: auto; }
+        #loginSection form label { text-align: right; }
         #dataEntrySection .radio-group-label { /* ... (كما هو) ... */ }
         #dataEntrySection input[type="radio"] + label { /* ... (كما هو) ... */ }
         #dataEntrySection input[type="radio"] { /* ... (كما هو) ... */ }
-        /* --- نهاية تحسينات نموذج الإدخال --- */
         
-        button, input[type="submit"] { /* ... (كما هو) ... */ }
-        /* ... (بقية تنسيقات الأزرار والجداول ورسائل الحالة كما هي من الرد السابق) ... */
-        button:hover, input[type="submit"]:hover { background-color: #2980b9; } button:active, input[type="submit"]:active { transform: translateY(1px); box-shadow: 0 1px 2px rgba(0,0,0,0.1); } #adahiForm button[type="submit"] { background-color: #27ae60; min-width: 180px; font-weight: 700; } #adahiForm button[type="submit"]:hover { background-color: #229954; } #logoutButton { background-color: #e74c3c; } #logoutButton:hover { background-color: #c0392b; } #adminActions { text-align: center; margin-bottom: 25px; } #adminActions button { background-color: #7f8c8d; font-size: 0.95em; padding: 10px 18px; box-shadow: none; } #adminActions button:hover { background-color: #6c7a7b; } #sacrificesTableBody button { font-size: 0.9em; padding: 6px 12px; margin-right: 6px; box-shadow: none; } .hidden-field, .admin-section, .user-section, .user-data-section { display: none; } hr { margin: 40px 0; border: 0; border-top: 1px solid #bdc3c7; } #statusMessage, #authStatus { margin-top: 20px; padding: 14px; border-radius: 6px; font-weight: 500; font-size: 1.1em; } .success { background-color: #d0f0c0; color: #228B22; border: 1px solid #a0d0a0; } .error { background-color: #fddfdf; color: #D8000C; border: 1px solid #fccfcf; } table { width:100%; margin-top: 25px; border-collapse: separate; border-spacing: 0; box-shadow: 0 3px 8px rgba(0,0,0,0.06); border-radius: 8px; overflow: hidden; } th, td { border-bottom: 1px solid #d3d9e0; padding: 14px 18px; text-align: right; vertical-align: middle; font-size: 1.05em; } td { border-left: 1px solid #d3d9e0; } td:first-child { border-left: none; } th { background-color: #eaf0f7; font-weight: 700; color: #2c3e50; font-size: 1.1em; border-top: 1px solid #d3d9e0;} tbody tr:last-child td { border-bottom: none; } #sacrificesTableBody tr:nth-child(even), #userSacrificesTableBody tr:nth-child(even) { background-color: #fbfcfd; } #sacrificesTableBody tr:hover, #userSacrificesTableBody tr:hover { background-color: #e6f3ff; }
+        /* *** تعديل حجم الأزرار مرة أخرى *** */
+        button, input[type="submit"] { 
+            padding: 12px 25px; /* يمكن زيادة هذا إذا أردت أزرار أكبر */
+            background-color: #3498db; 
+            color: white; border: none; cursor: pointer; 
+            margin-top: 10px; margin-right: 10px; 
+            border-radius: 6px; /* تقليل دائرية الحواف قليلاً عن السابق */
+            font-size: 1.1em; /* حجم خط مناسب للأزرار */
+            font-weight: 500; 
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+        }
+        button:hover, input[type="submit"]:hover { background-color: #2980b9; } 
+        button:active, input[type="submit"]:active { transform: translateY(1px); box-shadow: 0 1px 2px rgba(0,0,0,0.1); } 
+
+        #adahiForm button[type="submit"] {
+            background-color: #27ae60; 
+            min-width: 180px; 
+            font-weight: 700; 
+            font-size: 1.15em; /* تكبير زر الإرسال الرئيسي قليلاً */
+            padding: 13px 30px; /* padding أكبر لزر الإرسال الرئيسي */
+        }
+        #adahiForm button[type="submit"]:hover { background-color: #229954; }
+
+        #logoutButton { background-color: #e74c3c; font-size: 1.1em; padding: 12px 25px;} 
+        #logoutButton:hover { background-color: #c0392b; }
+
+        #adminActions { text-align: center; margin-bottom: 25px; } 
+        #adminActions button { 
+            background-color: #7f8c8d; 
+            font-size: 1em; /* تكبير أزرار الفلترة قليلاً */
+            padding: 10px 20px; /* زيادة padding أزرار الفلترة */
+            box-shadow: none; 
+        }
+        #adminActions button:hover { background-color: #6c7a7b; } 
+        
+        #sacrificesTableBody button { /* أزرار الموافقة/الرفض داخل الجدول */
+            font-size: 0.9em; padding: 6px 12px; margin-right: 6px;
+            box-shadow: none; border-radius: 4px; /* تعديل دائرية الحواف */
+        }
+        /* ... (بقية CSS للجداول ورسائل الحالة كما هي) ... */
+        .hidden-field, .admin-section, .user-section, .user-data-section { display: none; } hr { margin: 40px 0; border: 0; border-top: 1px solid #bdc3c7; } #statusMessage, #authStatus { margin-top: 20px; padding: 14px; border-radius: 6px; font-weight: 500; font-size: 1.1em; } .success { background-color: #d0f0c0; color: #228B22; border: 1px solid #a0d0a0; } .error { background-color: #fddfdf; color: #D8000C; border: 1px solid #fccfcf; } table { width:100%; margin-top: 25px; border-collapse: separate; border-spacing: 0; box-shadow: 0 3px 8px rgba(0,0,0,0.06); border-radius: 8px; overflow: hidden; } th, td { border-bottom: 1px solid #d3d9e0; padding: 14px 18px; text-align: right; vertical-align: middle; font-size: 1.05em; } td { border-left: 1px solid #d3d9e0; } td:first-child { border-left: none; } th { background-color: #eaf0f7; font-weight: 700; color: #2c3e50; font-size: 1.1em; border-top: 1px solid #d3d9e0;} tbody tr:last-child td { border-bottom: none; } #sacrificesTableBody tr:nth-child(even), #userSacrificesTableBody tr:nth-child(even) { background-color: #fbfcfd; } #sacrificesTableBody tr:hover, #userSacrificesTableBody tr:hover { background-color: #e6f3ff; }
     </style>
 </head>
 <body>
@@ -97,7 +119,7 @@
         <div class="container"> 
             <h1>موقع تسجيل الأضاحي</h1>
             <div id="authStatus"></div> 
-            <!-- ... (بقية HTML كما هو بالضبط من الرد السابق، لم يتغير هيكل HTML) ... -->
+            <!-- ... (HTML كما هو بالضبط من الرد السابق) ... -->
             <div id="loginSection"><h2>تسجيل الدخول</h2><form id="loginForm"><div><label for="usernameInput">رقم/اسم المستخدم:</label><input type="text" id="usernameInput" name="usernameInput" required></div><div><label for="passwordInput">كلمة المرور:</label><input type="password" id="passwordInput" name="passwordInput" required></div><button type="submit">دخول</button></form></div><button id="logoutButton" class="hidden-field">تسجيل الخروج</button> <hr class="hidden-field" id="hrAfterLogout"><div id="dataEntrySection" class="user-section"> <hr> <h2>تسجيل أضحية/تبرع جديد</h2><form id="adahiForm"><div><label for="donorName">اسم المتبرع:</label><input type="text" id="donorName" name="donorName" required></div><div><label for="sacrificeFor">الأضحية عن (اسم الشخص/الجهة):</label><input type="text" id="sacrificeFor" name="sacrificeFor" required></div><div><label class="radio-group-label">هل يريد الحضور؟</label><input type="radio" id="wantsToAttendYes" name="wantsToAttend" value="yes"><label for="wantsToAttendYes">نعم</label><input type="radio" id="wantsToAttendNo" name="wantsToAttend" value="no" checked><label for="wantsToAttendNo">لا</label></div><div><label for="phoneNumber">رقم الهاتف (اختياري):</label><input type="tel" id="phoneNumber" name="phoneNumber"></div><div><label class="radio-group-label">هل يريد جزءًا من الأضحية؟</label><input type="radio" id="wantsPortionYes" name="wantsPortion" value="yes"><label for="wantsPortionYes">نعم</label><input type="radio" id="wantsPortionNo" name="wantsPortion" value="no" checked><label for="wantsPortionNo">لا</label></div><div id="portionDetailsDiv" class="hidden-field"><label for="portionDetails">ماذا يريد من الأضحية؟</label><textarea id="portionDetails" name="portionDetails" rows="3"></textarea></div><div id="addressFieldDiv" class="hidden-field"><label for="address">العنوان (لتوصيل الجزء إذا اختار "نعم"):</label><input type="text" id="address" name="address"></div><div><label class="radio-group-label">هل تم الدفع؟</label><input type="radio" id="paymentDoneYes" name="paymentDone" value="yes"><label for="paymentDoneYes">نعم</label><input type="radio" id="paymentDoneNo" name="paymentDone" value="no" checked><label for="paymentDoneNo">لا</label></div><div id="paymentDetailsDiv" class="hidden-field"><div><label for="receiptBookNumber">رقم الدفتر:</label><input type="text" id="receiptBookNumber" name="receiptBookNumber"></div><div><label for="receiptNumber">رقم السند:</label><input type="text" id="receiptNumber" name="receiptNumber"></div></div><div><label for="assistanceFor">لمن المساعدة (توزيع اللحم)؟</label><select id="assistanceFor" name="assistanceFor"><option value="inside_ramtha">داخل الرمثا</option><option value="gaza_people">لأهل غزة</option><option value="for_himself">لنفسه (إذا كان سيأخذها كاملة)</option></select></div><div style="text-align: center;"><button type="submit">تسجيل البيانات</button></div></form><div id="statusMessage"></div><hr></div><div id="userDataViewSection" class="user-data-section"><h2>تسجيلاتك الحالية</h2><p id="userLoadingMessage">جاري تحميل تسجيلاتك...</p><table id="userSacrificesTable" border="1"><thead><tr><th>م.</th><th>اسم المتبرع</th><th>الأضحية عن</th><th>تاريخ التسجيل</th><th>الحالة</th></tr></thead><tbody id="userSacrificesTableBody"></tbody></table><hr></div><div id="adminViewSection" class="admin-section"> <h2>سجلات الأضاحي المسجلة</h2><div id="adminActions"><button id="filterPending">عرض قيد المراجعة فقط</button><button id="filterApproved">عرض الموافق عليها فقط</button><button id="filterRejected">عرض المرفوضة فقط</button><button id="filterAll">عرض الكل</button></div><div id="sacrificesTableContainer"><p id="loadingMessage">جاري تحميل البيانات...</p><table id="sacrificesTable" border="1"><thead><tr><th>م.</th><th>اسم المتبرع</th><th>الأضحية عن</th><th>يريد الحضور</th><th>رقم الهاتف</th><th>يريد جزءًا</th><th>تفاصيل الجزء</th><th>العنوان</th><th>تم الدفع</th><th>رقم الدفتر</th><th>رقم السند</th><th>لمن المساعدة</th><th>تاريخ التسجيل</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody id="sacrificesTableBody"></tbody></table></div><hr></div>
         </div> 
     </div> 
