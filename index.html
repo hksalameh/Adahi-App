@@ -5,186 +5,227 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تسجيل الأضاحي</title>
     <style>
+        /* --- خطوط جوجل --- */
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap');
+        /* يمكنك اختيار خط آخر إذا أردت، مثل Noto Sans Arabic, Cairo, etc. */
+
         body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* خط أكثر حداثة */
-            margin: 0; /* إزالة الهوامش الافتراضية */
-            padding: 20px;
-            background-color: #f4f7f6; /* لون خلفية خفيف للصفحة */
-            color: #333; /* لون النص الأساسي */
+            font-family: 'Tajawal', sans-serif; /* استخدام خط Tajawal */
+            margin: 0;
+            padding: 0; /* إزالة الـ padding من body مباشرة */
+            background-color: #eef1f5; /* لون خلفية أفتح قليلاً */
+            color: #333; 
+            line-height: 1.6; /* تحسين قابلية القراءة */
         }
-        .container { /* لإضافة حاوية رئيسية وتوسيط المحتوى قليلاً */
-            max-width: 960px;
-            margin: auto;
+        .page-container { /* حاوية الصفحة الرئيسية لإضافة padding */
+            padding: 20px;
+        }
+        .container { 
+            max-width: 900px; /* تقليل العرض الأقصى قليلاً */
+            margin: 20px auto; /* إضافة هامش علوي وسفلي للحاوية */
             background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 25px 30px; /* زيادة الـ padding الداخلي */
+            border-radius: 10px; /* زيادة دائرية الحواف */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08); /* تعديل الظل */
         }
-        h1, h2 {
-            color: #0056b3; /* لون للعناوين الرئيسية */
-            text-align: center; /* توسيط العنوان الرئيسي */
+        h1 { /* عنوان الموقع الرئيسي */
+            color: #1a237e; /* لون أزرق داكن */
+            text-align: center;
+            margin-bottom: 30px; /* زيادة الهامش السفلي */
+            font-size: 2.2em; /* تكبير الخط */
         }
-        label { 
-            display: block; 
-            margin-top: 12px; 
-            margin-bottom: 4px; /* إضافة هامش سفلي صغير للـ label */
-            font-weight: bold; /* جعل الـ label أثقل قليلاً */
+        h2 { /* عناوين الأقسام */
+            color: #283593; /* درجة أفتح من h1 */
+            text-align: center; 
+            margin-top: 30px; /* زيادة الهامش العلوي */
+            margin-bottom: 25px; /* زيادة الهامش السفلي */
+            border-bottom: 2px solid #e0e0e0; /* خط سفلي خفيف للتمييز */
+            padding-bottom: 10px; /* تباعد للخط السفلي */
+            font-size: 1.8em; /* تكبير خط H2 */
+        }
+
+        /* --- تحسينات نموذج الإدخال --- */
+        #dataEntrySection form label, 
+        #loginSection form label { /* استهداف الـ label داخل النماذج */
+            font-size: 1.1em; /* تكبير خط الـ label */
+            color: #444; /* تغميق لون الـ label قليلاً */
+            margin-bottom: 8px; /* زيادة الهامش السفلي للـ label */
+        }
+        #dataEntrySection form input[type="text"],
+        #dataEntrySection form input[type="tel"],
+        #dataEntrySection form textarea,
+        #dataEntrySection form select,
+        #loginSection form input[type="text"],  /* usernameInput */
+        #loginSection form input[type="password"] {
+            font-size: 1em; /* تكبير خط حقول الإدخال قليلاً */
+            padding: 12px; /* زيادة الـ padding داخل الحقول */
+            border: 1px solid #ced4da; /* تغيير لون الحدود قليلاً */
+            background-color: #fdfdfd; /* خلفية فاتحة جدا للحقول */
+        }
+        #dataEntrySection form input[type="text"]:focus,
+        #dataEntrySection form input[type="tel"]:focus,
+        #dataEntrySection form textarea:focus,
+        #dataEntrySection form select:focus,
+        #loginSection form input[type="text"]:focus,
+        #loginSection form input[type="password"]:focus { /* تأثير عند التركيز على الحقل */
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+            outline: none; /* إزالة المخطط الافتراضي */
+        }
+        #dataEntrySection form div,
+        #loginSection form div { /* إضافة تباعد بين مجموعات الحقول */
+            margin-bottom: 20px; 
+        }
+        /* تنسيق خاص لأزرار الراديو لتظهر بشكل أفضل */
+        #dataEntrySection input[type="radio"] + label {
+            font-weight: normal; /* جعل خط label الراديو عاديًا */
+            font-size: 1em; /* توحيد حجم الخط */
+            margin-right: 20px; /* زيادة المسافة بين خيارات الراديو */
+            margin-left: 5px;
             color: #555;
         }
-        input[type="text"], 
-        input[type="email"], 
-        input[type="password"], 
-        input[type="tel"], 
-        textarea, 
-        select { 
-            width: 100%; 
-            padding: 10px; /* زيادة الـ padding قليلاً */
-            margin-top: 5px; 
-            margin-bottom: 10px; /* إضافة هامش سفلي للحقول */
-            box-sizing: border-box; 
-            border: 1px solid #ccc;
-            border-radius: 4px; /* إضافة حواف دائرية للحقول */
+        #dataEntrySection input[type="radio"] {
+            margin-left: 5px; /* تباعد لزر الراديو نفسه */
+            vertical-align: middle; /* محاذاة رأسية أفضل */
         }
-        /* *** بداية: تعديلات الأزرار *** */
-        button, input[type="submit"] { /* تطبيق النمط على كل الأزرار */
-            padding: 10px 20px; /* تعديل الـ padding */
-            background-color: #007bff; 
+        /* --- نهاية تحسينات نموذج الإدخال --- */
+        
+        button, input[type="submit"] { 
+            padding: 12px 25px; /* زيادة الـ padding */
+            background-color: #0069d9; /* تغيير درجة الأزرق قليلاً */
             color: white; 
             border: none; 
             cursor: pointer; 
-            margin-top: 10px; /* تقليل الهامش العلوي قليلاً */
-            margin-right: 10px; /* إضافة هامش يميني للفصل بين الأزرار إذا كانت متجاورة */
-            border-radius: 5px; /* حواف دائرية للأزرار */
-            font-size: 1em; /* حجم خط مناسب */
-            transition: background-color 0.3s ease; /* تأثير انتقال ناعم عند المرور */
+            margin-top: 10px; 
+            margin-right: 10px; 
+            border-radius: 6px; /* زيادة دائرية الحواف */
+            font-size: 1.05em; /* تكبير الخط قليلاً */
+            font-weight: 500; /* جعل الخط أثقل قليلاً */
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out; /* إضافة تأثير للضغط */
         }
         button:hover, input[type="submit"]:hover { 
             background-color: #0056b3; 
         }
-        #logoutButton { 
-            background-color: #dc3545; /* أحمر لتسجيل الخروج */
+        button:active, input[type="submit"]:active { /* تأثير عند الضغط */
+            transform: translateY(1px);
         }
-        #logoutButton:hover {
-            background-color: #c82333;
+
+        /* زر تسجيل البيانات الرئيسي في نموذج الإدخال */
+        #adahiForm button[type="submit"] {
+            background-color: #28a745; /* لون أخضر للنجاح/الإرسال */
+            min-width: 150px; /* عرض أدنى للزر */
         }
+        #adahiForm button[type="submit"]:hover {
+            background-color: #218838;
+        }
+
+        #logoutButton { background-color: #c82333; } /* أحمر أغمق لتسجيل الخروج */
+        #logoutButton:hover { background-color: #bd2130; }
+
         #adminActions button { 
-            background-color: #6c757d; /* رمادي لأزرار الإدارة */
-            font-size: 0.9em; /* تصغير خط أزرار الفلترة قليلاً */
+            background-color: #5a6268; /* رمادي أغمق لأزرار الإدارة */
+            font-size: 0.9em; 
             padding: 8px 15px;
         }
-        #adminActions button:hover { 
-            background-color: #5a6268; 
-        }
-        /* الأزرار داخل جدول الإجراءات (موافقة/رفض) */
+        #adminActions button:hover { background-color: #495057; }
+        
         #sacrificesTableBody button {
-            font-size: 0.85em;
-            padding: 5px 10px;
-            margin-right: 5px; /* لتقريب الأزرار من بعضها في الخلية */
+            font-size: 0.85em; padding: 5px 10px; margin-right: 5px;
         }
-        /* *** نهاية: تعديلات الأزرار *** */
 
         .hidden-field, .admin-section, .user-section, .user-data-section { display: none; }
-        hr { 
-            margin: 30px 0; /* زيادة هامش الخط الفاصل */
-            border: 0;
-            border-top: 1px solid #eee;
-        }
-        #statusMessage, #authStatus { 
-            margin-top: 15px; 
-            padding: 12px; /* زيادة الـ padding قليلاً */
-            border-radius: 5px; 
-            font-weight: bold;
-        }
-        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        hr { margin: 35px 0; border: 0; border-top: 1px solid #ddd; }
+        #statusMessage, #authStatus { margin-top: 20px; padding: 12px; border-radius: 5px; font-weight: 500; font-size: 1.05em; }
+        .success { background-color: #d1e7dd; color: #0f5132; border: 1px solid #badbcc; }
+        .error { background-color: #f8d7da; color: #842029; border: 1px solid #f5c2c7; }
         
-        table { 
-            width:100%; 
-            margin-top: 20px; /* زيادة الهامش العلوي للجدول */
-            border-collapse: collapse; 
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05); /* ظل خفيف للجدول */
-        }
-        th, td { 
-            border: 1px solid #e0e0e0; /* لون حدود أفتح قليلاً */
-            padding: 10px 12px; /* تعديل الـ padding للخلايا */
-            text-align: right; 
-            vertical-align: middle; /* محاذاة رأسية للمحتوى في الخلية */
-        }
-        th { 
-            background-color: #f0f2f5; /* لون خلفية أفتح لرؤوس الجدول */
-            font-weight: bold; /* جعل خط رؤوس الجدول أثقل */
-            color: #333;
-        }
-        /* إضافة تأثير zebra-striping للجدول (اختياري) */
+        table { width:100%; margin-top: 20px; border-collapse: collapse; box-shadow: 0 2px 5px rgba(0,0,0,0.07); }
+        th, td { border: 1px solid #d3d9e0; padding: 12px 15px; text-align: right; vertical-align: middle; }
+        th { background-color: #e9ecef; font-weight: 700; color: #212529; font-size: 1.05em; }
         #sacrificesTableBody tr:nth-child(even),
-        #userSacrificesTableBody tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
+        #userSacrificesTableBody tr:nth-child(even) { background-color: #f8f9fa; }
         #sacrificesTableBody tr:hover,
-        #userSacrificesTableBody tr:hover {
-            background-color: #f1f1f1; /* تغيير لون الصف عند المرور بالفأرة */
-        }
+        #userSacrificesTableBody tr:hover { background-color: #e9ecef; }
     </style>
 </head>
 <body>
-    <!-- إضافة حاوية رئيسية -->
-    <div class="container"> 
-        <h1>مرحباً بك في موقع تسجيل الأضاحي</h1>
-        <div id="authStatus"></div> 
+    <div class="page-container"> <!-- تمت إضافة حاوية للصفحة -->
+        <div class="container"> 
+            <h1>موقع تسجيل الأضاحي</h1> <!-- تم تعديل العنوان الرئيسي -->
+            <div id="authStatus"></div> 
 
-        <div id="loginSection">
-            <h2>تسجيل الدخول</h2>
-            <form id="loginForm">
-                <div><label for="usernameInput">رقم/اسم المستخدم:</label><input type="text" id="usernameInput" name="usernameInput" required></div>
-                <div><label for="passwordInput">كلمة المرور:</label><input type="password" id="passwordInput" name="passwordInput" required></div>
-                <button type="submit">دخول</button>
-            </form>
-        </div>
-        
-        <button id="logoutButton" class="hidden-field">تسجيل الخروج</button> <hr class="hidden-field" id="hrAfterLogout">
-
-        <div id="dataEntrySection" class="user-section"> 
-            <p>مرحباً، يمكنك الآن تسجيل البيانات.</p><hr>
-            <h2>تسجيل أضحية/تبرع جديد</h2>
-            <form id="adahiForm">
-                <div><label for="donorName">اسم المتبرع:</label><input type="text" id="donorName" name="donorName" required></div>
-                <div><label for="sacrificeFor">الأضحية عن (اسم الشخص/الجهة):</label><input type="text" id="sacrificeFor" name="sacrificeFor" required></div>
-                <div><label>هل يريد الحضور؟</label><input type="radio" id="wantsToAttendYes" name="wantsToAttend" value="yes"><label for="wantsToAttendYes" style="display: inline-block; margin-right: 10px;">نعم</label><input type="radio" id="wantsToAttendNo" name="wantsToAttend" value="no" checked><label for="wantsToAttendNo" style="display: inline-block;">لا</label></div>
-                <div><label for="phoneNumber">رقم الهاتف (اختياري):</label><input type="tel" id="phoneNumber" name="phoneNumber"></div>
-                <div><label>هل يريد جزءًا من الأضحية؟</label><input type="radio" id="wantsPortionYes" name="wantsPortion" value="yes"><label for="wantsPortionYes" style="display: inline-block; margin-right: 10px;">نعم</label><input type="radio" id="wantsPortionNo" name="wantsPortion" value="no" checked><label for="wantsPortionNo" style="display: inline-block;">لا</label></div>
-                <div id="portionDetailsDiv" class="hidden-field"><label for="portionDetails">ماذا يريد من الأضحية؟</label><textarea id="portionDetails" name="portionDetails" rows="3"></textarea></div>
-                <div id="addressFieldDiv" class="hidden-field"><label for="address">العنوان (اختياري لتوصيل الجزء):</label><input type="text" id="address" name="address"></div>
-                <div><label>هل تم الدفع؟</label><input type="radio" id="paymentDoneYes" name="paymentDone" value="yes"><label for="paymentDoneYes" style="display: inline-block; margin-right: 10px;">نعم</label><input type="radio" id="paymentDoneNo" name="paymentDone" value="no" checked><label for="paymentDoneNo" style="display: inline-block;">لا</label></div>
-                <div id="paymentDetailsDiv" class="hidden-field"><div><label for="receiptBookNumber">رقم الدفتر:</label><input type="text" id="receiptBookNumber" name="receiptBookNumber"></div><div><label for="receiptNumber">رقم السند:</label><input type="text" id="receiptNumber" name="receiptNumber"></div></div>
-                <div><label for="assistanceFor">لمن المساعدة (توزيع اللحم)؟</label><select id="assistanceFor" name="assistanceFor"><option value="inside_ramtha">داخل الرمثا</option><option value="gaza_people">لأهل غزة</option><option value="for_himself">لنفسه (إذا كان سيأخذها كاملة)</option></select></div>
-                <br><button type="submit">تسجيل البيانات</button>
-            </form>
-            <div id="statusMessage"></div><hr>
-        </div>
-
-        <div id="userDataViewSection" class="user-data-section">
-            <h2>تسجيلاتك الحالية</h2>
-            <p id="userLoadingMessage">جاري تحميل تسجيلاتك...</p>
-            <table id="userSacrificesTable" border="1">
-                <thead><tr><th>اسم المتبرع</th><th>الأضحية عن</th><th>تاريخ التسجيل</th><th>الحالة</th></tr></thead>
-                <tbody id="userSacrificesTableBody"></tbody>
-            </table><hr>
-        </div>
-
-        <div id="adminViewSection" class="admin-section"> 
-            <h2>سجلات الأضاحي المسجلة (للمسؤول)</h2>
-            <div id="adminActions">
-                <button id="filterPending">عرض قيد المراجعة فقط</button><button id="filterApproved">عرض الموافق عليها فقط</button><button id="filterRejected">عرض المرفوضة فقط</button><button id="filterAll">عرض الكل</button>
+            <div id="loginSection">
+                <h2>تسجيل الدخول</h2>
+                <form id="loginForm">
+                    <div><label for="usernameInput">رقم/اسم المستخدم:</label><input type="text" id="usernameInput" name="usernameInput" required></div>
+                    <div><label for="passwordInput">كلمة المرور:</label><input type="password" id="passwordInput" name="passwordInput" required></div>
+                    <button type="submit">دخول</button>
+                </form>
             </div>
-            <div id="sacrificesTableContainer">
-                <p id="loadingMessage">جاري تحميل البيانات...</p>
-                <table id="sacrificesTable" border="1">
-                    <thead><tr><th>اسم المتبرع</th><th>الأضحية عن</th><th>يريد الحضور</th><th>رقم الهاتف</th><th>يريد جزءًا</th><th>تفاصيل الجزء</th><th>العنوان</th><th>تم الدفع</th><th>رقم الدفتر</th><th>رقم السند</th><th>لمن المساعدة</th><th>تاريخ التسجيل</th><th>الحالة</th><th>إجراءات</th></tr></thead>
-                    <tbody id="sacrificesTableBody"></tbody>
-                </table>
-            </div><hr>
-        </div>
-    </div> <!-- نهاية الحاوية الرئيسية container -->
+            
+            <button id="logoutButton" class="hidden-field">تسجيل الخروج</button> <hr class="hidden-field" id="hrAfterLogout">
+
+            <div id="dataEntrySection" class="user-section"> 
+                <!-- <p>مرحباً، يمكنك الآن تسجيل البيانات.</p>  تم إزالة هذا السطر، رسالة authStatus كافية -->
+                <hr> 
+                <h2>تسجيل أضحية/تبرع جديد</h2>
+                <form id="adahiForm">
+                    <div><label for="donorName">اسم المتبرع:</label><input type="text" id="donorName" name="donorName" required></div>
+                    <div><label for="sacrificeFor">الأضحية عن (اسم الشخص/الجهة):</label><input type="text" id="sacrificeFor" name="sacrificeFor" required></div>
+                    <div><label>هل يريد الحضور؟</label><br> <!-- إضافة <br> لتنسيق أفضل للراديو -->
+                        <input type="radio" id="wantsToAttendYes" name="wantsToAttend" value="yes">
+                        <label for="wantsToAttendYes">نعم</label>
+                        <input type="radio" id="wantsToAttendNo" name="wantsToAttend" value="no" checked>
+                        <label for="wantsToAttendNo">لا</label>
+                    </div>
+                    <div><label for="phoneNumber">رقم الهاتف (اختياري):</label><input type="tel" id="phoneNumber" name="phoneNumber"></div>
+                    <div><label>هل يريد جزءًا من الأضحية؟</label><br> <!-- إضافة <br> -->
+                        <input type="radio" id="wantsPortionYes" name="wantsPortion" value="yes">
+                        <label for="wantsPortionYes">نعم</label>
+                        <input type="radio" id="wantsPortionNo" name="wantsPortion" value="no" checked>
+                        <label for="wantsPortionNo">لا</label>
+                    </div>
+                    <div id="portionDetailsDiv" class="hidden-field"><label for="portionDetails">ماذا يريد من الأضحية؟</label><textarea id="portionDetails" name="portionDetails" rows="3"></textarea></div>
+                    <div id="addressFieldDiv" class="hidden-field"><label for="address">العنوان (لتوصيل الجزء إذا اختار "نعم"):</label><input type="text" id="address" name="address"></div>
+                    <div><label>هل تم الدفع؟</label><br> <!-- إضافة <br> -->
+                        <input type="radio" id="paymentDoneYes" name="paymentDone" value="yes">
+                        <label for="paymentDoneYes">نعم</label>
+                        <input type="radio" id="paymentDoneNo" name="paymentDone" value="no" checked>
+                        <label for="paymentDoneNo">لا</label>
+                    </div>
+                    <div id="paymentDetailsDiv" class="hidden-field"><div><label for="receiptBookNumber">رقم الدفتر:</label><input type="text" id="receiptBookNumber" name="receiptBookNumber"></div><div><label for="receiptNumber">رقم السند:</label><input type="text" id="receiptNumber" name="receiptNumber"></div></div>
+                    <div><label for="assistanceFor">لمن المساعدة (توزيع اللحم)؟</label><select id="assistanceFor" name="assistanceFor"><option value="inside_ramtha">داخل الرمثا</option><option value="gaza_people">لأهل غزة</option><option value="for_himself">لنفسه (إذا كان سيأخذها كاملة)</option></select></div>
+                    <div style="text-align: center;"><!-- لتوسيط الزر -->
+                        <button type="submit">تسجيل البيانات</button>
+                    </div>
+                </form>
+                <div id="statusMessage"></div><hr>
+            </div>
+
+            <div id="userDataViewSection" class="user-data-section">
+                <h2>تسجيلاتك الحالية</h2>
+                <p id="userLoadingMessage">جاري تحميل تسجيلاتك...</p>
+                <table id="userSacrificesTable" border="1">
+                    <thead><tr><th>اسم المتبرع</th><th>الأضحية عن</th><th>تاريخ التسجيل</th><th>الحالة</th></tr></thead>
+                    <tbody id="userSacrificesTableBody"></tbody>
+                </table><hr>
+            </div>
+
+            <div id="adminViewSection" class="admin-section"> 
+                <h2>سجلات الأضاحي المسجلة</h2> <!-- تم إزالة (للمسؤول) من هنا -->
+                <div id="adminActions" style="text-align: center; margin-bottom: 20px;"> <!-- توسيط أزرار الفلترة -->
+                    <button id="filterPending">عرض قيد المراجعة فقط</button><button id="filterApproved">عرض الموافق عليها فقط</button><button id="filterRejected">عرض المرفوضة فقط</button><button id="filterAll">عرض الكل</button>
+                </div>
+                <div id="sacrificesTableContainer">
+                    <p id="loadingMessage">جاري تحميل البيانات...</p>
+                    <table id="sacrificesTable" border="1">
+                        <thead><tr><th>اسم المتبرع</th><th>الأضحية عن</th><th>يريد الحضور</th><th>رقم الهاتف</th><th>يريد جزءًا</th><th>تفاصيل الجزء</th><th>العنوان</th><th>تم الدفع</th><th>رقم الدفتر</th><th>رقم السند</th><th>لمن المساعدة</th><th>تاريخ التسجيل</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+                        <tbody id="sacrificesTableBody"></tbody>
+                    </table>
+                </div><hr>
+            </div>
+        </div> <!-- نهاية container -->
+    </div> <!-- نهاية page-container -->
 
     <script type="module">
       // ... (كل شيفرة JavaScript تبقى كما هي تمامًا بدون تغيير) ...
