@@ -4,23 +4,105 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تسجيل الأضاحي</title>
+    <style>
+        /* بعض التنسيقات البسيطة لتحسين المظهر قليلاً */
+        body { font-family: sans-serif; margin: 20px; }
+        label { display: block; margin-top: 10px; }
+        input[type="text"], input[type="tel"], textarea, select { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; }
+        button { padding: 10px 15px; background-color: #007bff; color: white; border: none; cursor: pointer; margin-top: 20px; }
+        button:hover { background-color: #0056b3; }
+        .hidden-field { display: none; } /* لإخفاء الحقول مبدئيًا */
+        hr { margin: 20px 0; }
+    </style>
 </head>
 <body>
     <h1>مرحباً بك في موقع تسجيل الأضاحي</h1>
     <p>هذا هو الإصدار الأولي لموقعنا.</p>
+    <hr>
+
+    <h2>تسجيل أضحية/تبرع جديد</h2>
+    <form id="adahiForm">
+        <div>
+            <label for="donorName">اسم المتبرع:</label>
+            <input type="text" id="donorName" name="donorName" required>
+        </div>
+
+        <div>
+            <label for="sacrificeFor">الأضحية عن (اسم الشخص/الجهة):</label>
+            <input type="text" id="sacrificeFor" name="sacrificeFor" required>
+        </div>
+
+        <div>
+            <label>هل يريد الحضور؟</label>
+            <input type="radio" id="wantsToAttendYes" name="wantsToAttend" value="yes">
+            <label for="wantsToAttendYes" style="display: inline-block; margin-right: 10px;">نعم</label>
+            <input type="radio" id="wantsToAttendNo" name="wantsToAttend" value="no" checked>
+            <label for="wantsToAttendNo" style="display: inline-block;">لا</label>
+        </div>
+
+        <div id="phoneFieldDiv" class="hidden-field"> <!-- سيتم إظهاره بـ JS -->
+            <label for="phoneNumber">رقم الهاتف (اختياري إذا حضر):</label>
+            <input type="tel" id="phoneNumber" name="phoneNumber">
+        </div>
+
+        <div>
+            <label>هل يريد جزءًا من الأضحية؟</label>
+            <input type="radio" id="wantsPortionYes" name="wantsPortion" value="yes">
+            <label for="wantsPortionYes" style="display: inline-block; margin-right: 10px;">نعم</label>
+            <input type="radio" id="wantsPortionNo" name="wantsPortion" value="no" checked>
+            <label for="wantsPortionNo" style="display: inline-block;">لا</label>
+        </div>
+
+        <div id="portionDetailsDiv" class="hidden-field"> <!-- سيتم إظهاره بـ JS -->
+            <label for="portionDetails">ماذا يريد من الأضحية؟</label>
+            <textarea id="portionDetails" name="portionDetails" rows="3"></textarea>
+        </div>
+        
+        <div id="addressFieldDiv" class="hidden-field"> <!-- سيتم إظهاره بـ JS إذا اختار "يريد جزءًا" -->
+            <label for="address">العنوان (اختياري لتوصيل الجزء):</label>
+            <input type="text" id="address" name="address">
+        </div>
+
+        <div>
+            <label>هل تم الدفع؟</label>
+            <input type="radio" id="paymentDoneYes" name="paymentDone" value="yes">
+            <label for="paymentDoneYes" style="display: inline-block; margin-right: 10px;">نعم</label>
+            <input type="radio" id="paymentDoneNo" name="paymentDone" value="no" checked>
+            <label for="paymentDoneNo" style="display: inline-block;">لا</label>
+        </div>
+
+        <div id="paymentDetailsDiv" class="hidden-field"> <!-- سيتم إظهاره بـ JS -->
+            <div>
+                <label for="receiptBookNumber">رقم الدفتر:</label>
+                <input type="text" id="receiptBookNumber" name="receiptBookNumber">
+            </div>
+            <div>
+                <label for="receiptNumber">رقم السند:</label>
+                <input type="text" id="receiptNumber" name="receiptNumber">
+            </div>
+        </div>
+
+        <div>
+            <label for="assistanceFor">لمن المساعدة (توزيع اللحم)؟</label>
+            <select id="assistanceFor" name="assistanceFor">
+                <option value="inside_ramtha">داخل الرمثا</option>
+                <option value="gaza_people">لأهل غزة</option>
+                <option value="for_himself">لنفسه (إذا كان سيأخذها كاملة)</option>
+            </select>
+        </div>
+        <br>
+        <button type="submit">تسجيل البيانات</button>
+    </form>
+    <hr>
 
     <script type="module">
     
       // Import the functions you need from the SDKs you need
       import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
       import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-analytics.js";
-      // *** إضافة جديدة: استيراد Firestore ***
       import { getFirestore } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-firestore.js"; 
-      // TODO: Add SDKs for Firebase products that you want to use
-      // https://firebase.google.com/docs/web/setup#available-libraries
-
+      
       // Your web app's Firebase configuration
-      // For Firebase JS SDK v7.20.0 and later, measurementId is optional
       const firebaseConfig = {
         apiKey: "AIzaSyAOV5iF6t5kdAeBIZPNcmINB4Ya66Yx9Pg",
         authDomain: "adahi-app.firebaseapp.com",
@@ -34,14 +116,66 @@
       // Initialize Firebase
       const app = initializeApp(firebaseConfig);
       const analytics = getAnalytics(app);
-
-      // *** إضافة جديدة: تهيئة Firestore ***
-      // Initialize Cloud Firestore and get a reference to the service
       const db = getFirestore(app);
 
-      // *** إضافة جديدة: للتأكد من أن كل شيء يعمل ***
       console.log("Firebase, Analytics, and Firestore initialized!");
-      console.log("Firestore instance:", db); // لعرض كائن Firestore في الكونسول
+      console.log("Firestore instance:", db);
+
+      // --- JavaScript للتحكم في إظهار/إخفاء الحقول ---
+      const wantsToAttendYesRadio = document.getElementById('wantsToAttendYes');
+      const wantsToAttendNoRadio = document.getElementById('wantsToAttendNo');
+      const phoneFieldDiv = document.getElementById('phoneFieldDiv');
+
+      const wantsPortionYesRadio = document.getElementById('wantsPortionYes');
+      const wantsPortionNoRadio = document.getElementById('wantsPortionNo');
+      const portionDetailsDiv = document.getElementById('portionDetailsDiv');
+      const addressFieldDiv = document.getElementById('addressFieldDiv'); // أضفنا هذا
+
+      const paymentDoneYesRadio = document.getElementById('paymentDoneYes');
+      const paymentDoneNoRadio = document.getElementById('paymentDoneNo');
+      const paymentDetailsDiv = document.getElementById('paymentDetailsDiv');
+
+      // التحكم في حقل الهاتف
+      wantsToAttendYesRadio.addEventListener('change', function() {
+          if (this.checked) {
+              phoneFieldDiv.style.display = 'block';
+          }
+      });
+      wantsToAttendNoRadio.addEventListener('change', function() {
+          if (this.checked) {
+              phoneFieldDiv.style.display = 'none';
+          }
+      });
+
+      // التحكم في حقول الجزء من الأضحية والعنوان
+      wantsPortionYesRadio.addEventListener('change', function() {
+          if (this.checked) {
+              portionDetailsDiv.style.display = 'block';
+              addressFieldDiv.style.display = 'block'; // إظهار حقل العنوان
+          }
+      });
+      wantsPortionNoRadio.addEventListener('change', function() {
+          if (this.checked) {
+              portionDetailsDiv.style.display = 'none';
+              addressFieldDiv.style.display = 'none'; // إخفاء حقل العنوان
+          }
+      });
+      
+      // التحكم في حقول تفاصيل الدفع
+      paymentDoneYesRadio.addEventListener('change', function() {
+          if (this.checked) {
+              paymentDetailsDiv.style.display = 'block';
+          }
+      });
+      paymentDoneNoRadio.addEventListener('change', function() {
+          if (this.checked) {
+              paymentDetailsDiv.style.display = 'none';
+          }
+      });
+
+      // --- نهاية JavaScript للتحكم في إظهار/إخفاء الحقول ---
+
+      // (سنضيف هنا لاحقًا شيفرة إرسال النموذج إلى Firestore)
 
     </script>
 </body>
