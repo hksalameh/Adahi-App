@@ -8,5 +8,28 @@
 <body>
     <h1>مرحباً بك في موقع تسجيل الأضاحي</h1>
     <p>هذا هو الإصدار الأولي لموقعنا.</p>
+    <script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-analytics.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyAOV5iF6t5kdAeBIZPNcmINB4Ya66Yx9Pg",
+    authDomain: "adahi-app.firebaseapp.com",
+    projectId: "adahi-app",
+    storageBucket: "adahi-app.firebasestorage.app",
+    messagingSenderId: "42370235858",
+    appId: "1:42370235858:web:6f839b92404afafdae9c0b",
+    measurementId: "G-1T2TGPK72K"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+</script>
 </body>
 </html>
