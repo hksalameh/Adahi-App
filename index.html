@@ -88,9 +88,7 @@
 
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
-      // import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-analytics.js";
       import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-auth.js";
-      // *** تم إضافة getDocs هنا ***
       import { getFirestore, collection, addDoc, serverTimestamp, onSnapshot, query, orderBy, where, doc, updateDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-firestore.js"; 
       
       const firebaseConfig = { 
@@ -124,7 +122,7 @@
 
       onAuthStateChanged(auth, (user) => {
           if (user) {
-              authStatus.textContent = `مرحباً بك، ${user.email}`; // سيعرض البريد الإلكتروني حتى لو دخل بالرقم
+              authStatus.textContent = `مرحباً بك، ${user.email}`; 
               authStatus.className = 'success';
               loginSection.style.display = 'none'; 
               logoutButton.style.display = 'inline-block'; 
@@ -155,7 +153,6 @@
           }
       });
 
-      // --- *** بداية: تعديل منطق تسجيل الدخول ليدعم رقم/اسم المستخدم *** ---
       if (loginForm) { 
           loginForm.addEventListener('submit', async (e) => { 
             e.preventDefault();
@@ -165,68 +162,65 @@
             const usernameOrEmail = document.getElementById('usernameInput').value; 
             const password = document.getElementById('passwordInput').value; 
 
-            // الخطوة 1: محاولة تسجيل الدخول مباشرة بالمدخل كبريد إلكتروني
+            // *** أسطر التشخيص تبدأ هنا ***
+            console.log("Attempting login with input:", usernameOrEmail);
+
             try {
+                // console.log("Attempting direct email sign-in..."); // تشخيص
                 const userCredential = await signInWithEmailAndPassword(auth, usernameOrEmail, password);
-                // نجح تسجيل الدخول بالبريد الإلكتروني، onAuthStateChanged سيتولى الباقي
-                // console.log("Signed in directly with email:", userCredential.user.email);
+                console.log("Direct email sign-in successful for:", userCredential.user.email); // تشخيص
                 return; 
             } catch (emailSignInError) {
-                // فشل تسجيل الدخول بالبريد، قد يكون المدخل هو رقم مستخدم أو خطأ في كلمة المرور للبريد
-                // console.log("Direct email sign-in failed, attempting username lookup. Error code:", emailSignInError.code);
-
-                // الخطوة 2: إذا فشل تسجيل الدخول بالبريد، نفترض أن المدخل هو رقم/اسم مستخدم ونبحث عنه
-                // نستمر فقط إذا كان الخطأ يشير إلى أن البريد غير صالح أو المستخدم غير موجود أو بيانات اعتماد خاطئة
-                // (لتجنب محاولة البحث إذا كان هناك خطأ شبكة مثلاً)
+                console.log("Direct email sign-in failed. Error code:", emailSignInError.code); // تشخيص
+                
                 if (emailSignInError.code === 'auth/invalid-email' || 
                     emailSignInError.code === 'auth/user-not-found' || 
-                    emailSignInError.code === 'auth/wrong-password' || // خطأ شائع آخر
+                    emailSignInError.code === 'auth/wrong-password' || 
                     emailSignInError.code === 'auth/invalid-credential') {
+                    
+                    console.log("Attempting username lookup in 'user_credentials_map' for:", usernameOrEmail); // تشخيص
                     try {
                         const usersMapRef = collection(db, "user_credentials_map");
                         const q = query(usersMapRef, where("username", "==", usernameOrEmail));
                         const querySnapshot = await getDocs(q);
 
                         if (querySnapshot.empty) {
-                            authStatus.textContent = 'رقم/اسم المستخدم أو كلمة المرور غير صحيحة.';
+                            authStatus.textContent = 'رقم/اسم المستخدم أو كلمة المرور غير صحيحة (لم يتم العثور على اسم المستخدم).';
                             authStatus.className = 'error';
-                            // console.log("Username not found in map:", usernameOrEmail);
+                            console.log("Username not found in map:", usernameOrEmail); // تشخيص
                             return;
                         }
 
                         let foundUserEmail = null;
-                        querySnapshot.forEach((doc) => { // يجب أن يكون هناك مستند واحد فقط إذا كان username فريدًا
+                        querySnapshot.forEach((doc) => { 
                             foundUserEmail = doc.data().email; 
+                            console.log("Found match in map. Username:", doc.data().username, "Mapped Email:", foundUserEmail); // تشخيص
                         });
 
                         if (foundUserEmail) {
-                            // تم العثور على البريد الإلكتروني، حاول تسجيل الدخول به
+                            console.log("Attempting sign-in with mapped email:", foundUserEmail); // تشخيص
                             await signInWithEmailAndPassword(auth, foundUserEmail, password);
-                            // نجح تسجيل الدخول، onAuthStateChanged سيتولى الباقي
-                            // console.log("Signed in via username lookup, actual email used:", foundUserEmail);
+                            console.log("Sign-in successful with mapped email:", foundUserEmail); // تشخيص
                         } else {
-                            // هذا لا يجب أن يحدث إذا لم تكن querySnapshot فارغة، لكن كاحتياط
-                            authStatus.textContent = 'خطأ في بيانات المستخدم (لم يتم العثور على بريد مطابق).';
+                            authStatus.textContent = 'خطأ في بيانات المستخدم (لم يتم العثور على بريد مطابق بعد البحث).';
                             authStatus.className = 'error';
+                            console.log("Error: foundUserEmail is null after map lookup, though querySnapshot was not empty."); // تشخيص
                         }
 
                     } catch (lookupError) {
                         console.error("Error during username lookup or secondary sign-in:", lookupError);
-                        // عرض رسالة خطأ أكثر عمومية للمستخدم إذا فشل البحث أو تسجيل الدخول الثاني
-                        authStatus.textContent = 'رقم/اسم المستخدم أو كلمة المرور غير صحيحة.';
+                        authStatus.textContent = 'رقم/اسم المستخدم أو كلمة المرور غير صحيحة (خطأ في البحث أو الدخول الثانوي).';
                         authStatus.className = 'error';
                     }
                 } else {
-                    // خطأ آخر في تسجيل الدخول بالبريد غير متوقع (مثل خطأ شبكة)
-                    console.error("Unexpected error signing in with email:", emailSignInError);
+                    console.error("Unexpected error during direct email sign-in:", emailSignInError);
                     authStatus.textContent = `خطأ في تسجيل الدخول: ${emailSignInError.message}`;
                     authStatus.className = 'error';
                 }
             }
           });
       }
-      // --- *** نهاية: تعديل منطق تسجيل الدخول *** ---
-
+      
       if (logoutButton) { 
           logoutButton.addEventListener('click', () => {
             signOut(auth).then(() => { /* onAuthStateChanged handles UI */ })
