@@ -103,7 +103,7 @@ let cachedFormElements = null;
 
 function getFormElements() {
     if (!cachedFormElements) {
-        // console.log("Caching form elements in ui.js");
+         console.log("Caching form elements in ui.js");
         cachedFormElements = getDataEntryFormElements();
     }
     return cachedFormElements;
@@ -113,7 +113,7 @@ function updateWantsPortionVisibility() {
     const { wantsPortionYesRadio, portionDetailsDiv, addressFieldDiv } = getFormElements();
     if (wantsPortionYesRadio && portionDetailsDiv && addressFieldDiv) {
         const show = wantsPortionYesRadio.checked;
-        // console.log(`updateWantsPortionVisibility: wantsPortionYesRadio.checked = ${show}`);
+        console.log(`updateWantsPortionVisibility: wantsPortionYesRadio.checked = ${show}`);
         portionDetailsDiv.style.display = show ? 'block' : 'none';
         addressFieldDiv.style.display = show ? 'block' : 'none';
     }
@@ -123,7 +123,7 @@ function updatePaymentDetailsVisibility() {
     const { paymentDoneYesRadio, paymentDetailsDiv } = getFormElements();
     if (paymentDoneYesRadio && paymentDetailsDiv) {
         const show = paymentDoneYesRadio.checked;
-        // console.log(`updatePaymentDetailsVisibility: paymentDoneYesRadio.checked = ${show}`);
+         console.log(`updatePaymentDetailsVisibility: paymentDoneYesRadio.checked = ${show}`);
         paymentDetailsDiv.style.display = show ? 'block' : 'none';
     }
 }
@@ -132,7 +132,7 @@ function updateBroughtByOtherVisibility() {
     const { broughtByOtherYesRadio, broughtByOtherNameDiv } = getFormElements();
     if (broughtByOtherYesRadio && broughtByOtherNameDiv) {
         const show = broughtByOtherYesRadio.checked;
-        // console.log(`updateBroughtByOtherVisibility: broughtByOtherYesRadio.checked = ${show}`);
+         console.log(`updateBroughtByOtherVisibility: broughtByOtherYesRadio.checked = ${show}`);
         broughtByOtherNameDiv.style.display = show ? 'block' : 'none';
     }
 }
