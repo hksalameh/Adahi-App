@@ -13,15 +13,14 @@ const auth = authModule.initializeAuth();
 let unsubscribeAdminSacrifices = null;
 let unsubscribeUserSacrifices = null;
 let currentEditingDocId = null;
-let ui = {}; // سيتم تعبئته في DOMContentLoaded
-let allAdminSacrificesCache = []; // لتخزين بيانات المسؤول لحساب المجاميع
+let ui = {}; 
+let allAdminSacrificesCache = []; 
 
 function setCurrentEditingDocId(id) {
     currentEditingDocId = id;
 }
 
-// --- دالة لحساب وعرض مجاميع الأضاحي ---
-function updateSacrificesSummary(docsSnapshot) {
+function updateSacrificesSummary() { // لا تحتاج docsSnapshot كمدخل، ستستخدم allAdminSacrificesCache
     if (!ui.adminViewElements || 
         !ui.adminViewElements.summaryGazaEl ||
         !ui.adminViewElements.summarySolidarityEl ||
@@ -35,13 +34,8 @@ function updateSacrificesSummary(docsSnapshot) {
     let solidarityCount = 0;
     let ramthaCount = 0;
     let himselfCount = 0;
-    let totalCount = 0;
-
-    allAdminSacrificesCache = []; // مسح الكاش قبل إعادة التعبئة
-    docsSnapshot.forEach(doc => {
-        const data = doc.data();
-        allAdminSacrificesCache.push(data); // ملء الكاش
-        totalCount++;
+    
+    allAdminSacrificesCache.forEach(data => {
         switch (data.assistanceFor) {
             case 'gaza_people':
                 gazaCount++;
@@ -62,11 +56,9 @@ function updateSacrificesSummary(docsSnapshot) {
     ui.adminViewElements.summarySolidarityEl.textContent = solidarityCount;
     ui.adminViewElements.summaryRamthaEl.textContent = ramthaCount;
     ui.adminViewElements.summaryHimselfEl.textContent = himselfCount;
-    ui.adminViewElements.summaryTotalEl.textContent = totalCount;
+    ui.adminViewElements.summaryTotalEl.textContent = allAdminSacrificesCache.length; // المجموع الكلي هو طول الكاش
 }
 
-
-// --- دوال العرض والتحديث للجداول ---
 function renderCellValue(value, isBooleanNoMeansEmpty = false, conditionalEmptyValue = '') {
     if (value === null || typeof value === 'undefined') return '';
     if (isBooleanNoMeansEmpty && value === false) return '';
@@ -80,19 +72,22 @@ function renderSacrificesForAdminUI(docsSnapshot) {
         return; 
     }
     ui.adminViewElements.sacrificesTableBody.innerHTML = '';
+    allAdminSacrificesCache = []; // مسح الكاش قبل إعادة التعبئة عند كل تحديث للجدول
+
     if (docsSnapshot.empty) {
         if (ui.adminViewElements.adminLoadingMessage) {
             ui.adminViewElements.adminLoadingMessage.textContent = 'لا توجد بيانات لعرضها حاليًا.';
             ui.adminViewElements.adminLoadingMessage.style.display = 'block';
         }
         ui.adminViewElements.sacrificesTableBody.innerHTML = '<tr><td colspan="18">لا توجد بيانات.</td></tr>'; 
-        updateSacrificesSummary(docsSnapshot); // تحديث المجاميع حتى لو كانت فارغة (ستكون أصفار)
+        updateSacrificesSummary(); 
         return;
     }
     if (ui.adminViewElements.adminLoadingMessage) ui.adminViewElements.adminLoadingMessage.style.display = 'none';
     let counter = 1;
     docsSnapshot.forEach((docSnapshot) => {
         const data = docSnapshot.data();
+        allAdminSacrificesCache.push(data); // ملء الكاش
         const row = ui.adminViewElements.sacrificesTableBody.insertRow();
         row.insertCell().textContent = counter++;
         row.insertCell().textContent = renderCellValue(data.donorName);
@@ -168,7 +163,7 @@ function renderSacrificesForAdminUI(docsSnapshot) {
         };
         actionsCell.appendChild(deleteButton);
     });
-    updateSacrificesSummary(docsSnapshot); // تحديث المجاميع بعد عرض البيانات
+    updateSacrificesSummary(); 
 }
 
 function renderSacrificesForUserUI(docsSnapshot) {
@@ -218,7 +213,7 @@ async function fetchAndRenderSacrificesForAdmin(filterStatus = 'all') {
         q = query(sacrificesCol, where("status", "==", filterStatus), orderBy("createdAt", "desc"));
     }
     unsubscribeAdminSacrifices = onSnapshot(q, (querySnapshot) => {
-        renderSacrificesForAdminUI(querySnapshot); // هذه الدالة ستقوم بتحديث المجاميع أيضًا
+        renderSacrificesForAdminUI(querySnapshot); 
     }, (error) => {
         console.error("Error fetching admin sacrifices with onSnapshot: ", error);
         if (ui.adminViewElements && ui.adminViewElements.adminLoadingMessage) ui.adminViewElements.adminLoadingMessage.textContent = 'خطأ في تحميل بيانات المسؤول: ' + error.message;
@@ -375,6 +370,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (ui.commonUIElements.authStatusEl) { ui.commonUIElements.authStatusEl.textContent = 'قم بإنشاء حساب جديد أو سجل دخولك إذا كان لديك حساب بالفعل.'; ui.commonUIElements.authStatusEl.className = ''; }
             if (ui.loginElements.loginForm) ui.loginElements.loginForm.reset();
             if (ui.registrationElements.registrationForm) ui.registrationElements.registrationForm.reset();
+            if (ui.commonUIElements.logoutButton) ui.commonUIElements.logoutButton.classList.add('hidden-field'); // إخفاء زر الخروج
+            if (ui.commonUIElements.hrAfterLogout) ui.commonUIElements.hrAfterLogout.classList.add('hidden-field'); // إخفاء الفاصل
         });
         ui.toggleLinkElements.switchToLoginLink.addEventListener('click', (e) => {
             e.preventDefault();
@@ -385,6 +382,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (ui.commonUIElements.authStatusEl) { ui.commonUIElements.authStatusEl.textContent = 'سجل دخولك أو قم بإنشاء حساب جديد.'; ui.commonUIElements.authStatusEl.className = ''; }
             if (ui.loginElements.loginForm) ui.loginElements.loginForm.reset();
             if (ui.registrationElements.registrationForm) ui.registrationElements.registrationForm.reset();
+            if (ui.commonUIElements.logoutButton) ui.commonUIElements.logoutButton.classList.add('hidden-field'); // إخفاء زر الخروج
+            if (ui.commonUIElements.hrAfterLogout) ui.commonUIElements.hrAfterLogout.classList.add('hidden-field'); // إخفاء الفاصل
         });
     } else {
         console.error("Could not attach click listeners to toggle links. (DOMContentLoaded)");
@@ -486,24 +485,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (ui.adminViewElements.exportAllToExcelButton) {
         ui.adminViewElements.exportAllToExcelButton.addEventListener('click', async () => {
-            if (ui.commonUIElements.authStatusEl) {ui.commonUIElements.authStatusEl.textContent = "جاري تجهيز كل البيانات للتصدير (Excel)..."; ui.commonUIElements.authStatusEl.className = '';}
+             if (ui.commonUIElements.authStatusEl) {ui.commonUIElements.authStatusEl.textContent = "جاري تجهيز كل البيانات للتصدير (Excel)..."; ui.commonUIElements.authStatusEl.className = '';}
             try {
-                // استخدام allAdminSacrificesCache بدلاً من جلب البيانات مرة أخرى
-                if (allAdminSacrificesCache.length === 0) {
-                     const q_excel = query(collection(db, "sacrifices"), orderBy("createdAt", "desc"));
-                     const querySnapshot_excel = await getDocs(q_excel);
-                     if (querySnapshot_excel.empty) { 
-                         if (ui.commonUIElements.authStatusEl) {ui.commonUIElements.authStatusEl.textContent = "لا توجد بيانات للتصدير."; ui.commonUIElements.authStatusEl.className = 'error';}
-                         return; 
-                     }
-                     querySnapshot_excel.forEach(doc => allAdminSacrificesCache.push(doc.data()));
-                }
-
-                if (allAdminSacrificesCache.length === 0) {
-                    if (ui.commonUIElements.authStatusEl) {ui.commonUIElements.authStatusEl.textContent = "لا توجد بيانات للتصدير."; ui.commonUIElements.authStatusEl.className = 'error';}
-                    return;
-                }
-
                 const dataToExport = allAdminSacrificesCache.map(data => ({
                     donorName: data.donorName, 
                     sacrificeFor: data.sacrificeFor,
@@ -520,6 +503,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     createdAt: data.createdAt, 
                     enteredBy: data.enteredBy || ''
                 }));
+
+                if (dataToExport.length === 0) {
+                    if (ui.commonUIElements.authStatusEl) {ui.commonUIElements.authStatusEl.textContent = "لا توجد بيانات للتصدير."; ui.commonUIElements.authStatusEl.className = 'error';}
+                    return;
+                }
 
                 const headerKeys_excel = [
                     "donorName", "sacrificeFor", "wantsToAttend", "phoneNumber", 
@@ -547,17 +535,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ui.adminViewElements.exportAllUsersSeparateExcelButton.addEventListener('click', async () => {
             if (ui.commonUIElements.authStatusEl) {ui.commonUIElements.authStatusEl.textContent = "جاري تجهيز بيانات كل مدخل (Excel)..."; ui.commonUIElements.authStatusEl.className = '';}
             try {
-                // استخدام allAdminSacrificesCache بدلاً من جلب البيانات مرة أخرى
                 if (allAdminSacrificesCache.length === 0) {
-                    const q_excel_users = query(collection(db, "sacrifices"), orderBy("createdAt", "desc"));
-                    const querySnapshot_excel_users = await getDocs(q_excel_users);
-                    if (querySnapshot_excel_users.empty) { 
-                        if (ui.commonUIElements.authStatusEl) {ui.commonUIElements.authStatusEl.textContent = "لا توجد بيانات لتصديرها."; ui.commonUIElements.authStatusEl.className = 'error';}
-                        return; 
-                    }
-                    querySnapshot_excel_users.forEach(doc => allAdminSacrificesCache.push(doc.data()));
-                }
-                 if (allAdminSacrificesCache.length === 0) {
                     if (ui.commonUIElements.authStatusEl) {ui.commonUIElements.authStatusEl.textContent = "لا توجد بيانات لتصديرها."; ui.commonUIElements.authStatusEl.className = 'error';}
                     return;
                 }
@@ -646,34 +624,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 function handleAuthStateChange(user) {
-    if (!ui.loginElements || !ui.commonUIElements) { 
+    if (!ui.loginElements || !ui.commonUIElements || !ui.adminViewElements) { 
         return; 
     }
     const allMainSections = [
         ui.loginElements.loginSection, ui.registrationElements.registrationSection, 
         ui.toggleLinkElements.formToggleLinksDiv, ui.dataEntryFormElements.dataEntrySection, 
-        ui.adminViewElements.adminViewSection, ui.userDataViewElements.userDataViewSection,
-        // زر تسجيل الخروج و hrAfterLogout يتم التحكم بهما بشكل منفصل أدناه
+        ui.adminViewElements.adminViewSection, ui.userDataViewElements.userDataViewSection
     ];
 
     allMainSections.forEach(el => { 
         if (el) el.classList.add('hidden-field'); 
     });
     
-    // إخفاء زر تسجيل الخروج والفاصل بشكل افتراضي
+    // إخفاء العناصر المتعلقة بالمستخدم المسجل دخوله مبدئيًا
     if (ui.commonUIElements.logoutButton) ui.commonUIElements.logoutButton.classList.add('hidden-field');
     if (ui.commonUIElements.hrAfterLogout) ui.commonUIElements.hrAfterLogout.classList.add('hidden-field');
-    // إخفاء قسم المجاميع والفاصل بشكل افتراضي
     if (ui.adminViewElements.sacrificesSummaryDiv) ui.adminViewElements.sacrificesSummaryDiv.classList.add('hidden-field');
     if (ui.adminViewElements.hrAfterSummary) ui.adminViewElements.hrAfterSummary.classList.add('hidden-field');
-
-
+    
     const exportAllBtn = ui.adminViewElements.exportAllToExcelButton; 
     const exportUsersSepBtn = ui.adminViewElements.exportAllUsersSeparateExcelButton;
     if(exportAllBtn) exportAllBtn.classList.add('hidden-field');
     if(exportUsersSepBtn) exportUsersSepBtn.classList.add('hidden-field');
 
-    if (user) {
+    if (user) { // المستخدم مسجل دخوله
         if (ui.commonUIElements.authStatusEl) {
             ui.commonUIElements.authStatusEl.textContent = `مرحباً بك ${user.displayName || user.email}!`;
             ui.commonUIElements.authStatusEl.className = 'success';
@@ -681,6 +656,10 @@ function handleAuthStateChange(user) {
         if (ui.commonUIElements.logoutButton) ui.commonUIElements.logoutButton.classList.remove('hidden-field');
         if (ui.commonUIElements.hrAfterLogout) ui.commonUIElements.hrAfterLogout.classList.remove('hidden-field');
         if (ui.dataEntryFormElements.dataEntrySection) ui.dataEntryFormElements.dataEntrySection.classList.remove('hidden-field');
+
+        // إخفاء روابط تسجيل الدخول/التسجيل
+        if (ui.toggleLinkElements.formToggleLinksDiv) ui.toggleLinkElements.formToggleLinksDiv.classList.add('hidden-field');
+
 
         if (user.uid === ADMIN_UID) {
             if (ui.adminViewElements.adminViewSection) ui.adminViewElements.adminViewSection.classList.remove('hidden-field');
@@ -694,7 +673,7 @@ function handleAuthStateChange(user) {
             fetchAndRenderSacrificesForUserUI(user.uid); 
         }
         if (ui.dataEntryFormElements.adahiForm) uiGetters.resetAdahiFormToEntryMode(setCurrentEditingDocId);
-    } else {
+    } else { // المستخدم غير مسجل دخوله
         if (ui.loginElements.loginSection) ui.loginElements.loginSection.classList.remove('hidden-field');
         if (ui.toggleLinkElements.formToggleLinksDiv) ui.toggleLinkElements.formToggleLinksDiv.classList.remove('hidden-field');
         if (ui.toggleLinkElements.switchToLoginLink) ui.toggleLinkElements.switchToLoginLink.classList.add('hidden-field');
@@ -722,8 +701,8 @@ function handleAuthStateChange(user) {
         if (unsubscribeAdminSacrifices) { unsubscribeAdminSacrifices(); unsubscribeAdminSacrifices = null; }
         if (unsubscribeUserSacrifices) { unsubscribeUserSacrifices(); unsubscribeUserSacrifices = null; }
         currentEditingDocId = null;
-        allAdminSacrificesCache = []; // مسح كاش المجاميع عند تسجيل الخروج
-        updateSacrificesSummary({ empty: true, forEach: () => {} }); // تحديث المجاميع لتكون أصفار
+        allAdminSacrificesCache = []; 
+        updateSacrificesSummary(); 
     }
 }
 
