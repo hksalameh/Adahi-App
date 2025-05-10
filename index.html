@@ -12,7 +12,6 @@
         h1 { color: #2c3e50; text-align: center; margin-bottom: 35px; font-size: 2.5em; font-weight: 700; }
         h2 { color: #34495e; text-align: center; margin-top: 35px; margin-bottom: 30px; border-bottom: 2px solid #eaecee; padding-bottom: 12px; font-size: 2em; font-weight: 700; }
         
-        /* Styles for Auth Forms (Login & Registration) */
         .auth-form-section form label, #dataEntrySection form label { font-size: 1.1em; color: #34495e; margin-bottom: 8px; font-weight: 500; display: block; text-align: right; }
         .auth-form-section .remember-me-label { font-size: 1em; font-weight: normal; margin-right: 5px; }
         .auth-form-section input[type="checkbox"] { vertical-align: middle; margin-left: 5px; transform: scale(1.1); }
@@ -38,14 +37,12 @@
         .auth-form-section .remember-me-group { margin-bottom: 15px; text-align: right;}
         .auth-form-section form { max-width: 400px; margin-left: auto; margin-right: auto; }
 
-        /* Data Entry Form Specific */
         #dataEntrySection form textarea#portionDetails { font-size: 1.1em; padding: 10px; border: 1px solid #bcccdc; background-color: #fcfdff; border-radius: 6px; width: 100%; box-sizing: border-box; min-height: 60px; height: 80px; resize: vertical; }
         #dataEntrySection form textarea#portionDetails:focus { border-color: #5dade2; box-shadow: 0 0 0 0.2rem rgba(41,128,185,.25); outline: none; }
         #dataEntrySection .radio-group-label { font-size: 1.1em; margin-bottom: 10px; display:block; text-align:right;}
         #dataEntrySection input[type="radio"] + label { font-weight: normal; font-size: 1.05em; margin-right: 15px; margin-left: 5px; color: #566573; display: inline-flex; align-items: center; }
         #dataEntrySection input[type="radio"] { margin-left: 8px; vertical-align: middle; width: auto; transform: scale(1.1); }
         
-        /* General Button Styles */
         button, input[type="submit"] { padding: 12px 25px; background-color: #3498db; color: white; border: none; cursor: pointer; margin-top: 10px; margin-right: 10px; border-radius: 6px; font-size: 1.1em; font-weight: 500; transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         button:hover, input[type="submit"]:hover { background-color: #2980b9; } 
         button:active, input[type="submit"]:active { transform: translateY(1px); box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
@@ -75,10 +72,10 @@
         .success { background-color: #d0f0c0; color: #228B22; border: 1px solid #a0d0a0; } 
         .error { background-color: #fddfdf; color: #D8000C; border: 1px solid #fccfcf; } 
         
-        table { width:100%; margin-top: 25px; border-collapse: separate; border-spacing: 0; box-shadow: 0 3px 8px rgba(0,0,0,0.06); border-radius: 8px; overflow: hidden; } 
-        th, td { border-bottom: 1px solid #d3d9e0; padding: 14px 18px; text-align: right; vertical-align: middle; font-size: 1.05em; } 
+        table { width:100%; margin-top: 25px; border-collapse: separate; border-spacing: 0; box-shadow: 0 3px 8px rgba(0,0,0,0.06); border-radius: 8px; overflow: hidden; font-size: 0.95em; /* تصغير حجم الخط قليلاً في الجدول */} 
+        th, td { border-bottom: 1px solid #d3d9e0; padding: 10px 12px; /* تقليل الحشو قليلاً */ text-align: right; vertical-align: middle; /* font-size: 1.05em; */ } 
         td { border-left: 1px solid #d3d9e0; } td:first-child { border-left: none; } 
-        th { background-color: #eaf0f7; font-weight: 700; color: #2c3e50; font-size: 1.1em; border-top: 1px solid #d3d9e0;} 
+        th { background-color: #eaf0f7; font-weight: 700; color: #2c3e50; /* font-size: 1.1em; */ border-top: 1px solid #d3d9e0;} 
         tbody tr:last-child td { border-bottom: none; } 
         #sacrificesTableBody tr:nth-child(even), #userSacrificesTableBody tr:nth-child(even) { background-color: #fbfcfd; } 
         #sacrificesTableBody tr:hover, #userSacrificesTableBody tr:hover { background-color: #e6f3ff; }
@@ -91,7 +88,7 @@
     <div class="page-container">
         <div class="container">
             <h1>موقع تسجيل الأضاحي</h1>
-            <div id="authStatus"></div> <!-- For login/registration/logout messages -->
+            <div id="authStatus"></div> 
 
             <div id="loginSection" class="auth-form-section">
                 <h2>تسجيل الدخول</h2>
@@ -125,7 +122,7 @@
             <button id="logoutButton" class="hidden-field" style="display: block; margin-left:auto; margin-right:auto;">تسجيل الخروج</button>
             <hr class="hidden-field" id="hrAfterLogout">
 
-            <div id="dataEntrySection" class="user-section"> <hr> <!-- user-section class might be redundant if dataEntrySection itself is controlled -->
+            <div id="dataEntrySection" class="user-section"> <hr> 
                 <h2>تسجيل أضحية/تبرع جديد</h2>
                 <form id="adahiForm">
                     <div><label for="donorName">اسم المتبرع (كما سيظهر في السجل):</label><input type="text" id="donorName" name="donorName" required></div>
@@ -171,11 +168,11 @@
                     </div>
                     <div style="text-align: center;"><button type="submit">تسجيل البيانات</button></div>
                 </form>
-                <div id="statusMessage"></div><!-- For adahiForm operation messages -->
+                <div id="statusMessage"></div>
                 <hr>
             </div>
 
-            <div id="userDataViewSection" class="user-data-section"> <!-- Controlled by JS -->
+            <div id="userDataViewSection" class="user-data-section"> 
                 <h2>تسجيلاتك الحالية</h2>
                 <p id="userLoadingMessage">جاري تحميل تسجيلاتك...</p>
                 <table id="userSacrificesTable" border="1">
@@ -186,7 +183,7 @@
                 </table><hr>
             </div>
 
-            <div id="adminViewSection" class="admin-section"> <!-- Controlled by JS -->
+            <div id="adminViewSection" class="admin-section"> 
                 <h2>سجلات الأضاحي المسجلة (لوحة تحكم المسؤول)</h2>
                 <div id="adminActions">
                     <button id="filterPending">عرض "لم تدخل بعد" فقط</button>
@@ -197,14 +194,28 @@
                     <button id="exportAllUsersSeparateCsvButton" style="margin-top:10px;">تصدير بيانات كل مدخل بملف منفصل (CSV)</button>
                 </div>
                 <div id="sacrificesTableContainer">
-                    <p id="loadingMessage">جاري تحميل البيانات...</p> <!-- This is adminLoadingMessage in ui.js -->
+                    <p id="loadingMessage">جاري تحميل البيانات...</p> 
                     <table id="sacrificesTable" border="1">
                         <thead>
                             <tr>
-                                <th>م.</th><th>اسم المتبرع</th><th>الأضحية عن</th><th>حضور؟</th><th>رقم الهاتف</th>
-                                <th>جزء؟</th><th>تفاصيل الجزء</th><th>العنوان</th><th>مدفوع؟</th><th>ر.الدفتر</th>
-                                <th>ر.السند</th><th>المساعدة لـ</th><th>بوسيط؟</th><th>اسم الوسيط</th>
-                                <th>ت.التسجيل</th><th>الحالة</th><th>إجراءات</th>
+                                <th>م.</th>
+                                <th>اسم المتبرع</th>
+                                <th>الأضحية عن</th>
+                                <th>حضور؟</th>
+                                <th>رقم الهاتف</th>
+                                <th>جزء؟</th>
+                                <th>تفاصيل الجزء</th>
+                                <th>العنوان</th>
+                                <th>مدفوع؟</th>
+                                <th>ر.الدفتر</th>
+                                <th>ر.السند</th>
+                                <th>المساعدة لـ</th>
+                                <th>أدخل بواسطة</th>      <!-- *** العمود الجديد مضاف هنا *** -->
+                                <th>بوسيط؟</th>
+                                <th>اسم الوسيط</th>
+                                <th>ت.التسجيل</th>
+                                <th>الحالة</th>
+                                <th>إجراءات</th>
                             </tr>
                         </thead>
                         <tbody id="sacrificesTableBody"></tbody>
@@ -215,8 +226,5 @@
     </div>
 
     <script type="module" src="main.js"></script>
-    <!-- Import auth.js if it's not already imported within main.js, but module type in main should handle it -->
-    <!-- <script type="module" src="auth.js"></script> --> 
-    <!-- <script type="module" src="ui.js"></script> --> <!-- ui.js is imported by main.js -->
 </body>
 </html>
