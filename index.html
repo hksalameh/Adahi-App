@@ -44,8 +44,6 @@
             <h1>موقع تسجيل الأضاحي</h1>
             <div id="authStatus"></div>
             <div id="loginSection"><h2>تسجيل الدخول</h2><form id="loginForm"><div><label for="usernameInput">رقم/اسم المستخدم:</label><input type="text" id="usernameInput" name="usernameInput" required></div><div><label for="passwordInput">كلمة المرور:</label><input type="password" id="passwordInput" name="passwordInput" required></div><button type="submit">دخول</button></form></div><button id="logoutButton" class="hidden-field">تسجيل الخروج</button> <hr class="hidden-field" id="hrAfterLogout"><div id="dataEntrySection" class="user-section"> <hr> <h2>تسجيل أضحية/تبرع جديد</h2><form id="adahiForm"><div><label for="donorName">اسم المتبرع:</label><input type="text" id="donorName" name="donorName" required></div><div><label for="sacrificeFor">الأضحية عن (اسم الشخص/الجهة):</label><input type="text" id="sacrificeFor" name="sacrificeFor" required></div><div><label class="radio-group-label">هل يريد الحضور؟</label><input type="radio" id="wantsToAttendYes" name="wantsToAttend" value="yes"><label for="wantsToAttendYes">نعم</label><input type="radio" id="wantsToAttendNo" name="wantsToAttend" value="no" checked><label for="wantsToAttendNo">لا</label></div><div><label for="phoneNumber">رقم الهاتف (اختياري):</label><input type="tel" id="phoneNumber" name="phoneNumber"></div><div><label class="radio-group-label">هل يريد جزءًا من الأضحية؟</label><input type="radio" id="wantsPortionYes" name="wantsPortion" value="yes"><label for="wantsPortionYes">نعم</label><input type="radio" id="wantsPortionNo" name="wantsPortion" value="no" checked><label for="wantsPortionNo">لا</label></div><div id="portionDetailsDiv" class="hidden-field"><label for="portionDetails">ماذا يريد من الأضحية؟</label><textarea id="portionDetails" name="portionDetails" rows="3"></textarea></div><div id="addressFieldDiv" class="hidden-field"><label for="address">العنوان (لتوصيل الجزء إذا اختار "نعم"):</label><input type="text" id="address" name="address"></div><div><label class="radio-group-label">هل تم الدفع؟</label><input type="radio" id="paymentDoneYes" name="paymentDone" value="yes"><label for="paymentDoneYes">نعم</label><input type="radio" id="paymentDoneNo" name="paymentDone" value="no" checked><label for="paymentDoneNo">لا</label></div><div id="paymentDetailsDiv" class="hidden-field"><div><label for="receiptBookNumber">رقم الدفتر:</label><input type="text" id="receiptBookNumber" name="receiptBookNumber"></div><div><label for="receiptNumber">رقم السند:</label><input type="text" id="receiptNumber" name="receiptNumber"></div></div><div><label for="assistanceFor">لمن المساعدة (توزيع اللحم)؟</label><select id="assistanceFor" name="assistanceFor"><option value="inside_ramtha">داخل الرمثا</option><option value="gaza_people">لأهل غزة</option><option value="for_himself">لنفسه (إذا كان سيأخذها كاملة)</option></select></div>
-                
-                <!-- ***** NEW FIELDS ***** -->
                 <div>
                     <label class="radio-group-label">هل تم إحضارها بواسطة شخص آخر (وسيط)؟</label>
                     <input type="radio" id="broughtByOtherYes" name="broughtByOther" value="yes">
@@ -57,15 +55,31 @@
                     <label for="broughtByOtherName">اسم الشخص الذي أحضرها:</label>
                     <input type="text" id="broughtByOtherName" name="broughtByOtherName">
                 </div>
-                <!-- ***** END OF NEW FIELDS ***** -->
+                <div style="text-align: center;"><button type="submit">تسجيل البيانات</button></div></form><div id="statusMessage"></div><hr></div>
+                
+            <div id="userDataViewSection" class="user-data-section">
+                <h2>تسجيلاتك الحالية</h2>
+                <p id="userLoadingMessage">جاري تحميل تسجيلاتك...</p>
+                <table id="userSacrificesTable" border="1">
+                    <thead>
+                        <tr>
+                            <th>م.</th>
+                            <th>اسم المتبرع</th>
+                            <th>الأضحية عن</th>
+                            <th>أحضرت بواسطة آخر؟</th> <!-- NEW -->
+                            <th>اسم الوسيط</th>      <!-- NEW -->
+                            <th>تاريخ التسجيل</th>
+                            <th>الحالة</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userSacrificesTableBody"></tbody>
+                </table>
+                <hr>
+            </div>
 
-                <div style="text-align: center;"><button type="submit">تسجيل البيانات</button></div></form><div id="statusMessage"></div><hr></div><div id="userDataViewSection" class="user-data-section"><h2>تسجيلاتك الحالية</h2><p id="userLoadingMessage">جاري تحميل تسجيلاتك...</p>
-                <!-- Optional: Add new columns to user table if needed -->
-                <table id="userSacrificesTable" border="1"><thead><tr><th>م.</th><th>اسم المتبرع</th><th>الأضحية عن</th>
-                    <!-- <th>أحضرت بواسطة آخر؟</th> <th>اسم الوسيط</th> -->
-                    <th>تاريخ التسجيل</th><th>الحالة</th></tr></thead><tbody id="userSacrificesTableBody"></tbody></table><hr></div><div id="adminViewSection" class="admin-section"> <h2>سجلات الأضاحي المسجلة</h2><div id="adminActions"><button id="filterPending">عرض "جاري الإدخال" فقط</button><button id="filterApproved">عرض "تم الإدخال" فقط</button><button id="filterRejected">عرض المرفوضة فقط</button><button id="filterAll">عرض الكل</button></div><div id="sacrificesTableContainer"><p id="loadingMessage">جاري تحميل البيانات...</p><table id="sacrificesTable" border="1"><thead><tr><th>م.</th><th>اسم المتبرع</th><th>الأضحية عن</th><th>يريد الحضور</th><th>رقم الهاتف</th><th>يريد جزءًا</th><th>تفاصيل الجزء</th><th>العنوان</th><th>تم الدفع</th><th>رقم الدفتر</th><th>رقم السند</th><th>لمن المساعدة</th>
-                <th>أحضرت بواسطة آخر؟</th> <!-- NEW COLUMN -->
-                <th>اسم الوسيط</th>      <!-- NEW COLUMN -->
+            <div id="adminViewSection" class="admin-section"> <h2>سجلات الأضاحي المسجلة</h2><div id="adminActions"><button id="filterPending">عرض "جاري الإدخال" فقط</button><button id="filterApproved">عرض "تم الإدخال" فقط</button><button id="filterRejected">عرض المرفوضة فقط</button><button id="filterAll">عرض الكل</button></div><div id="sacrificesTableContainer"><p id="loadingMessage">جاري تحميل البيانات...</p><table id="sacrificesTable" border="1"><thead><tr><th>م.</th><th>اسم المتبرع</th><th>الأضحية عن</th><th>يريد الحضور</th><th>رقم الهاتف</th><th>يريد جزءًا</th><th>تفاصيل الجزء</th><th>العنوان</th><th>تم الدفع</th><th>رقم الدفتر</th><th>رقم السند</th><th>لمن المساعدة</th>
+                <th>أحضرت بواسطة آخر؟</th>
+                <th>اسم الوسيط</th>
                 <th>تاريخ التسجيل</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody id="sacrificesTableBody"></tbody></table></div><hr></div>
         </div>
     </div>
@@ -106,34 +120,22 @@
       const paymentDoneYesRadio = document.getElementById('paymentDoneYes');
       const paymentDoneNoRadio = document.getElementById('paymentDoneNo');
       const paymentDetailsDiv = document.getElementById('paymentDetailsDiv');
-      
-      // ***** NEW ELEMENT VARIABLES *****
       const broughtByOtherYesRadio = document.getElementById('broughtByOtherYes');
       const broughtByOtherNoRadio = document.getElementById('broughtByOtherNo');
       const broughtByOtherNameDiv = document.getElementById('broughtByOtherNameDiv');
 
       wantsPortionYesRadio.addEventListener('change', function() {if (this.checked) {portionDetailsDiv.style.display = 'block';addressFieldDiv.style.display = 'block';}});
-      wantsPortionNoRadio.addEventListener('change', function() {if (this.checked) {portionDetailsDiv.style.display = 'none';addressFieldDiv.style.display = 'none';}});
+      wantsPortionNoRadio.addEventListener('change', function() {if (this.checked) {portionDetailsDiv.style.display = 'none';addressFieldDiv.style.display = 'none'; document.getElementById('portionDetails').value = ''; document.getElementById('address').value = '';}});
       paymentDoneYesRadio.addEventListener('change', function() {if (this.checked) {paymentDetailsDiv.style.display = 'block';}});
-      paymentDoneNoRadio.addEventListener('change', function() {if (this.checked) {paymentDetailsDiv.style.display = 'none';}});
-
-      // ***** NEW EVENT LISTENERS *****
-      broughtByOtherYesRadio.addEventListener('change', function() {
-          if (this.checked) { broughtByOtherNameDiv.style.display = 'block'; }
-      });
-      broughtByOtherNoRadio.addEventListener('change', function() {
-          if (this.checked) {
-              broughtByOtherNameDiv.style.display = 'none';
-              document.getElementById('broughtByOtherName').value = '';
-          }
-      });
+      paymentDoneNoRadio.addEventListener('change', function() {if (this.checked) {paymentDetailsDiv.style.display = 'none'; document.getElementById('receiptBookNumber').value = ''; document.getElementById('receiptNumber').value = '';}});
+      broughtByOtherYesRadio.addEventListener('change', function() { if (this.checked) { broughtByOtherNameDiv.style.display = 'block'; }});
+      broughtByOtherNoRadio.addEventListener('change', function() { if (this.checked) { broughtByOtherNameDiv.style.display = 'none'; document.getElementById('broughtByOtherName').value = ''; }});
 
       const adahiForm = document.getElementById('adahiForm');
       const statusMessage = document.getElementById('statusMessage');
       const dataEntrySectionH2 = dataEntrySection.querySelector('h2');
       const adahiFormSubmitButton = adahiForm.querySelector('button[type="submit"]');
       let editingDocId = null;
-
 
       function resetFormToEntryMode() {
           adahiForm.reset();
@@ -145,14 +147,12 @@
           portionDetailsDiv.style.display = 'none';
           addressFieldDiv.style.display = 'none';
           paymentDetailsDiv.style.display = 'none';
+          broughtByOtherNameDiv.style.display = 'none'; // Reset new field display
+
           document.getElementById('wantsToAttendNo').checked = true;
           document.getElementById('wantsPortionNo').checked = true;
           document.getElementById('paymentDoneNo').checked = true;
-          
-          // ***** RESET NEW FIELDS *****
-          document.getElementById('broughtByOtherNo').checked = true;
-          broughtByOtherNameDiv.style.display = 'none';
-          document.getElementById('broughtByOtherName').value = '';
+          document.getElementById('broughtByOtherNo').checked = true; // Reset new radio
 
           const cancelButton = adahiForm.querySelector('#cancelEditButton');
           if (cancelButton) {
@@ -172,64 +172,46 @@
           document.getElementById('phoneNumber').value = data.phoneNumber || '';
 
           document.getElementById(data.wantsPortion ? 'wantsPortionYes' : 'wantsPortionNo').checked = true;
+          document.getElementById('wantsPortionYes').dispatchEvent(new Event('change')); // Trigger change to show/hide
           if (data.wantsPortion) {
-              portionDetailsDiv.style.display = 'block';
-              addressFieldDiv.style.display = 'block';
-              document.getElementById('portionDetails').value = data.portionDetails || '';
-              document.getElementById('address').value = data.address || '';
-          } else {
-              portionDetailsDiv.style.display = 'none';
-              addressFieldDiv.style.display = 'none';
+            document.getElementById('portionDetails').value = data.portionDetails || '';
+            document.getElementById('address').value = data.address || '';
           }
-          document.getElementById('wantsPortionYes').dispatchEvent(new Event('change'));
 
 
           document.getElementById(data.paymentDone ? 'paymentDoneYes' : 'paymentDoneNo').checked = true;
-          if (data.paymentDone) {
-              paymentDetailsDiv.style.display = 'block';
-              document.getElementById('receiptBookNumber').value = data.receiptBookNumber || '';
-              document.getElementById('receiptNumber').value = data.receiptNumber || '';
-          } else {
-              paymentDetailsDiv.style.display = 'none';
-          }
-          document.getElementById('paymentDoneYes').dispatchEvent(new Event('change'));
+          document.getElementById('paymentDoneYes').dispatchEvent(new Event('change')); // Trigger change
+           if (data.paymentDone) {
+            document.getElementById('receiptBookNumber').value = data.receiptBookNumber || '';
+            document.getElementById('receiptNumber').value = data.receiptNumber || '';
+           }
           
           document.getElementById('assistanceFor').value = data.assistanceFor || 'inside_ramtha';
 
-          // ***** POPULATE NEW FIELDS *****
           document.getElementById(data.broughtByOther ? 'broughtByOtherYes' : 'broughtByOtherNo').checked = true;
+          document.getElementById('broughtByOtherYes').dispatchEvent(new Event('change')); // Trigger change
           if (data.broughtByOther) {
-              broughtByOtherNameDiv.style.display = 'block';
-              document.getElementById('broughtByOtherName').value = data.broughtByOtherName || '';
-          } else {
-              broughtByOtherNameDiv.style.display = 'none';
+            document.getElementById('broughtByOtherName').value = data.broughtByOtherName || '';
           }
-          document.getElementById('broughtByOtherYes').dispatchEvent(new Event('change'));
-
 
           let cancelButton = adahiForm.querySelector('#cancelEditButton');
           if (!cancelButton) {
               cancelButton = document.createElement('button');
-              cancelButton.type = 'button';
-              cancelButton.id = 'cancelEditButton';
-              cancelButton.textContent = 'إلغاء التعديل';
-              cancelButton.style.backgroundColor = '#e74c3c';
-              cancelButton.style.marginRight = '10px';
+              cancelButton.type = 'button'; cancelButton.id = 'cancelEditButton'; cancelButton.textContent = 'إلغاء التعديل';
+              cancelButton.style.backgroundColor = '#e74c3c'; cancelButton.style.marginRight = '10px';
               cancelButton.onclick = resetFormToEntryMode;
               adahiFormSubmitButton.parentNode.insertBefore(cancelButton, adahiFormSubmitButton);
           }
           cancelButton.style.display = 'inline-block';
-
           dataEntrySection.scrollIntoView({ behavior: 'smooth' });
           statusMessage.textContent = `جاري تعديل بيانات: ${data.donorName || 'سجل محدد'}. رقم المرجع: ${docId}`;
           statusMessage.className = '';
       }
 
-
       adahiForm.addEventListener('submit', async (event) => {
           event.preventDefault();
           const currentUser = auth.currentUser;
-          if (!currentUser) { /* ... */ return; }
+          if (!currentUser) { statusMessage.textContent = 'يجب تسجيل الدخول أولاً.'; statusMessage.className = 'error'; return; }
 
           const donorName = document.getElementById('donorName').value;
           const sacrificeFor = document.getElementById('sacrificeFor').value;
@@ -242,8 +224,6 @@
           let receiptBookNumber = paymentDone === 'yes' ? document.getElementById('receiptBookNumber').value : '';
           let receiptNumber = paymentDone === 'yes' ? document.getElementById('receiptNumber').value : '';
           const assistanceFor = document.getElementById('assistanceFor').value;
-          
-          // ***** GET NEW FIELDS DATA *****
           const broughtByOther = document.querySelector('input[name="broughtByOther"]:checked').value;
           let broughtByOtherName = broughtByOther === 'yes' ? document.getElementById('broughtByOtherName').value : '';
 
@@ -253,36 +233,29 @@
               wantsPortion: wantsPortion === 'yes', portionDetails, address,
               paymentDone: paymentDone === 'yes', receiptBookNumber, receiptNumber,
               assistanceFor,
-              broughtByOther: broughtByOther === 'yes', // boolean
-              broughtByOtherName: broughtByOtherName,   // string
+              broughtByOther: broughtByOther === 'yes',
+              broughtByOtherName: broughtByOtherName,
           };
 
           if (editingDocId) {
-              statusMessage.textContent = 'جاري تحديث البيانات...';
-              statusMessage.className = '';
+              statusMessage.textContent = 'جاري تحديث البيانات...'; statusMessage.className = '';
               try {
                   const docRef = doc(db, "sacrifices", editingDocId);
-                  await updateDoc(docRef, {
-                      ...adahiDataToSave,
-                      lastUpdatedAt: serverTimestamp()
-                  });
-                  statusMessage.textContent = 'تم تحديث البيانات بنجاح!';
-                  statusMessage.className = 'success';
+                  await updateDoc(docRef, { ...adahiDataToSave, lastUpdatedAt: serverTimestamp() });
+                  statusMessage.textContent = 'تم تحديث البيانات بنجاح!'; statusMessage.className = 'success';
                   resetFormToEntryMode();
-              } catch (e) { /* ... */ }
+              } catch (e) { statusMessage.textContent = 'خطأ تحديث: ' + e.message; statusMessage.className = 'error';}
           } else {
-              statusMessage.textContent = 'جاري حفظ البيانات...';
-              statusMessage.className = '';
+              statusMessage.textContent = 'جاري حفظ البيانات...'; statusMessage.className = '';
               adahiDataToSave.userId = currentUser.uid;
               adahiDataToSave.status = 'pending_entry';
               adahiDataToSave.createdAt = serverTimestamp();
-
               try {
                   const docRefDb = await addDoc(collection(db, "sacrifices"), adahiDataToSave);
                   statusMessage.textContent = 'تم حفظ البيانات بنجاح! رقم المرجع: ' + docRefDb.id;
                   statusMessage.className = 'success';
                   resetFormToEntryMode();
-              } catch (e) { /* ... */ }
+              } catch (e) { statusMessage.textContent = 'خطأ حفظ: ' + e.message; statusMessage.className = 'error';}
           }
       });
 
@@ -292,12 +265,7 @@
 
       function renderSacrificesForAdmin(docs) {
           sacrificesTableBody.innerHTML = '';
-          if (docs.empty) {
-              loadingMessage.textContent = 'لا توجد بيانات لعرضها.';
-              loadingMessage.style.display = 'block';
-              sacrificesTableBody.innerHTML = '<tr><td colspan="17">لا توجد بيانات.</td></tr>'; // Colspan updated
-              return;
-          }
+          if (docs.empty) { loadingMessage.textContent = 'لا توجد بيانات لعرضها.'; loadingMessage.style.display = 'block'; sacrificesTableBody.innerHTML = '<tr><td colspan="17">لا توجد بيانات.</td></tr>'; return; }
           loadingMessage.style.display = 'none';
           let counter = 1;
           docs.forEach((docSnapshot) => {
@@ -315,37 +283,31 @@
               row.insertCell().textContent = data.receiptBookNumber || '';
               row.insertCell().textContent = data.receiptNumber || '';
               row.insertCell().textContent = data.assistanceFor ? (data.assistanceFor === 'inside_ramtha' ? 'داخل الرمثا' : data.assistanceFor === 'gaza_people' ? 'لأهل غزة' : data.assistanceFor === 'for_himself' ? 'لنفسه' : data.assistanceFor) : '';
-              
-              // ***** DISPLAY NEW FIELDS *****
               row.insertCell().textContent = data.broughtByOther ? 'نعم' : 'لا';
               row.insertCell().textContent = data.broughtByOtherName || '';
-
               row.insertCell().textContent = formatFirestoreTimestamp(data.createdAt);
-
               let statusText = data.status;
               if (data.status === 'pending_entry') { statusText = 'جاري الإدخال'; }
               else if (data.status === 'entered') { statusText = 'تم الإدخال'; }
               else if (data.status === 'rejected') { statusText = 'مرفوض'; }
-              else if (data.status === 'approved') { statusText = 'تم الإدخال (قديم)'; } // Fallback
-              else if (data.status === 'pending_approval') { statusText = 'جاري الإدخال (قديم)'; } // Fallback
+              else if (data.status === 'approved') { statusText = 'تم الإدخال (قديم)'; }
+              else if (data.status === 'pending_approval') { statusText = 'جاري الإدخال (قديم)'; }
               row.insertCell().textContent = statusText;
-
               const actionsCell = row.insertCell();
-              // ... (Action buttons logic remains the same as previous correct version)
               if (data.status === 'pending_entry') {
-                  const approveButton = document.createElement('button'); /*...*/ actionsCell.appendChild(approveButton);
-                  const rejectButton = document.createElement('button'); /*...*/ actionsCell.appendChild(rejectButton);
+                  const approveButton = document.createElement('button'); approveButton.textContent = 'تأكيد الإدخال'; approveButton.onclick = () => updateSacrificeStatus(docSnapshot.id, 'entered'); actionsCell.appendChild(approveButton);
+                  const rejectButton = document.createElement('button'); rejectButton.textContent = 'رفض'; rejectButton.style.backgroundColor = '#e74c3c'; rejectButton.style.marginRight = '5px'; rejectButton.onclick = () => updateSacrificeStatus(docSnapshot.id, 'rejected'); actionsCell.appendChild(rejectButton);
               } else if (data.status === 'entered' || data.status === 'rejected') {
-                  const revertButton = document.createElement('button'); /*...*/ actionsCell.appendChild(revertButton);
+                  const revertButton = document.createElement('button'); revertButton.textContent = 'إعادة لـ "جاري الإدخال"'; revertButton.style.backgroundColor = '#f39c12'; revertButton.onclick = () => { updateSacrificeStatus(docSnapshot.id, 'pending_entry'); }; actionsCell.appendChild(revertButton);
               }
-              const editButton = document.createElement('button'); /*...*/ actionsCell.appendChild(editButton);
-              const deleteBtn = document.createElement('button'); /*...*/ actionsCell.appendChild(deleteBtn);
+              const editButton = document.createElement('button'); editButton.textContent = 'تعديل'; editButton.style.backgroundColor = '#5dade2'; editButton.style.marginLeft = '5px'; editButton.onclick = () => populateFormForEdit(docSnapshot.id, data); actionsCell.appendChild(editButton);
+              const deleteBtn = document.createElement('button'); deleteBtn.textContent = 'حذف'; deleteBtn.className = 'delete-btn'; deleteBtn.style.marginLeft = '5px'; deleteBtn.onclick = () => deleteSacrifice(docSnapshot.id, data.donorName || 'هذا السجل'); actionsCell.appendChild(deleteBtn);
           });
       }
-      async function updateSacrificeStatus(docId, newStatus) { /* ... */ }
-      async function deleteSacrifice(docId, donorNameToConfirm) { /* ... */ }
+      async function updateSacrificeStatus(docId, newStatus) { const sacrificeRef = doc(db, "sacrifices", docId); try { await updateDoc(sacrificeRef, { status: newStatus, lastUpdatedAt: serverTimestamp() }); } catch (error) { alert('خطأ تحديث الحالة: ' + error.message); } }
+      async function deleteSacrifice(docId, donorNameToConfirm) { if (confirm(`هل أنت متأكد من حذف: ${donorNameToConfirm}؟`)) { const sacrificeRef = doc(db, "sacrifices", docId); try { await deleteDoc(sacrificeRef); statusMessage.textContent = `تم حذف "${donorNameToConfirm}" بنجاح.`; statusMessage.className = 'success'; setTimeout(() => { statusMessage.textContent = ''; statusMessage.className = ''; }, 3000); } catch (error) { alert('خطأ حذف: ' + error.message); statusMessage.textContent = 'خطأ حذف.'; statusMessage.className = 'error'; } } }
 
-      function fetchAndRenderSacrificesForAdmin(statusFilter = null) { /* ... */ }
+      function fetchAndRenderSacrificesForAdmin(statusFilter = null) { let q; if (statusFilter) { q = query(collection(db, "sacrifices"), where("status", "==", statusFilter), orderBy("createdAt", "desc")); } else { q = query(collection(db, "sacrifices"), orderBy("createdAt", "desc")); } onSnapshot(q, (querySnapshot) => { renderSacrificesForAdmin(querySnapshot); }, (error) => { sacrificesTableBody.innerHTML = `<tr><td colspan="17">خطأ تحميل.</td></tr>`; });}
       document.getElementById('filterPending').addEventListener('click', () => fetchAndRenderSacrificesForAdmin('pending_entry'));
       document.getElementById('filterApproved').addEventListener('click', () => fetchAndRenderSacrificesForAdmin('entered'));
       document.getElementById('filterRejected').addEventListener('click', () => fetchAndRenderSacrificesForAdmin('rejected'));
@@ -357,13 +319,7 @@
 
       function renderSacrificesForUser(docs) {
           userSacrificesTableBody.innerHTML = '';
-          if (docs.empty) {
-              userLoadingMessage.textContent = 'ليس لديك أي تسجيلات حالية.';
-              userLoadingMessage.style.display = 'block';
-              // Update colspan if you add columns to user table
-              userSacrificesTableBody.innerHTML = '<tr><td colspan="5">لا توجد تسجيلات.</td></tr>';
-              return;
-          }
+          if (docs.empty) { userLoadingMessage.textContent = 'لا توجد تسجيلات.'; userLoadingMessage.style.display = 'block'; userSacrificesTableBody.innerHTML = '<tr><td colspan="7">لا توجد تسجيلات.</td></tr>'; return; } // Colspan is 7
           userLoadingMessage.style.display = 'none';
           let counter = 1;
           docs.forEach((docSnapshot) => {
@@ -372,11 +328,9 @@
               row.insertCell().textContent = counter++;
               row.insertCell().textContent = data.donorName || '';
               row.insertCell().textContent = data.sacrificeFor || '';
-              // Optional: Display new fields for user
-              // row.insertCell().textContent = data.broughtByOther ? 'نعم' : 'لا';
-              // row.insertCell().textContent = data.broughtByOtherName || '';
+              row.insertCell().textContent = data.broughtByOther ? 'نعم' : 'لا'; // New field
+              row.insertCell().textContent = data.broughtByOtherName || '';   // New field
               row.insertCell().textContent = formatFirestoreTimestamp(data.createdAt);
-
               let statusText = data.status;
               if (data.status === 'pending_entry') { statusText = 'جاري الإدخال'; }
               else if (data.status === 'entered') { statusText = 'تم الإدخال'; }
@@ -387,10 +341,10 @@
           });
       }
 
-      function fetchAndRenderSacrificesForUser(userId) { /* ... */ }
-      onAuthStateChanged(auth, (user) => { /* ... */ });
-      if (loginForm) { loginForm.addEventListener('submit', async (e) => { /* ... */ });}
-      if (logoutButton) { logoutButton.addEventListener('click', () => { /* ... */ });}
+      function fetchAndRenderSacrificesForUser(userId) { if (unsubscribeUserSacrifices) { unsubscribeUserSacrifices(); unsubscribeUserSacrifices = null; } const q = query(collection(db, "sacrifices"), where("userId", "==", userId), orderBy("createdAt", "desc")); unsubscribeUserSacrifices = onSnapshot(q, (querySnapshot) => {renderSacrificesForUser(querySnapshot);}, (error) => { userSacrificesTableBody.innerHTML = `<tr><td colspan="7">خطأ تحميل.</td></tr>`;});}
+      onAuthStateChanged(auth, (user) => { if (user) { authStatus.textContent = `مرحباً، ${user.email}`; authStatus.className = 'success';loginSection.style.display = 'none'; logoutButton.style.display = 'inline-block'; hrAfterLogout.style.display = 'block';dataEntrySection.style.display = 'block'; resetFormToEntryMode(); if (user.uid === ADMIN_UID) { if (unsubscribeUserSacrifices) { unsubscribeUserSacrifices(); unsubscribeUserSacrifices = null; } adminViewSection.style.display = 'block'; userDataViewSection.style.display = 'none'; fetchAndRenderSacrificesForAdmin(null); } else { adminViewSection.style.display = 'none';userDataViewSection.style.display = 'block'; fetchAndRenderSacrificesForUser(user.uid); } } else { if (unsubscribeUserSacrifices) { unsubscribeUserSacrifices(); unsubscribeUserSacrifices = null; } resetFormToEntryMode(); authStatus.textContent = 'يرجى الدخول.';authStatus.className = '';loginSection.style.display = 'block'; dataEntrySection.style.display = 'none'; adminViewSection.style.display = 'none'; userDataViewSection.style.display = 'none'; logoutButton.style.display = 'none';hrAfterLogout.style.display = 'none';if (sacrificesTableBody) sacrificesTableBody.innerHTML = ''; if (userSacrificesTableBody) userSacrificesTableBody.innerHTML = ''; }});
+      if (loginForm) { loginForm.addEventListener('submit', async (e) => { e.preventDefault(); authStatus.textContent = 'جاري التحقق...'; authStatus.className = ''; const usernameOrEmail = document.getElementById('usernameInput').value; const password = document.getElementById('passwordInput').value; try { await signInWithEmailAndPassword(auth, usernameOrEmail, password); } catch (emailSignInError) { if (emailSignInError.code === 'auth/invalid-email' || emailSignInError.code === 'auth/invalid-credential') { try { const usersMapRef = collection(db, "user_credentials_map"); const q = query(usersMapRef, where("username", "==", usernameOrEmail)); const querySnapshot = await getDocs(q); if (querySnapshot.empty) { authStatus.textContent = 'اسم المستخدم أو كلمة المرور خاطئة.'; authStatus.className = 'error'; return; } let foundUserEmail = null; querySnapshot.forEach((doc) => { foundUserEmail = doc.data().email; }); if (foundUserEmail) { if (!foundUserEmail || typeof foundUserEmail !== 'string' || !foundUserEmail.includes('@')) { authStatus.textContent = 'البريد المرتبط غير صالح.'; authStatus.className = 'error'; return; } await signInWithEmailAndPassword(auth, foundUserEmail, password); } else { authStatus.textContent = 'لم يتم العثور على بريد مطابق.'; authStatus.className = 'error'; } } catch (lookupError) { if (lookupError.code === 'auth/invalid-credential') { authStatus.textContent = 'كلمة المرور خاطئة للمستخدم.'; } else if (lookupError.code === 'auth/invalid-email') { authStatus.textContent = 'البريد المرتبط غير صالح.'; } else if (lookupError.code === 'permission-denied'){ authStatus.textContent = 'خطأ صلاحيات البحث.'; } else { authStatus.textContent = 'خطأ بحث أو دخول.'; } authStatus.className = 'error'; } } else { authStatus.textContent = `خطأ دخول: ${emailSignInError.message}`; authStatus.className = 'error'; } } });}
+      if (logoutButton) { logoutButton.addEventListener('click', () => { signOut(auth).catch((error) => { authStatus.textContent = `خطأ خروج: ${error.message}`; authStatus.className = 'error';});});}
     </script>
 </body>
 </html>
