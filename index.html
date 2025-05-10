@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تسجيل الأضاحي</title>
     <style>
-        /* CSS لم يتغير */
         @import url('https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;700&display=swap');
         body { font-family: 'Noto Kufi Arabic', 'Tajawal', sans-serif; margin: 0; padding: 0; background-color: #f0f2f5; color: #2c3e50; line-height: 1.7; font-size: 16px; }
         .page-container { padding: 20px; }
@@ -116,9 +115,7 @@
       }
 
       function populateFormForEdit(docId, data) {
-          console.log("Populating form for edit. Doc ID:", docId, "Data:", data);
           editingDocId = docId;
-
           dataEntrySectionH2.textContent = 'تعديل بيانات الأضحية';
           adahiFormSubmitButton.textContent = 'حفظ التعديلات';
           adahiFormSubmitButton.style.backgroundColor = '#f39c12';
@@ -154,7 +151,6 @@
               document.getElementById('receiptNumber').value = '';
           }
           document.getElementById('paymentDoneYes').dispatchEvent(new Event('change'));
-
 
           document.getElementById('assistanceFor').value = data.assistanceFor || 'inside_ramtha';
 
@@ -223,11 +219,11 @@
                   statusMessage.textContent = 'حدث خطأ أثناء تحديث البيانات: ' + e.message;
                   statusMessage.className = 'error';
               }
-          } else { // وضع الإضافة
+          } else {
               statusMessage.textContent = 'جاري حفظ البيانات...';
               statusMessage.className = '';
               adahiDataToSave.userId = currentUser.uid;
-              adahiDataToSave.status = 'pending_entry'; // <--- CHANGED
+              adahiDataToSave.status = 'pending_entry'; // Default status for new entries
               adahiDataToSave.createdAt = serverTimestamp();
 
               try {
@@ -270,17 +266,20 @@
               row.insertCell().textContent = formatFirestoreTimestamp(data.createdAt);
 
               let statusText = data.status;
-              if (data.status === 'pending_entry') { statusText = 'جاري الإدخال'; } // <--- CHANGED
-              else if (data.status === 'entered') { statusText = 'تم الإدخال'; } // <--- CHANGED
+              if (data.status === 'pending_entry') { statusText = 'جاري الإدخال'; }
+              else if (data.status === 'entered') { statusText = 'تم الإدخال'; }
               else if (data.status === 'rejected') { statusText = 'مرفوض'; }
+              // Fallback for any old or unexpected status, can be removed later
+              else if (data.status === 'approved') { statusText = 'تم الإدخال (قديم)'; }
+              else if (data.status === 'pending_approval') { statusText = 'جاري الإدخال (قديم)'; }
               row.insertCell().textContent = statusText;
 
               const actionsCell = row.insertCell();
 
-              if (data.status === 'pending_entry') { // <--- CHANGED
+              if (data.status === 'pending_entry') {
                   const approveButton = document.createElement('button');
-                  approveButton.textContent = 'تأكيد الإدخال'; // <--- CHANGED
-                  approveButton.onclick = () => updateSacrificeStatus(docSnapshot.id, 'entered'); // <--- CHANGED
+                  approveButton.textContent = 'تأكيد الإدخال';
+                  approveButton.onclick = () => updateSacrificeStatus(docSnapshot.id, 'entered'); // Update to 'entered'
                   actionsCell.appendChild(approveButton);
 
                   const rejectButton = document.createElement('button');
@@ -290,12 +289,12 @@
                   rejectButton.onclick = () => updateSacrificeStatus(docSnapshot.id, 'rejected');
                   actionsCell.appendChild(rejectButton);
 
-              } else if (data.status === 'entered' || data.status === 'rejected') { // <--- CHANGED (included 'rejected')
+              } else if (data.status === 'entered' || data.status === 'rejected') {
                   const revertButton = document.createElement('button');
-                  revertButton.textContent = 'إعادة لـ "جاري الإدخال"'; // <--- CHANGED
+                  revertButton.textContent = 'إعادة لـ "جاري الإدخال"';
                   revertButton.style.backgroundColor = '#f39c12';
                   revertButton.onclick = () => {
-                      updateSacrificeStatus(docSnapshot.id, 'pending_entry'); // <--- CHANGED
+                      updateSacrificeStatus(docSnapshot.id, 'pending_entry');
                   };
                   actionsCell.appendChild(revertButton);
               }
@@ -324,9 +323,8 @@
               console.error("Error fetching admin documents: ", error);loadingMessage.textContent = 'حدث خطأ أثناء جلب البيانات.';sacrificesTableBody.innerHTML = `<tr><td colspan="15">خطأ في تحميل البيانات.</td></tr>`;
           });
       }
-      // Filter buttons text already changed in HTML, now update their functionality
-      document.getElementById('filterPending').addEventListener('click', () => fetchAndRenderSacrificesForAdmin('pending_entry')); // <--- CHANGED
-      document.getElementById('filterApproved').addEventListener('click', () => fetchAndRenderSacrificesForAdmin('entered')); // <--- CHANGED
+      document.getElementById('filterPending').addEventListener('click', () => fetchAndRenderSacrificesForAdmin('pending_entry'));
+      document.getElementById('filterApproved').addEventListener('click', () => fetchAndRenderSacrificesForAdmin('entered'));
       document.getElementById('filterRejected').addEventListener('click', () => fetchAndRenderSacrificesForAdmin('rejected'));
       document.getElementById('filterAll').addEventListener('click', () => fetchAndRenderSacrificesForAdmin(null));
 
@@ -353,9 +351,12 @@
               row.insertCell().textContent = formatFirestoreTimestamp(data.createdAt);
 
               let statusText = data.status;
-              if (data.status === 'pending_entry') { statusText = 'جاري الإدخال'; } // <--- CHANGED
-              else if (data.status === 'entered') { statusText = 'تم الإدخال'; } // <--- CHANGED
+              if (data.status === 'pending_entry') { statusText = 'جاري الإدخال'; }
+              else if (data.status === 'entered') { statusText = 'تم الإدخال'; }
               else if (data.status === 'rejected') { statusText = 'مرفوض'; }
+              // Fallback for any old or unexpected status
+              else if (data.status === 'approved') { statusText = 'تم الإدخال (قديم)'; }
+              else if (data.status === 'pending_approval') { statusText = 'جاري الإدخال (قديم)'; }
               row.insertCell().textContent = statusText;
           });
       }
