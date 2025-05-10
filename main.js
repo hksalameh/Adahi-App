@@ -219,7 +219,6 @@ document.addEventListener('DOMContentLoaded', () => {
         uiGetters.cacheFormElements(ui.dataEntryFormElements);
     }
     uiGetters.setupConditionalFieldListeners();
-
     domContentLoadedFired = true; 
 
     if (ui.commonUIElements.authStatusEl) {
@@ -333,6 +332,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (ui.commonUIElements.authStatusEl) { ui.commonUIElements.authStatusEl.textContent = 'قم بإنشاء حساب جديد أو سجل دخولك إذا كان لديك حساب بالفعل.'; ui.commonUIElements.authStatusEl.className = ''; }
             if (ui.loginElements.loginForm) ui.loginElements.loginForm.reset();
             if (ui.registrationElements.registrationForm) ui.registrationElements.registrationForm.reset();
+            if (ui.commonUIElements.logoutButton) ui.commonUIElements.logoutButton.classList.add('hidden-field');
+            if (ui.commonUIElements.hrAfterLogout) ui.commonUIElements.hrAfterLogout.classList.add('hidden-field');
         });
         ui.toggleLinkElements.switchToLoginLink.addEventListener('click', (e) => {
             e.preventDefault();
@@ -343,6 +344,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (ui.commonUIElements.authStatusEl) { ui.commonUIElements.authStatusEl.textContent = 'سجل دخولك أو قم بإنشاء حساب جديد.'; ui.commonUIElements.authStatusEl.className = ''; }
             if (ui.loginElements.loginForm) ui.loginElements.loginForm.reset();
             if (ui.registrationElements.registrationForm) ui.registrationElements.registrationForm.reset();
+            if (ui.commonUIElements.logoutButton) ui.commonUIElements.logoutButton.classList.add('hidden-field');
+            if (ui.commonUIElements.hrAfterLogout) ui.commonUIElements.hrAfterLogout.classList.add('hidden-field');
         });
     } else {
         console.error("Could not attach click listeners to toggle links. (DOMContentLoaded)");
@@ -356,7 +359,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             try {
                 await authModule.handleSignOut();
-                // onAuthStateChanged سيتولى تحديث الواجهة
             } catch (error) {
                 console.error('Logout error:', error);
                 if (ui.commonUIElements.authStatusEl) {
@@ -435,7 +437,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (ui.adminViewElements.exportAllToExcelButton) {
         ui.adminViewElements.exportAllToExcelButton.addEventListener('click', async () => {
-            // ... (منطق التصدير العام كما هو) ...
+             if (ui.commonUIElements.authStatusEl) {ui.commonUIElements.authStatusEl.textContent = "جاري تجهيز كل البيانات للتصدير (Excel)..."; ui.commonUIElements.authStatusEl.className = '';}
+            try {
+                const dataToExport = allAdminSacrificesCache.map(data => ({
+                    donorName: data.donorName, 
+                    sacrificeFor: data.sacrificeFor,
+                    wantsToAttend: data.wantsToAttend, 
+                    phoneNumber: data.phoneNumber, 
+                    portionDetails: data.portionDetails, 
+                    address: data.address, 
+                    paymentDone: data.paymentDone,
+                    receiptBookNumber: data.receiptBookNumber, 
+                    receiptNumber: data.receiptNumber,
+                    assistanceFor: data.assistanceFor, 
+                    broughtByOther: data.broughtByOther,
+                    broughtByOtherName: data.broughtByOtherName,
+                    createdAt: data.createdAt, 
+                    enteredBy: data.enteredBy || ''
+                }));
+                if (dataToExport.length === 0) {
+                    if (ui.commonUIElements.authStatusEl) {ui.commonUIElements.authStatusEl.textContent = "لا توجد بيانات للتصدير."; ui.commonUIElements.authStatusEl.className = 'error';}
+                    return;
+                }
+                const headerKeys_excel = [
+                    "donorName", "sacrificeFor", "wantsToAttend", "phoneNumber", 
+                    "portionDetails", "address", "paymentDone", "receiptBookNumber", "receiptNumber", 
+                    "assistanceFor", "broughtByOther", "broughtByOtherName", "createdAt", "enteredBy"
+                ];
+                const displayHeaders_excel = [
+                    "المتبرع", "الأضحية عن", "حضور؟", "هاتف", 
+                    "تفاصيل الجزء", "العنوان", "مدفوع؟", "ر.الدفتر", "ر.السند", 
+                    "المساعدة لـ", "بوسيط؟", "اسم الوسيط", "ت.التسجيل", "أدخل بواسطة"
+                ];
+                exportDataToExcel(dataToExport, headerKeys_excel, displayHeaders_excel, 'كل_بيانات_الاضاحي.xlsx');
+                if (ui.commonUIElements.authStatusEl) {ui.commonUIElements.authStatusEl.textContent = "تم تصدير كل البيانات بنجاح (Excel)."; ui.commonUIElements.authStatusEl.className = 'success';}
+            } catch (error) { 
+                console.error("Error exporting all data to Excel: ", error); 
+                if (ui.commonUIElements.authStatusEl) {ui.commonUIElements.authStatusEl.textContent = "خطأ في تصدير كل البيانات (Excel): " + error.message; ui.commonUIElements.authStatusEl.className = 'error';}
+            }
         });
     } else {
         console.error("ui.adminViewElements.exportAllToExcelButton not found. (DOMContentLoaded)");
@@ -443,36 +482,113 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (ui.adminViewElements.exportAllUsersSeparateExcelButton) {
         ui.adminViewElements.exportAllUsersSeparateExcelButton.addEventListener('click', async () => {
-            // ... (منطق تصدير المستخدمين المنفصل كما هو) ...
+            if (ui.commonUIElements.authStatusEl) {ui.commonUIElements.authStatusEl.textContent = "جاري تجهيز بيانات كل مدخل (Excel)..."; ui.commonUIElements.authStatusEl.className = '';}
+            try {
+                if (allAdminSacrificesCache.length === 0) {
+                    if (ui.commonUIElements.authStatusEl) {ui.commonUIElements.authStatusEl.textContent = "لا توجد بيانات لتصديرها."; ui.commonUIElements.authStatusEl.className = 'error';}
+                    return;
+                }
+                const dataByUser = {};
+                allAdminSacrificesCache.forEach(data => {
+                    const userId = data.userId;
+                    const userNameForGrouping = data.enteredBy || userId || 'مستخدم_غير_معروف';
+                    const groupKey = userId || 'entries_without_userid';
+                    if (!dataByUser[groupKey]) { 
+                        dataByUser[groupKey] = { name: userNameForGrouping, entries: [] };
+                    }
+                    if (data.enteredBy && data.enteredBy !== userId && dataByUser[groupKey].name === userId) {
+                        dataByUser[groupKey].name = data.enteredBy;
+                    }
+                    dataByUser[groupKey].entries.push({ 
+                        donorName: data.donorName, 
+                        sacrificeFor: data.sacrificeFor,
+                        wantsToAttend: data.wantsToAttend, 
+                        phoneNumber: data.phoneNumber, 
+                        portionDetails: data.portionDetails, 
+                        address: data.address, 
+                        paymentDone: data.paymentDone,
+                        receiptBookNumber: data.receiptBookNumber, 
+                        receiptNumber: data.receiptNumber,
+                        assistanceFor: data.assistanceFor, 
+                        broughtByOther: data.broughtByOther,
+                        broughtByOtherName: data.broughtByOtherName,
+                        createdAt: data.createdAt,
+                        enteredBy: data.enteredBy || ''
+                    });
+                });
+                if (Object.keys(dataByUser).length === 0) { 
+                    if (ui.commonUIElements.authStatusEl) {ui.commonUIElements.authStatusEl.textContent = "لم يتم العثور على بيانات مجمعة حسب المدخلين."; ui.commonUIElements.authStatusEl.className = 'error';}
+                    return; 
+                }
+                const headerKeys_excel_users = [
+                    "donorName", "sacrificeFor", "wantsToAttend", "phoneNumber",
+                    "portionDetails", "address", "paymentDone", "receiptBookNumber", "receiptNumber",
+                    "assistanceFor", "broughtByOther", "broughtByOtherName", "createdAt", "enteredBy"
+                ];
+                const displayHeaders_excel_users = [
+                    "المتبرع", "الأضحية عن", "حضور؟", "هاتف",
+                    "تفاصيل الجزء", "العنوان", "مدفوع؟", "ر.الدفتر", "ر.السند",
+                    "المساعدة لـ", "بوسيط؟", "اسم الوسيط", "ت.التسجيل", "أدخل بواسطة"
+                ];
+                let exportedCount = 0;
+                const totalUserGroups = Object.keys(dataByUser).length;
+                if (ui.commonUIElements.authStatusEl) {ui.commonUIElements.authStatusEl.textContent = `بدء تصدير ${totalUserGroups} ملف للمدخلين (Excel)...`;}
+                for (const groupKey in dataByUser) {
+                    if (dataByUser.hasOwnProperty(groupKey)) {
+                        const fileNamePart = String(dataByUser[groupKey].name).replace(/[^\p{L}\p{N}_-]/gu, '_');
+                        const userDataEntries = dataByUser[groupKey].entries;
+                        if (userDataEntries.length > 0) {
+                            exportDataToExcel(userDataEntries, headerKeys_excel_users, displayHeaders_excel_users, `بيانات_مدخل_${fileNamePart}.xlsx`);
+                            await new Promise(resolve => setTimeout(resolve, 300)); 
+                            exportedCount++;
+                            if (ui.commonUIElements.authStatusEl) {ui.commonUIElements.authStatusEl.textContent = `تم تصدير ${exportedCount} من ${totalUserGroups} ملف (Excel)...`;}
+                        }
+                    }
+                }
+                if (ui.commonUIElements.authStatusEl) {ui.commonUIElements.authStatusEl.textContent = `تم تصدير بيانات ${exportedCount} مدخل بنجاح في ملفات Excel منفصلة.`; ui.commonUIElements.authStatusEl.className = 'success';}
+            } catch (error) {
+                console.error("Error exporting all users separate data to Excel: ", error);
+                let errMessage = "خطأ أثناء تصدير بيانات المدخلين (Excel): " + error.message;
+                if (error.code === 'failed-precondition' && error.message.includes('index')) {
+                     errMessage = "خطأ: يتطلب هذا التصدير فهرسًا مركبًا في Firebase. يرجى مراجعة إعدادات الفهرسة.";
+                }
+                if (ui.commonUIElements.authStatusEl) {
+                    ui.commonUIElements.authStatusEl.textContent = errMessage;
+                    ui.commonUIElements.authStatusEl.className = 'error';
+                }
+            }
         });
     } else {
         console.error("ui.adminViewElements.exportAllUsersSeparateExcelButton not found. (DOMContentLoaded)");
     }
-
-}); // نهاية DOMContentLoaded
-
+}); 
 
 function handleAuthStateChange(user) {
     if (!domContentLoadedFired) {
-        setTimeout(() => handleAuthStateChange(user), 50); // تأخير بسيط إذا لم يكن DOM جاهزًا
+        setTimeout(() => handleAuthStateChange(user), 50); 
         return;
     }
-    // الآن ui يجب أن يكون معبأ
-    if (!ui.loginElements || !ui.commonUIElements) { 
+    if (!ui.loginElements || !ui.commonUIElements || !ui.adminViewElements || !ui.registrationElements || !ui.toggleLinkElements || !ui.dataEntryFormElements || !ui.userDataViewElements) { 
         console.error("CRITICAL: UI elements are still not available in handleAuthStateChange.");
         return; 
     }
 
-    // إخفاء كل شيء أولاً
-    const allUIElements = [
-        ui.loginElements.loginSection, ui.registrationElements.registrationSection,
-        ui.toggleLinkElements.formToggleLinksDiv, ui.dataEntryFormElements.dataEntrySection,
-        ui.adminViewElements.adminViewSection, ui.userDataViewElements.userDataViewSection,
-        ui.commonUIElements.logoutButton, ui.commonUIElements.hrAfterLogout,
-        ui.adminViewElements.sacrificesSummaryDiv, ui.adminViewElements.hrAfterSummary,
-        ui.adminViewElements.exportAllToExcelButton, ui.adminViewElements.exportAllUsersSeparateExcelButton
+    // إخفاء جميع الأقسام والعناصر التي قد تكون ظاهرة
+    const allElementsToManage = [
+        ui.loginElements.loginSection, 
+        ui.registrationElements.registrationSection, 
+        ui.toggleLinkElements.formToggleLinksDiv, 
+        ui.dataEntryFormElements.dataEntrySection, 
+        ui.adminViewElements.adminViewSection, 
+        ui.userDataViewElements.userDataViewSection,
+        ui.commonUIElements.logoutButton, 
+        ui.commonUIElements.hrAfterLogout,
+        ui.adminViewElements.sacrificesSummaryDiv, 
+        ui.adminViewElements.hrAfterSummary,
+        ui.adminViewElements.exportAllToExcelButton, 
+        ui.adminViewElements.exportAllUsersSeparateExcelButton
     ];
-    allUIElements.forEach(el => { if (el) el.classList.add('hidden-field'); });
+    allElementsToManage.forEach(el => { if (el) el.classList.add('hidden-field'); });
 
 
     if (user) { // المستخدم مسجل دخوله
@@ -480,6 +596,7 @@ function handleAuthStateChange(user) {
             ui.commonUIElements.authStatusEl.textContent = `مرحباً بك ${user.displayName || user.email}!`;
             ui.commonUIElements.authStatusEl.className = 'success';
         }
+        // إظهار العناصر الخاصة بالمستخدم المسجل دخوله
         if (ui.commonUIElements.logoutButton) ui.commonUIElements.logoutButton.classList.remove('hidden-field');
         if (ui.commonUIElements.hrAfterLogout) ui.commonUIElements.hrAfterLogout.classList.remove('hidden-field');
         if (ui.dataEntryFormElements.dataEntrySection) ui.dataEntryFormElements.dataEntrySection.classList.remove('hidden-field');
@@ -497,6 +614,7 @@ function handleAuthStateChange(user) {
         }
         if (ui.dataEntryFormElements.adahiForm) uiGetters.resetAdahiFormToEntryMode(setCurrentEditingDocId);
     } else { // المستخدم غير مسجل دخوله
+        // إظهار نموذج تسجيل الدخول وروابط التبديل فقط
         if (ui.loginElements.loginSection) ui.loginElements.loginSection.classList.remove('hidden-field');
         if (ui.toggleLinkElements.formToggleLinksDiv) ui.toggleLinkElements.formToggleLinksDiv.classList.remove('hidden-field');
         if (ui.toggleLinkElements.switchToLoginLink) ui.toggleLinkElements.switchToLoginLink.classList.add('hidden-field'); 
