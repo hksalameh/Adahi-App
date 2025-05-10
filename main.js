@@ -8,7 +8,7 @@ import { getFirestore, collection, query, orderBy, where, getDocs, serverTimesta
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const auth = authModule.initializeAuth(); // تهيئة المصادقة بعد تهيئة التطبيق
+const auth = authModule.initializeAuth(); 
 
 let unsubscribeAdminSacrifices = null;
 let unsubscribeUserSacrifices = null;
@@ -187,10 +187,8 @@ if (ui.logoutButton) {
 }
 
 authModule.onAuthStateChanged((user) => {
-    if (!auth) { // auth from const auth = authModule.initializeAuth();
+    if (!auth) { 
         console.warn("Auth object in main.js is not ready, onAuthStateChanged might be too early or init failed.");
-        // Potentially delay UI updates until auth is confirmed ready
-        // This scenario should ideally not happen if initializeAuth() in main.js worked.
     }
 
     if (ui.loginSection) ui.loginSection.style.display = 'none';
@@ -210,6 +208,7 @@ authModule.onAuthStateChanged((user) => {
     if (user) {
         // console.log("User is signed in:", user.uid, "| Email:", user.email, "| Display Name:", user.displayName);
         if (ui.authStatusEl) {
+            // السطر المطلوب: يعطي الأولوية لـ displayName
             ui.authStatusEl.textContent = `مرحباً بك ${user.displayName || user.email}!`;
             ui.authStatusEl.className = 'success';
         }
@@ -265,13 +264,12 @@ authModule.onAuthStateChanged((user) => {
 if (ui.adahiForm) {
     ui.adahiForm.addEventListener('submit', async (event) => {
         event.preventDefault();
-        const authService = authModule.getAuthInstance(); // Get the auth service instance
+        const authService = authModule.getAuthInstance(); 
         if (!authService || !authService.currentUser) {
             if(ui.statusMessageEl) {ui.statusMessageEl.textContent = 'يجب تسجيل الدخول أولاً لإضافة أو تعديل البيانات.'; ui.statusMessageEl.className = 'error';}
             return; 
         }
         const currentUser = authService.currentUser;
-
 
         const editorIdentifier = currentUser.displayName || currentUser.email;
 
@@ -325,7 +323,7 @@ if (ui.adahiForm) {
 }
 
 function renderSacrificesForAdminUI(docsSnapshot) {
-    if (!ui.sacrificesTableBody) { /* console.warn("sacrificesTableBody not found for admin.");*/ return; }
+    if (!ui.sacrificesTableBody) { return; }
     ui.sacrificesTableBody.innerHTML = '';
     if (docsSnapshot.empty) {
         if (ui.adminLoadingMessage) {
@@ -419,7 +417,7 @@ function renderSacrificesForAdminUI(docsSnapshot) {
 }
 
 function renderSacrificesForUserUI(docsSnapshot) {
-    if (!ui.userSacrificesTableBody) { /* console.warn("userSacrificesTableBody not found for user.");*/ return; }
+    if (!ui.userSacrificesTableBody) { return; }
     ui.userSacrificesTableBody.innerHTML = '';
 
     if (docsSnapshot.empty) {
@@ -511,11 +509,8 @@ async function fetchAndRenderSacrificesForUserUI(userId) {
 }
 
 if (ui.filterAllButton) ui.filterAllButton.addEventListener('click', () => fetchAndRenderSacrificesForAdmin('all'));
-// else console.warn("ui.filterAllButton not found."); // Removed to reduce console noise
 if (ui.filterPendingButton) ui.filterPendingButton.addEventListener('click', () => fetchAndRenderSacrificesForAdmin('pending_entry'));
-// else console.warn("ui.filterPendingButton not found.");
 if (ui.filterEnteredButton) ui.filterEnteredButton.addEventListener('click', () => fetchAndRenderSacrificesForAdmin('entered'));
-// else console.warn("ui.filterEnteredButton not found.");
 
 function downloadCSV(csvContent, filename) {
     const blob = new Blob(["\uFEFF"+csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -543,7 +538,7 @@ function convertToCSV(dataArray, headerKeys, displayHeaders) {
             } else if (key === 'createdAt' || key === 'lastEditedAt') {
                  if (obj[key] && typeof obj[key].seconds === 'number') {
                     cell = ui.formatFirestoreTimestamp(obj[key]);
-                 } else if (obj[key] instanceof Date) { // If it's already a Date object (less likely from Firestore directly)
+                 } else if (obj[key] instanceof Date) { 
                     cell = obj[key].toLocaleString('ar-SA');
                  }
             }
@@ -593,7 +588,7 @@ if (exportAllToCsvButtonEl) {
             if (ui.authStatusEl) {ui.authStatusEl.textContent = "خطأ في تصدير كل البيانات: " + error.message; ui.authStatusEl.className = 'error';}
         }
     });
-} /* else { console.warn("exportAllToCsvButtonEl not found."); } */
+}
 
 const exportAllUsersSeparateCsvButtonEl = ui.adminActionsDiv ? ui.adminActionsDiv.querySelector('#exportAllUsersSeparateCsvButton') : null;
 if (exportAllUsersSeparateCsvButtonEl) {
@@ -674,7 +669,7 @@ if (exportAllUsersSeparateCsvButtonEl) {
             }
         }
     });
-} /* else { console.warn("exportAllUsersSeparateCsvButtonEl not found."); } */
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     // console.log("DOM fully loaded and parsed. main.js is active.");
