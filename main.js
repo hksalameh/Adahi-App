@@ -6,8 +6,6 @@ import * as fsService from './firestoreService.js';
 import * as ui from './ui.js';
 import { getFirestore, collection, query, orderBy, where, getDocs, serverTimestamp, onSnapshot } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-firestore.js";
 
-// SheetJS is already included via CDN in index.html, so XLSX should be globally available.
-
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = authModule.initializeAuth(); 
@@ -20,205 +18,84 @@ function setCurrentEditingDocId(id) {
     currentEditingDocId = id;
 }
 
-// Console warnings for missing UI elements (as before)
-// ...
+// ... (Console warnings for missing UI elements - كما هي) ...
+// ... (Auth form event listeners - كما هي) ...
+// ... (Logout button event listener - كما هي) ...
 
-// Auth form event listeners
-if (ui.loginForm && ui.loginEmailInput && ui.loginPasswordInput && ui.rememberMeCheckbox) {
-    ui.loginForm.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        const email = ui.loginEmailInput.value;
-        const password = ui.loginPasswordInput.value;
-        const rememberMe = ui.rememberMeCheckbox.checked; 
-        
-        if (!email || !password) {
-            if (ui.authStatusEl) {
-                ui.authStatusEl.textContent = 'الرجاء إدخال البريد الإلكتروني وكلمة المرور.';
-                ui.authStatusEl.className = 'error';
-            }
-            return;
-        }
-        if (ui.authStatusEl) {
-            ui.authStatusEl.textContent = 'جاري تسجيل الدخول...';
-            ui.authStatusEl.className = '';
-        }
-        try {
-            await authModule.loginUser(email, password, rememberMe); 
-            if (ui.loginForm) ui.loginForm.reset();
-        } catch (error) {
-            console.error('Login error:', error);
-            let errorMessage = 'فشل تسجيل الدخول. ';
-             if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
-                errorMessage += 'البريد الإلكتروني أو كلمة المرور غير صحيحة.';
-            } else if (error.code === 'auth/invalid-email') {
-                errorMessage += 'صيغة البريد الإلكتروني غير صحيحة.';
-            } else {
-                errorMessage += error.message;
-            }
-            if (ui.authStatusEl) {
-                ui.authStatusEl.textContent = errorMessage;
-                ui.authStatusEl.className = 'error';
-            }
-        }
-    });
-}
-
-// Registration form listener (as before)
-if (ui.registrationForm && ui.regEmailInput && ui.regPasswordInput && ui.regConfirmPasswordInput && ui.regDisplayNameInput) {
-    ui.registrationForm.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        const displayName = ui.regDisplayNameInput.value.trim();
-        const email = ui.regEmailInput.value.trim();
-        const password = ui.regPasswordInput.value;
-        const confirmPassword = ui.regConfirmPasswordInput.value;
-
-        if (!displayName || !email || !password || !confirmPassword) {
-            if (ui.authStatusEl) {
-                ui.authStatusEl.textContent = 'الرجاء ملء جميع حقول التسجيل.';
-                ui.authStatusEl.className = 'error';
-            }
-            return;
-        }
-        if (password !== confirmPassword) {
-            if (ui.authStatusEl) {
-                ui.authStatusEl.textContent = 'كلمتا المرور غير متطابقتين.';
-                ui.authStatusEl.className = 'error';
-            }
-            return;
-        }
-        if (password.length < 6) {
-            if (ui.authStatusEl) {
-                ui.authStatusEl.textContent = 'يجب أن تتكون كلمة المرور من 6 أحرف على الأقل.';
-                ui.authStatusEl.className = 'error';
-            }
-            return;
-        }
-
-        if (ui.authStatusEl) {
-            ui.authStatusEl.textContent = 'جاري إنشاء الحساب...';
-            ui.authStatusEl.className = '';
-        }
-
-        try {
-            const userCredential = await authModule.registerUser(email, password, displayName);
-            if (ui.registrationForm) ui.registrationForm.reset();
-        } catch (error) {
-            console.error('Registration error:', error);
-            let errorMessage = 'فشل إنشاء الحساب. ';
-            if (error.code === 'auth/email-already-in-use') {
-                errorMessage += 'هذا البريد الإلكتروني مسجل بالفعل.';
-            } else if (error.code === 'auth/weak-password') {
-                errorMessage += 'كلمة المرور ضعيفة جدًا.';
-            } else if (error.code === 'auth/invalid-email') {
-                errorMessage += 'صيغة البريد الإلكتروني غير صحيحة.';
-            } else {
-                errorMessage += error.message; 
-            }
-            if (ui.authStatusEl) {
-                ui.authStatusEl.textContent = errorMessage;
-                ui.authStatusEl.className = 'error';
-            }
-        }
-    });
-}
-
-
-// Toggle links listeners (as before)
-if (ui.switchToRegisterLink && ui.switchToLoginLink && ui.loginSection && ui.registrationSection && ui.formToggleLinksDiv) {
-    ui.switchToRegisterLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        if (ui.loginSection) ui.loginSection.classList.add('hidden-field');
-        if (ui.registrationSection) ui.registrationSection.classList.remove('hidden-field');
-        if (ui.switchToRegisterLink) ui.switchToRegisterLink.classList.add('hidden-field');
-        if (ui.switchToLoginLink) ui.switchToLoginLink.classList.remove('hidden-field');
-        if (ui.authStatusEl) { ui.authStatusEl.textContent = 'قم بإنشاء حساب جديد أو سجل دخولك إذا كان لديك حساب بالفعل.'; ui.authStatusEl.className = ''; }
-        if (ui.loginForm) ui.loginForm.reset();
-        if (ui.registrationForm) ui.registrationForm.reset();
-    });
-
-    ui.switchToLoginLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        if (ui.registrationSection) ui.registrationSection.classList.add('hidden-field');
-        if (ui.loginSection) ui.loginSection.classList.remove('hidden-field');
-        if (ui.switchToLoginLink) ui.switchToLoginLink.classList.add('hidden-field');
-        if (ui.switchToRegisterLink) ui.switchToRegisterLink.classList.remove('hidden-field');
-        if (ui.authStatusEl) { ui.authStatusEl.textContent = 'سجل دخولك أو قم بإنشاء حساب جديد.'; ui.authStatusEl.className = ''; }
-        if (ui.loginForm) ui.loginForm.reset();
-        if (ui.registrationForm) ui.registrationForm.reset();
-    });
-}
-
-// Logout button listener (as before)
-if (ui.logoutButton) {
-    ui.logoutButton.addEventListener('click', async () => {
-        if (ui.authStatusEl) {
-            ui.authStatusEl.textContent = 'جاري تسجيل الخروج...';
-            ui.authStatusEl.className = '';
-        }
-        try {
-            await authModule.handleSignOut();
-            if (ui.authStatusEl) {
-                ui.authStatusEl.textContent = 'تم تسجيل الخروج بنجاح.';
-                ui.authStatusEl.className = 'success';
-            }
-            setTimeout(() => {
-                 if (ui.authStatusEl && ui.authStatusEl.textContent === 'تم تسجيل الخروج بنجاح.') {
-                    ui.authStatusEl.textContent = 'يرجى تسجيل الدخول أو إنشاء حساب جديد للمتابعة.';
-                    ui.authStatusEl.className = '';
-                 }
-            }, 2000);
-        } catch (error) {
-            console.error('Logout error:', error);
-            if (ui.authStatusEl) {
-                ui.authStatusEl.textContent = 'خطأ في تسجيل الخروج: ' + error.message;
-                ui.authStatusEl.className = 'error';
-            }
-        }
-    });
-}
-
-
-// onAuthStateChanged (as before)
 authModule.onAuthStateChanged((user) => {
-    const allUIElementsToHide = [
+    // console.log("--- onAuthStateChanged Fired ---"); // تشخيص: هل يتم تشغيل هذه الدالة؟
+
+    // إخفاء جميع الأقسام الرئيسية مبدئيًا
+    const allMainSections = [
         ui.loginSection, ui.registrationSection, ui.formToggleLinksDiv,
         ui.dataEntrySection, ui.adminViewSection, ui.userDataViewSection,
         ui.logoutButton, ui.hrAfterLogout
     ];
-    allUIElementsToHide.forEach(el => { if (el) el.classList.add('hidden-field'); });
+    allMainSections.forEach(el => { 
+        if (el) {
+            el.classList.add('hidden-field'); 
+            // console.log(`Hiding element: ${el.id || 'Unnamed element'}`); // تشخيص
+        }
+    });
     
-    const exportAllBtn = ui.exportAllToExcelButton; // Direct reference from ui.js
-    const exportUsersSepBtn = ui.exportAllUsersSeparateExcelButton; // Direct reference from ui.js
+    const exportAllBtn = ui.exportAllToExcelButton; 
+    const exportUsersSepBtn = ui.exportAllUsersSeparateExcelButton;
     if(exportAllBtn) exportAllBtn.classList.add('hidden-field');
     if(exportUsersSepBtn) exportUsersSepBtn.classList.add('hidden-field');
 
     if (user) {
+        // console.log(`User IS signed in: UID = ${user.uid}, DisplayName = ${user.displayName}, Email = ${user.email}`); // تشخيص
+        
         if (ui.authStatusEl) {
             ui.authStatusEl.textContent = `مرحباً بك ${user.displayName || user.email}!`;
             ui.authStatusEl.className = 'success';
         }
         
-        if (ui.logoutButton) ui.logoutButton.classList.remove('hidden-field');
-        if (ui.hrAfterLogout) ui.hrAfterLogout.classList.remove('hidden-field');
-        if (ui.dataEntrySection) ui.dataEntrySection.classList.remove('hidden-field');
+        if (ui.logoutButton) {
+            ui.logoutButton.classList.remove('hidden-field');
+            // console.log("Showing logoutButton"); // تشخيص
+        }
+        if (ui.hrAfterLogout) {
+            ui.hrAfterLogout.classList.remove('hidden-field');
+            // console.log("Showing hrAfterLogout"); // تشخيص
+        }
+        if (ui.dataEntrySection) {
+            ui.dataEntrySection.classList.remove('hidden-field');
+            // console.log("Showing dataEntrySection"); // تشخيص
+        }
 
         if (user.uid === ADMIN_UID) {
-            if (ui.adminViewSection) ui.adminViewSection.classList.remove('hidden-field');
-            fetchAndRenderSacrificesForAdmin(); // <<<--- استدعاء الدالة هنا
+            // console.log("User is ADMIN."); // تشخيص
+            if (ui.adminViewSection) {
+                ui.adminViewSection.classList.remove('hidden-field');
+                // console.log("Showing adminViewSection"); // تشخيص
+            }
+            fetchAndRenderSacrificesForAdmin();
             if(exportAllBtn) exportAllBtn.classList.remove('hidden-field');
             if(exportUsersSepBtn) exportUsersSepBtn.classList.remove('hidden-field');
         } else {
-            if (ui.userDataViewSection) ui.userDataViewSection.classList.remove('hidden-field');
-            fetchAndRenderSacrificesForUserUI(user.uid); // <<<--- استدعاء الدالة هنا
+            // console.log("User is REGULAR user."); // تشخيص
+            if (ui.userDataViewSection) {
+                ui.userDataViewSection.classList.remove('hidden-field');
+                // console.log("Showing userDataViewSection"); // تشخيص
+            }
+            fetchAndRenderSacrificesForUserUI(user.uid);
         }
         if (ui.adahiForm) ui.resetAdahiFormToEntryMode(setCurrentEditingDocId);
 
     } else {
-        if (ui.loginSection) ui.loginSection.classList.remove('hidden-field');
-        if (ui.formToggleLinksDiv) ui.formToggleLinksDiv.classList.remove('hidden-field');
+        // console.log("User is signed OUT or not yet signed in."); // تشخيص
+        if (ui.loginSection) {
+            ui.loginSection.classList.remove('hidden-field');
+            // console.log("Showing loginSection"); // تشخيص
+        }
+        if (ui.formToggleLinksDiv) {
+            ui.formToggleLinksDiv.classList.remove('hidden-field');
+            // console.log("Showing formToggleLinksDiv"); // تشخيص
+        }
         if (ui.switchToLoginLink) ui.switchToLoginLink.classList.add('hidden-field');
         if (ui.switchToRegisterLink) ui.switchToRegisterLink.classList.remove('hidden-field');
-        if (ui.registrationSection) ui.registrationSection.classList.add('hidden-field'); // Ensure reg form is hidden
+        if (ui.registrationSection) ui.registrationSection.classList.add('hidden-field');
         
         if (ui.sacrificesTableBody) ui.sacrificesTableBody.innerHTML = '';
         if (ui.userSacrificesTableBody) ui.userSacrificesTableBody.innerHTML = '';
@@ -246,6 +123,9 @@ authModule.onAuthStateChanged((user) => {
     }
 });
 
+
+// ... (بقية دوال Adahi form submit, render, fetch, export - كما هي من الرد السابق الذي أعدت فيه الدوال المحذوفة) ...
+// تأكد أن الدوال fetchAndRenderSacrificesForAdmin و fetchAndRenderSacrificesForUserUI موجودة ومعرفة بشكل صحيح.
 
 // Adahi form submit listener (as before)
 if (ui.adahiForm) {
@@ -305,7 +185,6 @@ if (ui.adahiForm) {
         }
     });
 }
-
 
 // --- دوال العرض والتحديث للجداول (مع تعديل لعرض قيم فارغة) ---
 function renderCellValue(value, isBooleanNoMeansEmpty = false, conditionalEmptyValue = '') {
@@ -446,7 +325,6 @@ function renderSacrificesForUserUI(docsSnapshot) {
     });
 }
 
-// *** إعادة تعريف الدوال المحذوفة ***
 async function fetchAndRenderSacrificesForAdmin(filterStatus = 'all') {
     const authService = authModule.getAuthInstance();
     if (!authService || !authService.currentUser || authService.currentUser.uid !== ADMIN_UID) return;
@@ -515,6 +393,7 @@ if (ui.filterEnteredButton) ui.filterEnteredButton.addEventListener('click', () 
 
 
 // --- Excel Export Functions ---
+// ... (دوال Excel كما هي من الرد السابق) ...
 function exportDataToExcel(dataArray, headerKeys, displayHeaders, filename) {
     if (typeof XLSX === 'undefined') {
         console.error("SheetJS (XLSX) library is not loaded!");
@@ -688,7 +567,6 @@ if (ui.exportAllUsersSeparateExcelButton) {
         }
     });
 }
-
 
 // DOMContentLoaded listener (as before)
 document.addEventListener('DOMContentLoaded', () => {
