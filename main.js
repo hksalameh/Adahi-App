@@ -21,6 +21,76 @@ function setCurrentEditingDocId(id) {
     currentEditingDocId = id;
 }
 
+// --- تعريف دالة updateUIVisibility في بداية الملف ---
+function updateUIVisibility(user) {
+    if (!domReady || !ui.loginElements || !ui.commonUIElements) { 
+        if (!domReady) {
+            setTimeout(() => updateUIVisibility(user), 100); // تأخير بسيط إذا لم يكن DOM جاهزًا
+        }
+        return; 
+    }
+
+    // إخفاء كل شيء أولاً
+    const allElementsToManage = [
+        ui.loginElements.loginSection, ui.registrationElements.registrationSection,
+        ui.toggleLinkElements.formToggleLinksDiv, ui.dataEntryFormElements.dataEntrySection,
+        ui.adminViewElements.adminViewSection, ui.userDataViewElements.userDataViewSection,
+        ui.commonUIElements.logoutButton, ui.commonUIElements.hrAfterLogout,
+        ui.adminViewElements.sacrificesSummaryDiv, ui.adminViewElements.hrAfterSummary,
+        ui.adminViewElements.exportAllToExcelButton, ui.adminViewElements.exportAllUsersSeparateExcelButton
+    ];
+    allElementsToManage.forEach(el => { if (el) el.classList.add('hidden-field'); });
+
+
+    if (user) { // المستخدم مسجل دخوله
+        if (ui.commonUIElements.authStatusEl) {
+            ui.commonUIElements.authStatusEl.textContent = `مرحباً بك ${user.displayName || user.email}!`;
+            ui.commonUIElements.authStatusEl.className = 'success';
+        }
+        if (ui.commonUIElements.logoutButton) ui.commonUIElements.logoutButton.classList.remove('hidden-field');
+        if (ui.commonUIElements.hrAfterLogout) ui.commonUIElements.hrAfterLogout.classList.remove('hidden-field');
+        if (ui.dataEntryFormElements.dataEntrySection) ui.dataEntryFormElements.dataEntrySection.classList.remove('hidden-field');
+
+        if (user.uid === ADMIN_UID) {
+            if (ui.adminViewElements.adminViewSection) ui.adminViewElements.adminViewSection.classList.remove('hidden-field');
+            if (ui.adminViewElements.sacrificesSummaryDiv) ui.adminViewElements.sacrificesSummaryDiv.classList.remove('hidden-field');
+            if (ui.adminViewElements.hrAfterSummary) ui.adminViewElements.hrAfterSummary.classList.remove('hidden-field');
+            fetchAndRenderSacrificesForAdmin(); 
+            if (ui.adminViewElements.exportAllToExcelButton) ui.adminViewElements.exportAllToExcelButton.classList.remove('hidden-field');
+            if (ui.adminViewElements.exportAllUsersSeparateExcelButton) ui.adminViewElements.exportAllUsersSeparateExcelButton.classList.remove('hidden-field');
+        } else {
+            if (ui.userDataViewElements.userDataViewSection) ui.userDataViewElements.userDataViewSection.classList.remove('hidden-field');
+            fetchAndRenderSacrificesForUserUI(user.uid); 
+        }
+        if (ui.dataEntryFormElements.adahiForm) uiGetters.resetAdahiFormToEntryMode(setCurrentEditingDocId);
+    } else { // المستخدم غير مسجل دخوله
+        if (ui.loginElements.loginSection) ui.loginElements.loginSection.classList.remove('hidden-field');
+        if (ui.toggleLinkElements.formToggleLinksDiv) ui.toggleLinkElements.formToggleLinksDiv.classList.remove('hidden-field');
+        if (ui.toggleLinkElements.switchToLoginLink) ui.toggleLinkElements.switchToLoginLink.classList.add('hidden-field'); 
+        if (ui.toggleLinkElements.switchToRegisterLink) ui.toggleLinkElements.switchToRegisterLink.classList.remove('hidden-field'); 
+        
+        if (ui.adminViewElements && ui.adminViewElements.sacrificesTableBody) ui.adminViewElements.sacrificesTableBody.innerHTML = '';
+        if (ui.userDataViewElements && ui.userDataViewElements.userSacrificesTableBody) ui.userDataViewElements.userSacrificesTableBody.innerHTML = '';
+
+        const initialAuthMsg = 'يرجى تسجيل الدخول أو إنشاء حساب جديد للمتابعة.';
+         if (ui.commonUIElements.authStatusEl) {
+            if (!ui.commonUIElements.authStatusEl.classList.contains('error') || ui.commonUIElements.authStatusEl.textContent.includes('مرحباً بك')) { 
+                 ui.commonUIElements.authStatusEl.textContent = initialAuthMsg;
+                 ui.commonUIElements.authStatusEl.className = '';
+            }
+        }
+        if (ui.dataEntryFormElements && ui.dataEntryFormElements.statusMessageEl) { 
+            ui.dataEntryFormElements.statusMessageEl.textContent = '';
+            ui.dataEntryFormElements.statusMessageEl.className = '';
+        }
+        if (unsubscribeAdminSacrifices) { unsubscribeAdminSacrifices(); unsubscribeAdminSacrifices = null; }
+        if (unsubscribeUserSacrifices) { unsubscribeUserSacrifices(); unsubscribeUserSacrifices = null; }
+        currentEditingDocId = null;
+        allAdminSacrificesCache = []; 
+        updateSacrificesSummary(); 
+    }
+}
+
 function updateSacrificesSummary() {
     if (!ui.adminViewElements || 
         !ui.adminViewElements.summaryGazaEl ||
@@ -206,7 +276,6 @@ async function fetchAndRenderSacrificesForUserUI(userId) {
     });
 }
 
-// --- دالة تصدير Excel (يجب أن تكون معرّفة قبل استخدامها) ---
 function exportDataToExcel(dataArray, headerKeys, displayHeaders, filename) {
     if (typeof XLSX === 'undefined') {
         console.error("SheetJS (XLSX) library is not loaded!");
@@ -234,7 +303,7 @@ function exportDataToExcel(dataArray, headerKeys, displayHeaders, filename) {
 
     const ws = XLSX.utils.aoa_to_sheet(dataForSheet);
     if(!ws['!props']) ws['!props'] = {};
-    ws['!props'].RTL = true; // لتمكين المحاذاة من اليمين لليسار
+    ws['!props'].RTL = true; 
 
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "البيانات");
