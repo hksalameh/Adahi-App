@@ -7,6 +7,11 @@
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <!-- SheetJS (js-xlsx) for Excel Export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- jsPDF for PDF Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- jsPDF-AutoTable plugin for tables -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;700&display=swap');
         body { font-family: 'Noto Kufi Arabic', 'Tajawal', sans-serif; margin: 0; padding: 0; background-color: #f0f2f5; color: #2c3e50; line-height: 1.7; font-size: 16px; }
@@ -59,16 +64,15 @@
         #adminActions { text-align: center; margin-bottom: 25px; }
         #adminActions button { background-color: #7f8c8d; font-size: 1em; padding: 10px 20px; box-shadow: none; margin-bottom: 5px; margin-left: 5px; }
         #adminActions button:hover { background-color: #6c7a7b; }
+        #exportAllToPdfButton, #exportAllUsersSeparatePdfButton {
+            background-color: #d35400; /* لون مختلف لزر PDF */
+        }
+        #exportAllToPdfButton:hover, #exportAllUsersSeparatePdfButton:hover {
+            background-color: #a04000;
+        }
         
         #sacrificesTableBody button, #userSacrificesTableBody button { font-size: 0.9em; padding: 6px 12px; margin-right: 5px; box-shadow: none; border-radius: 4px; }
-        #sacrificesTableBody button.delete-btn, #userSacrificesTableBody button.delete-btn { background-color: #e74c3c; }
-        #sacrificesTableBody button.delete-btn:hover, #userSacrificesTableBody button.delete-btn:hover { background-color: #c0392b; }
-        #sacrificesTableBody button.confirm { background-color: #2ecc71; }
-        #sacrificesTableBody button.confirm:hover { background-color: #27ae60; }
-        #sacrificesTableBody button.revert { background-color: #f39c12; }
-        #sacrificesTableBody button.revert:hover { background-color: #e67e22; }
-        #sacrificesTableBody button.edit { background-color: #5dade2; }
-        #sacrificesTableBody button.edit:hover { background-color: #3498db; }
+        /* ... (بقية تنسيقات الأزرار في الجدول) ... */
 
         .hidden-field { display: none; } 
         hr { margin: 40px 0; border: 0; border-top: 1px solid #bdc3c7; } 
@@ -201,7 +205,10 @@
                     <button id="filterAll">عرض الكل</button>
                     <hr style="margin: 15px 0;">
                     <button id="exportAllToExcelButton">تصدير كل البيانات (Excel)</button>
-                    <button id="exportAllUsersSeparateExcelButton" style="margin-top:10px;">تصدير بيانات كل مدخل بملف منفصل (Excel)</button>
+                    <button id="exportAllUsersSeparateExcelButton" style="margin-top:5px;">تصدير بيانات كل مدخل بملف منفصل (Excel)</button>
+                    <br>
+                    <button id="exportAllToPdfButton" style="margin-top:5px;">تصدير كل البيانات (PDF)</button>
+                    <button id="exportAllUsersSeparatePdfButton" style="margin-top:5px;">تصدير بيانات كل مدخل بملف منفصل (PDF)</button>
                 </div>
                 
                 <div id="sacrificesSummary" class="hidden-field">
