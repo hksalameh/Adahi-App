@@ -32,8 +32,9 @@
         #logoutButton { background-color: #e74c3c; font-size: 1.1em; padding: 12px 25px;}
         #logoutButton:hover { background-color: #c0392b; }
         #adminActions { text-align: center; margin-bottom: 25px; }
-        #adminActions button { background-color: #7f8c8d; font-size: 1em; padding: 10px 20px; box-shadow: none; }
+        #adminActions button { background-color: #7f8c8d; font-size: 1em; padding: 10px 20px; box-shadow: none; margin-bottom: 5px; }
         #adminActions button:hover { background-color: #6c7a7b; }
+        #adminActions input[type="text"] { font-size: 1em; padding: 8px; border: 1px solid #bcccdc; border-radius: 4px; margin-bottom: 5px;}
         #sacrificesTableBody button { font-size: 0.9em; padding: 6px 12px; margin-right: 5px; box-shadow: none; border-radius: 4px; }
         #sacrificesTableBody button.delete-btn { background-color: #e74c3c; }
         #sacrificesTableBody button.delete-btn:hover { background-color: #c0392b; }
@@ -100,8 +101,13 @@
                 <div id="adminActions">
                     <button id="filterPending">عرض "لم تدخل بعد" فقط</button>
                     <button id="filterEntered">عرض "تم الإدخال" فقط</button>
-                    <!-- Removed filterRejected button -->
                     <button id="filterAll">عرض الكل</button>
+                    <hr style="margin: 15px 0;">
+                    <button id="exportAllToCsvButton">تصدير كل البيانات (CSV)</button>
+                    <div style="margin-top:10px;">
+                        <input type="text" id="exportUserCsvInput" placeholder="أدخل ID المستخدم للتصدير" style="width: 200px; display: inline-block; margin-left: 10px; vertical-align: middle; padding: 10px; font-size:1em;">
+                        <button id="exportUserToCsvButton" style="vertical-align: middle;">تصدير بيانات مستخدم محدد (CSV)</button>
+                    </div>
                 </div>
                 <div id="sacrificesTableContainer"><p id="loadingMessage">جاري تحميل البيانات...</p>
                     <table id="sacrificesTable" border="1">
@@ -142,7 +148,7 @@
       const logoutButton = document.getElementById('logoutButton');
       const hrAfterLogout = document.getElementById('hrAfterLogout');
       const authStatus = document.getElementById('authStatus');
-      const ADMIN_UID = 'AKpJLStGGnRC2Albb8bpZ0KtTGq1'; // استبدل هذا بالـ UID الفعلي للمسؤول
+      const ADMIN_UID = 'AKpJLStGGnRC2Albb8bpZ0KtTGq1'; 
 
       const wantsPortionYesRadio = document.getElementById('wantsPortionYes');
       const wantsPortionNoRadio = document.getElementById('wantsPortionNo');
@@ -154,12 +160,15 @@
       const broughtByOtherYesRadio = document.getElementById('broughtByOtherYes');
       const broughtByOtherNoRadio = document.getElementById('broughtByOtherNo');
       const broughtByOtherNameDiv = document.getElementById('broughtByOtherNameDiv');
+      const exportAllToCsvButton = document.getElementById('exportAllToCsvButton');
+      const exportUserToCsvButton = document.getElementById('exportUserToCsvButton');
+      const exportUserCsvInput = document.getElementById('exportUserCsvInput');
 
-      wantsPortionYesRadio.addEventListener('change', function() {if (this.checked) {portionDetailsDiv.style.display = 'block';addressFieldDiv.style.display = 'block';}});
+      wantsPortionYesRadio.addEventListener('change', function() {if (this.checked) {portionDetailsDiv.style.display = 'block';addressFieldDiv.style.display = 'block';} else {portionDetailsDiv.style.display = 'none';addressFieldDiv.style.display = 'none'; document.getElementById('portionDetails').value = ''; document.getElementById('address').value = '';}});
       wantsPortionNoRadio.addEventListener('change', function() {if (this.checked) {portionDetailsDiv.style.display = 'none';addressFieldDiv.style.display = 'none'; document.getElementById('portionDetails').value = ''; document.getElementById('address').value = '';}});
-      paymentDoneYesRadio.addEventListener('change', function() {if (this.checked) {paymentDetailsDiv.style.display = 'block';}});
+      paymentDoneYesRadio.addEventListener('change', function() {if (this.checked) {paymentDetailsDiv.style.display = 'block';} else {paymentDetailsDiv.style.display = 'none'; document.getElementById('receiptBookNumber').value = ''; document.getElementById('receiptNumber').value = '';}});
       paymentDoneNoRadio.addEventListener('change', function() {if (this.checked) {paymentDetailsDiv.style.display = 'none'; document.getElementById('receiptBookNumber').value = ''; document.getElementById('receiptNumber').value = '';}});
-      broughtByOtherYesRadio.addEventListener('change', function() { if (this.checked) { broughtByOtherNameDiv.style.display = 'block'; }});
+      broughtByOtherYesRadio.addEventListener('change', function() { if (this.checked) { broughtByOtherNameDiv.style.display = 'block'; } else { broughtByOtherNameDiv.style.display = 'none'; document.getElementById('broughtByOtherName').value = '';}});
       broughtByOtherNoRadio.addEventListener('change', function() { if (this.checked) { broughtByOtherNameDiv.style.display = 'none'; document.getElementById('broughtByOtherName').value = ''; }});
 
       const adahiForm = document.getElementById('adahiForm');
@@ -174,10 +183,8 @@
           dataEntrySectionH2.textContent = 'تسجيل أضحية/تبرع جديد';
           adahiFormSubmitButton.textContent = 'تسجيل البيانات';
           adahiFormSubmitButton.style.backgroundColor = '#27ae60';
-          portionDetailsDiv.style.display = 'none';
-          addressFieldDiv.style.display = 'none';
-          paymentDetailsDiv.style.display = 'none';
-          broughtByOtherNameDiv.style.display = 'none';
+          portionDetailsDiv.style.display = 'none'; addressFieldDiv.style.display = 'none';
+          paymentDetailsDiv.style.display = 'none'; broughtByOtherNameDiv.style.display = 'none';
           document.getElementById('wantsToAttendNo').checked = true;
           document.getElementById('wantsPortionNo').checked = true;
           document.getElementById('paymentDoneNo').checked = true;
@@ -196,14 +203,14 @@
           document.getElementById(data.wantsToAttend ? 'wantsToAttendYes' : 'wantsToAttendNo').checked = true;
           document.getElementById('phoneNumber').value = data.phoneNumber || '';
           document.getElementById(data.wantsPortion ? 'wantsPortionYes' : 'wantsPortionNo').checked = true;
-          document.getElementById('wantsPortionYes').dispatchEvent(new Event('change'));
+          wantsPortionYesRadio.dispatchEvent(new Event('change')); // Trigger show/hide logic
           if (data.wantsPortion) { document.getElementById('portionDetails').value = data.portionDetails || ''; document.getElementById('address').value = data.address || '';}
           document.getElementById(data.paymentDone ? 'paymentDoneYes' : 'paymentDoneNo').checked = true;
-          document.getElementById('paymentDoneYes').dispatchEvent(new Event('change'));
+          paymentDoneYesRadio.dispatchEvent(new Event('change'));
           if (data.paymentDone) { document.getElementById('receiptBookNumber').value = data.receiptBookNumber || ''; document.getElementById('receiptNumber').value = data.receiptNumber || '';}
           document.getElementById('assistanceFor').value = data.assistanceFor || 'inside_ramtha';
           document.getElementById(data.broughtByOther ? 'broughtByOtherYes' : 'broughtByOtherNo').checked = true;
-          document.getElementById('broughtByOtherYes').dispatchEvent(new Event('change'));
+          broughtByOtherYesRadio.dispatchEvent(new Event('change'));
           if (data.broughtByOther) { document.getElementById('broughtByOtherName').value = data.broughtByOtherName || '';}
           let cancelButton = adahiForm.querySelector('#cancelEditButton');
           if (!cancelButton) {
@@ -251,7 +258,7 @@
           } else {
               statusMessage.textContent = 'جاري الحفظ...'; statusMessage.className = '';
               adahiDataToSave.userId = currentUser.uid;
-              adahiDataToSave.status = 'pending_entry'; // New default status
+              adahiDataToSave.status = 'pending_entry';
               adahiDataToSave.createdAt = serverTimestamp();
               try {
                   const docRefDb = await addDoc(collection(db, "sacrifices"), adahiDataToSave);
@@ -284,10 +291,7 @@
               let statusText = data.status;
               if (data.status === 'pending_entry') { statusText = 'لم تدخل بعد'; }
               else if (data.status === 'entered') { statusText = 'تم الإدخال'; }
-              // Fallbacks for old statuses, can be removed later if data is migrated
-              else if (data.status === 'approved') { statusText = 'تم الإدخال (قديم)'; }
-              else if (data.status === 'pending_approval') { statusText = 'لم تدخل بعد (قديم)'; }
-              else if (data.status === 'rejected') { statusText = 'إدخال مرفوض (قديم)'; } // If you had rejected data
+              else if (data.status === 'approved' || data.status === 'pending_approval' || data.status === 'rejected') { statusText = `(${statusText})`;} // Display old/unexpected status in parenthesis
               row.insertCell().textContent = statusText;
               const actionsCell = row.insertCell();
               if (data.status === 'pending_entry') {
@@ -313,10 +317,9 @@
           onSnapshot(q, (querySnapshot) => { renderSacrificesForAdmin(querySnapshot); },
           (error) => { console.error("Error fetching admin docs:", error); sacrificesTableBody.innerHTML = `<tr><td colspan="17">خطأ تحميل البيانات.</td></tr>`; });
       }
-      document.getElementById('filterPending').addEventListener('click', () => fetchAndRenderSacrificesForAdmin('pending_entry'));
-      document.getElementById('filterEntered').addEventListener('click', () => fetchAndRenderSacrificesForAdmin('entered')); // Changed from filterApproved
-      // Removed filterRejected listener as the button is removed from HTML
-      document.getElementById('filterAll').addEventListener('click', () => fetchAndRenderSacrificesForAdmin(null));
+      if(document.getElementById('filterPending')) document.getElementById('filterPending').addEventListener('click', () => fetchAndRenderSacrificesForAdmin('pending_entry'));
+      if(document.getElementById('filterEntered')) document.getElementById('filterEntered').addEventListener('click', () => fetchAndRenderSacrificesForAdmin('entered'));
+      if(document.getElementById('filterAll')) document.getElementById('filterAll').addEventListener('click', () => fetchAndRenderSacrificesForAdmin(null));
 
 
       const userSacrificesTableBody = document.getElementById('userSacrificesTableBody');
@@ -336,9 +339,7 @@
               let statusText = data.status;
               if (data.status === 'pending_entry') { statusText = 'لم تدخل بعد'; }
               else if (data.status === 'entered') { statusText = 'تم الإدخال'; }
-              else if (data.status === 'approved') { statusText = 'تم الإدخال (قديم)'; }
-              else if (data.status === 'pending_approval') { statusText = 'لم تدخل بعد (قديم)'; }
-              else if (data.status === 'rejected') { statusText = 'إدخال مرفوض (قديم)'; }
+              else if (data.status === 'approved' || data.status === 'pending_approval' || data.status === 'rejected') { statusText = `(${statusText})`;}
               row.insertCell().textContent = statusText;
           });
       }
@@ -347,17 +348,7 @@
       
       onAuthStateChanged(auth, async (user) => {
         if (user) {
-            let displayName = user.email; // Default to email
-            // Attempt to get username for welcome message if logged in via map
-            const storedUsername = sessionStorage.getItem('loggedInUsername');
-            if (storedUsername) {
-                displayName = storedUsername;
-                sessionStorage.removeItem('loggedInUsername'); // Clear it after use
-            } else if (user.displayName) {
-                displayName = user.displayName;
-            }
-
-            authStatus.textContent = `مرحباً بك، ${displayName}`;
+            authStatus.textContent = `مرحباً بك`; // UPDATED WELCOME MESSAGE
             authStatus.className = 'success'; loginSection.style.display = 'none'; logoutButton.style.display = 'inline-block';
             hrAfterLogout.style.display = 'block'; dataEntrySection.style.display = 'block';
             resetFormToEntryMode();
@@ -392,35 +383,22 @@
 
           try {
             await setPersistence(auth, persistenceMode);
-            console.log("Auth persistence set to:", persistenceMode === browserLocalPersistence ? "LOCAL" : "SESSION");
-
-            try { // First attempt: direct sign-in
+            try {
                 const userCredential = await signInWithEmailAndPassword(auth, usernameOrEmailInput, password);
-                // If successful, onAuthStateChanged will handle UI
                 return;
             } catch (emailSignInError) {
                 if (emailSignInError.code === 'auth/invalid-email' || emailSignInError.code === 'auth/invalid-credential') {
-                    // Second attempt: username lookup
                     try {
                         const usersMapRef = collection(db, "user_credentials_map");
                         const q = query(usersMapRef, where("username", "==", usernameOrEmailInput));
                         const querySnapshot = await getDocs(q);
-                        if (querySnapshot.empty) {
-                            authStatus.textContent = 'اسم المستخدم أو كلمة المرور غير صحيحة.'; authStatus.className = 'error'; return;
-                        }
+                        if (querySnapshot.empty) { authStatus.textContent = 'اسم المستخدم أو كلمة المرور غير صحيحة.'; authStatus.className = 'error'; return; }
                         let foundUserEmail = null;
                         querySnapshot.forEach((doc) => { foundUserEmail = doc.data().email; });
                         if (foundUserEmail) {
-                            if (!foundUserEmail || typeof foundUserEmail !== 'string' || !foundUserEmail.includes('@')) {
-                                authStatus.textContent = 'البريد المرتبط باسم المستخدم غير صالح.'; authStatus.className = 'error'; return;
-                            }
+                            if (!foundUserEmail || typeof foundUserEmail !== 'string' || !foundUserEmail.includes('@')) { authStatus.textContent = 'البريد المرتبط باسم المستخدم غير صالح.'; authStatus.className = 'error'; return; }
                             await signInWithEmailAndPassword(auth, foundUserEmail, password);
-                            // Store the username used for login to show in welcome message
-                            sessionStorage.setItem('loggedInUsername', usernameOrEmailInput);
-                            // onAuthStateChanged will handle UI
-                        } else {
-                            authStatus.textContent = 'لم يتم العثور على بريد إلكتروني مطابق لاسم المستخدم.'; authStatus.className = 'error';
-                        }
+                        } else { authStatus.textContent = 'لم يتم العثور على بريد إلكتروني مطابق لاسم المستخدم.'; authStatus.className = 'error'; }
                     } catch (lookupError) {
                         let errorMsg = 'خطأ في البحث عن المستخدم أو كلمة المرور.';
                         if (lookupError.code === 'auth/invalid-credential') { errorMsg = 'كلمة المرور غير صحيحة لاسم المستخدم المقدم.'; }
@@ -428,24 +406,116 @@
                         else if (lookupError.code === 'permission-denied') { errorMsg = 'خطأ في صلاحيات البحث عن المستخدم.'; }
                         authStatus.textContent = errorMsg; authStatus.className = 'error';
                     }
-                } else { // Other errors from first sign-in attempt
-                    authStatus.textContent = `خطأ في تسجيل الدخول: ${emailSignInError.message}`; authStatus.className = 'error';
-                }
+                } else { authStatus.textContent = `خطأ في تسجيل الدخول: ${emailSignInError.message}`; authStatus.className = 'error'; }
             }
-          } catch (persistenceError) {
-              console.error("Error setting auth persistence: ", persistenceError);
-              authStatus.textContent = 'خطأ في إعداد جلسة الدخول.'; authStatus.className = 'error';
-          }
+          } catch (persistenceError) { console.error("Error setting auth persistence: ", persistenceError); authStatus.textContent = 'خطأ في إعداد جلسة الدخول.'; authStatus.className = 'error'; }
         });
       }
 
-      if (logoutButton) {
-        logoutButton.addEventListener('click', () => {
-            signOut(auth).catch((error) => {
-                authStatus.textContent = `خطأ في تسجيل الخروج: ${error.message}`; authStatus.className = 'error';
+      if (logoutButton) { signOut(auth).catch((error) => { authStatus.textContent = `خطأ في تسجيل الخروج: ${error.message}`; authStatus.className = 'error'; }); }
+      
+      // --- CSV Export Functions and Listeners ---
+        function downloadCSV(csvContent, filename) {
+            const blob = new Blob(["\uFEFF"+csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            if (link.download !== undefined) {
+                const url = URL.createObjectURL(blob);
+                link.setAttribute("href", url);
+                link.setAttribute("download", filename);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            }
+        }
+
+        function convertToCSV(dataArray, headerKeys, displayHeaders) {
+            const array = [displayHeaders.join(',')].concat(
+                dataArray.map(obj => headerKeys.map(key => {
+                    let cell = obj[key] === null || obj[key] === undefined ? '' : obj[key];
+                    if (typeof cell === 'boolean') {
+                        cell = cell ? 'نعم' : 'لا';
+                    } else if (key === 'status') {
+                        if (cell === 'pending_entry') cell = 'لم تدخل بعد';
+                        else if (cell === 'entered') cell = 'تم الإدخال';
+                        else if (cell === 'approved' || cell === 'pending_approval' || cell === 'rejected') cell = `(${cell})`;
+                    } else if (key === 'assistanceFor') {
+                        if (cell === 'inside_ramtha') cell = 'داخل الرمثا';
+                        else if (cell === 'gaza_people') cell = 'لأهل غزة';
+                        else if (cell === 'for_himself') cell = 'لنفسه';
+                    }
+                    if (typeof cell === 'string' && cell.includes(',')) {
+                        cell = `"${cell.replace(/"/g, '""')}"`;
+                    }
+                    return cell;
+                }).join(','))
+            );
+            return array.join('\r\n');
+        }
+
+        if (exportAllToCsvButton) {
+            exportAllToCsvButton.addEventListener('click', async () => {
+                statusMessage.textContent = "جاري تجهيز البيانات..."; statusMessage.className = '';
+                try {
+                    const q = query(collection(db, "sacrifices"), orderBy("createdAt", "desc"));
+                    const querySnapshot = await getDocs(q);
+                    if (querySnapshot.empty) { statusMessage.textContent = "لا توجد بيانات."; statusMessage.className = 'error'; return; }
+                    const allData = [];
+                    querySnapshot.forEach(doc => {
+                        const data = doc.data();
+                        allData.push({
+                            docId: doc.id, donorName: data.donorName, sacrificeFor: data.sacrificeFor,
+                            wantsToAttend: data.wantsToAttend, phoneNumber: data.phoneNumber, wantsPortion: data.wantsPortion,
+                            portionDetails: data.portionDetails, address: data.address, paymentDone: data.paymentDone,
+                            receiptBookNumber: data.receiptBookNumber, receiptNumber: data.receiptNumber,
+                            assistanceFor: data.assistanceFor, broughtByOther: data.broughtByOther,
+                            broughtByOtherName: data.broughtByOtherName,
+                            createdAt: data.createdAt ? formatFirestoreTimestamp(data.createdAt) : '',
+                            status: data.status, userId: data.userId
+                        });
+                    });
+                    const headerKeys = ["docId", "donorName", "sacrificeFor", "wantsToAttend", "phoneNumber", "wantsPortion", "portionDetails", "address", "paymentDone", "receiptBookNumber", "receiptNumber", "assistanceFor", "broughtByOther", "broughtByOtherName", "createdAt", "status", "userId"];
+                    const displayHeaders = ["معرف السجل", "اسم المتبرع", "الأضحية عن", "يريد الحضور", "رقم الهاتف", "يريد جزءًا", "تفاصيل الجزء", "العنوان", "تم الدفع", "رقم الدفتر", "رقم السند", "لمن المساعدة", "أحضرت بواسطة آخر", "اسم الوسيط", "تاريخ التسجيل", "الحالة", "معرف المستخدم"];
+                    const csvContent = convertToCSV(allData, headerKeys, displayHeaders);
+                    downloadCSV(csvContent, 'كل_بيانات_الاضاحي.csv');
+                    statusMessage.textContent = "تم التصدير بنجاح."; statusMessage.className = 'success';
+                } catch (error) { console.error("Error exporting all data: ", error); statusMessage.textContent = "خطأ تصدير: " + error.message; statusMessage.className = 'error'; }
             });
-        });
-      }
+        }
+
+        if (exportUserToCsvButton) {
+            exportUserToCsvButton.addEventListener('click', async () => {
+                const userIdToExport = exportUserCsvInput.value.trim();
+                if (!userIdToExport) { statusMessage.textContent = "أدخل ID المستخدم."; statusMessage.className = 'error'; exportUserCsvInput.focus(); return; }
+                statusMessage.textContent = `جاري تجهيز بيانات المستخدم ${userIdToExport}...`; statusMessage.className = '';
+                try {
+                    const q = query(collection(db, "sacrifices"), where("userId", "==", userIdToExport), orderBy("createdAt", "desc"));
+                    const querySnapshot = await getDocs(q);
+                    if (querySnapshot.empty) { statusMessage.textContent = `لا بيانات للمستخدم ${userIdToExport}.`; statusMessage.className = 'error'; return; }
+                    const userData = [];
+                    querySnapshot.forEach(doc => {
+                        const data = doc.data();
+                        userData.push({
+                            docId: doc.id, donorName: data.donorName, sacrificeFor: data.sacrificeFor,
+                            wantsToAttend: data.wantsToAttend, phoneNumber: data.phoneNumber, wantsPortion: data.wantsPortion,
+                            portionDetails: data.portionDetails, address: data.address, paymentDone: data.paymentDone,
+                            receiptBookNumber: data.receiptBookNumber, receiptNumber: data.receiptNumber,
+                            assistanceFor: data.assistanceFor, broughtByOther: data.broughtByOther,
+                            broughtByOtherName: data.broughtByOtherName,
+                            createdAt: data.createdAt ? formatFirestoreTimestamp(data.createdAt) : '',
+                            status: data.status
+                        });
+                    });
+                    const headerKeys = ["docId", "donorName", "sacrificeFor", "wantsToAttend", "phoneNumber", "wantsPortion", "portionDetails", "address", "paymentDone", "receiptBookNumber", "receiptNumber", "assistanceFor", "broughtByOther", "broughtByOtherName", "createdAt", "status"];
+                    const displayHeaders = ["معرف السجل", "اسم المتبرع", "الأضحية عن", "يريد الحضور", "رقم الهاتف", "يريد جزءًا", "تفاصيل الجزء", "العنوان", "تم الدفع", "رقم الدفتر", "رقم السند", "لمن المساعدة", "أحضرت بواسطة آخر", "اسم الوسيط", "تاريخ التسجيل", "الحالة"];
+                    const csvContent = convertToCSV(userData, headerKeys, displayHeaders);
+                    downloadCSV(csvContent, `بيانات_مستخدم_${userIdToExport}.csv`);
+                    statusMessage.textContent = `تم تصدير بيانات المستخدم ${userIdToExport}.`; statusMessage.className = 'success';
+                    exportUserCsvInput.value = '';
+                } catch (error) { console.error("Error exporting user data: ", error); statusMessage.textContent = "خطأ تصدير مستخدم: " + error.message; statusMessage.className = 'error'; }
+            });
+        }
     </script>
 </body>
 </html>
