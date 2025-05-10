@@ -5,7 +5,10 @@ import {
     signInWithEmailAndPassword, 
     signOut, 
     onAuthStateChanged as firebaseOnAuthStateChanged,
-    updateProfile
+    updateProfile,
+    setPersistence,             // <<<--- استيراد setPersistence
+    browserLocalPersistence,    // <<<--- استيراد browserLocalPersistence (للتذكر عبر الجلسات)
+    browserSessionPersistence   // <<<--- استيراد browserSessionPersistence (للتذكر في الجلسة الحالية فقط)
 } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-auth.js";
 import { getApp, FirebaseError } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
 
@@ -14,18 +17,14 @@ let authInstance = null;
 export function initializeAuth() {
     if (!authInstance) {
         try {
-            const app = getApp(); // Attempt to get the default app
+            const app = getApp(); 
             authInstance = firebaseGetAuth(app);
         } catch (e) {
-            // Check if it's the specific "no-app" error
             if (e instanceof FirebaseError && e.code === 'app/no-app') {
                 console.error("Firebase app has not been initialized. Call initializeApp() in main.js first.", e);
-                // Potentially, you could try to initialize a default app here if config is available,
-                // but it's better practice to ensure main.js does it first.
             } else {
                 console.error("Error initializing Firebase Auth:", e);
             }
-            // To prevent further errors, authInstance remains null or you could throw
         }
     }
     return authInstance;
@@ -33,28 +32,39 @@ export function initializeAuth() {
 
 export function getAuthInstance() {
     if (!authInstance) {
-        // This will ensure it's initialized if called directly before other functions
-        // or if main.js hasn't called initializeAuth explicitly yet (though it should)
         initializeAuth(); 
-    }
-    if (!authInstance) {
-        // If still not initialized (e.g. initializeApp was never called in main)
-        // console.error("Auth instance is still null after attempting initialization.");
-        // throw new Error("Firebase Auth is not initialized. Ensure initializeApp() is called in main.js and then initializeAuth().");
     }
     return authInstance;
 }
 
-
-export function loginUser(email, password) {
+// --- دالة تسجيل الدخول مع ميزة "تذكرني" ---
+export async function loginUser(email, password, rememberMe = false) { // إضافة معامل rememberMe
     const auth = getAuthInstance();
-    if (!auth) throw new Error("Auth not initialized for loginUser. Call initializeAuth() from main.js after initializeApp().");
-    return signInWithEmailAndPassword(auth, email, password);
+    if (!auth) throw new Error("Auth not initialized for loginUser.");
+
+    // تحديد نوع استمرار الجلسة بناءً على "تذكرني"
+    const persistenceType = rememberMe ? browserLocalPersistence : browserSessionPersistence;
+
+    try {
+        // تعيين نوع استمرار الجلسة *قبل* تسجيل الدخول
+        await setPersistence(auth, persistenceType);
+        // console.log(`Persistence set to: ${rememberMe ? 'LOCAL' : 'SESSION'}`);
+        return await signInWithEmailAndPassword(auth, email, password);
+    } catch (error) {
+        console.error(`Error during login with persistence ${persistenceType}:`, error);
+        // إذا فشل تعيين الاستمرارية، حاول تسجيل الدخول بالافتراضي (الجلسة)
+        if (error.code === 'auth/operation-not-supported-in-this-environment') {
+            console.warn("Local persistence not supported, falling back to session persistence for login.");
+            await setPersistence(auth, browserSessionPersistence);
+            return signInWithEmailAndPassword(auth, email, password);
+        }
+        throw error; // أعد رمي الخطأ الأصلي إذا لم يكن متعلقًا بالاستمرارية
+    }
 }
 
 export function handleSignOut() {
     const auth = getAuthInstance();
-    if (!auth) throw new Error("Auth not initialized for handleSignOut. Call initializeAuth() from main.js after initializeApp().");
+    if (!auth) throw new Error("Auth not initialized for handleSignOut.");
     return signOut(auth);
 }
 
@@ -69,8 +79,12 @@ export function onAuthStateChanged(callback) {
 
 export async function registerUser(email, password, displayName) {
     const auth = getAuthInstance();
-    if (!auth) throw new Error("Auth not initialized for registerUser. Call initializeAuth() from main.js after initializeApp().");
+    if (!auth) throw new Error("Auth not initialized for registerUser.");
     try {
+        // عند التسجيل، عادةً ما يتم تعيين الاستمرارية الافتراضية للمشروع
+        // أو يمكنك تعيينها هنا أيضًا إذا أردت سلوكًا محددًا للتسجيل
+        // await setPersistence(auth, browserLocalPersistence); // مثال: جعل المستخدمين المسجلين حديثًا "متذكرين"
+
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         if (userCredential && userCredential.user && displayName) {
             try {
