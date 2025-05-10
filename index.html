@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تسجيل الأضاحي</title>
     <style>
+        /* CSS لم يتغير */
         @import url('https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;700&display=swap');
         body { font-family: 'Noto Kufi Arabic', 'Tajawal', sans-serif; margin: 0; padding: 0; background-color: #f0f2f5; color: #2c3e50; line-height: 1.7; font-size: 16px; }
         .page-container { padding: 20px; }
@@ -42,7 +43,7 @@
         <div class="container">
             <h1>موقع تسجيل الأضاحي</h1>
             <div id="authStatus"></div>
-            <div id="loginSection"><h2>تسجيل الدخول</h2><form id="loginForm"><div><label for="usernameInput">رقم/اسم المستخدم:</label><input type="text" id="usernameInput" name="usernameInput" required></div><div><label for="passwordInput">كلمة المرور:</label><input type="password" id="passwordInput" name="passwordInput" required></div><button type="submit">دخول</button></form></div><button id="logoutButton" class="hidden-field">تسجيل الخروج</button> <hr class="hidden-field" id="hrAfterLogout"><div id="dataEntrySection" class="user-section"> <hr> <h2>تسجيل أضحية/تبرع جديد</h2><form id="adahiForm"><div><label for="donorName">اسم المتبرع:</label><input type="text" id="donorName" name="donorName" required></div><div><label for="sacrificeFor">الأضحية عن (اسم الشخص/الجهة):</label><input type="text" id="sacrificeFor" name="sacrificeFor" required></div><div><label class="radio-group-label">هل يريد الحضور؟</label><input type="radio" id="wantsToAttendYes" name="wantsToAttend" value="yes"><label for="wantsToAttendYes">نعم</label><input type="radio" id="wantsToAttendNo" name="wantsToAttend" value="no" checked><label for="wantsToAttendNo">لا</label></div><div><label for="phoneNumber">رقم الهاتف (اختياري):</label><input type="tel" id="phoneNumber" name="phoneNumber"></div><div><label class="radio-group-label">هل يريد جزءًا من الأضحية؟</label><input type="radio" id="wantsPortionYes" name="wantsPortion" value="yes"><label for="wantsPortionYes">نعم</label><input type="radio" id="wantsPortionNo" name="wantsPortion" value="no" checked><label for="wantsPortionNo">لا</label></div><div id="portionDetailsDiv" class="hidden-field"><label for="portionDetails">ماذا يريد من الأضحية؟</label><textarea id="portionDetails" name="portionDetails" rows="3"></textarea></div><div id="addressFieldDiv" class="hidden-field"><label for="address">العنوان (لتوصيل الجزء إذا اختار "نعم"):</label><input type="text" id="address" name="address"></div><div><label class="radio-group-label">هل تم الدفع؟</label><input type="radio" id="paymentDoneYes" name="paymentDone" value="yes"><label for="paymentDoneYes">نعم</label><input type="radio" id="paymentDoneNo" name="paymentDone" value="no" checked><label for="paymentDoneNo">لا</label></div><div id="paymentDetailsDiv" class="hidden-field"><div><label for="receiptBookNumber">رقم الدفتر:</label><input type="text" id="receiptBookNumber" name="receiptBookNumber"></div><div><label for="receiptNumber">رقم السند:</label><input type="text" id="receiptNumber" name="receiptNumber"></div></div><div><label for="assistanceFor">لمن المساعدة (توزيع اللحم)؟</label><select id="assistanceFor" name="assistanceFor"><option value="inside_ramtha">داخل الرمثا</option><option value="gaza_people">لأهل غزة</option><option value="for_himself">لنفسه (إذا كان سيأخذها كاملة)</option></select></div><div style="text-align: center;"><button type="submit">تسجيل البيانات</button><!-- سيتم تغيير النص واللون عند التعديل --></div></form><div id="statusMessage"></div><hr></div><div id="userDataViewSection" class="user-data-section"><h2>تسجيلاتك الحالية</h2><p id="userLoadingMessage">جاري تحميل تسجيلاتك...</p><table id="userSacrificesTable" border="1"><thead><tr><th>م.</th><th>اسم المتبرع</th><th>الأضحية عن</th><th>تاريخ التسجيل</th><th>الحالة</th></tr></thead><tbody id="userSacrificesTableBody"></tbody></table><hr></div><div id="adminViewSection" class="admin-section"> <h2>سجلات الأضاحي المسجلة</h2><div id="adminActions"><button id="filterPending">عرض قيد المراجعة فقط</button><button id="filterApproved">عرض الموافق عليها فقط</button><button id="filterRejected">عرض المرفوضة فقط</button><button id="filterAll">عرض الكل</button></div><div id="sacrificesTableContainer"><p id="loadingMessage">جاري تحميل البيانات...</p><table id="sacrificesTable" border="1"><thead><tr><th>م.</th><th>اسم المتبرع</th><th>الأضحية عن</th><th>يريد الحضور</th><th>رقم الهاتف</th><th>يريد جزءًا</th><th>تفاصيل الجزء</th><th>العنوان</th><th>تم الدفع</th><th>رقم الدفتر</th><th>رقم السند</th><th>لمن المساعدة</th><th>تاريخ التسجيل</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody id="sacrificesTableBody"></tbody></table></div><hr></div>
+            <div id="loginSection"><h2>تسجيل الدخول</h2><form id="loginForm"><div><label for="usernameInput">رقم/اسم المستخدم:</label><input type="text" id="usernameInput" name="usernameInput" required></div><div><label for="passwordInput">كلمة المرور:</label><input type="password" id="passwordInput" name="passwordInput" required></div><button type="submit">دخول</button></form></div><button id="logoutButton" class="hidden-field">تسجيل الخروج</button> <hr class="hidden-field" id="hrAfterLogout"><div id="dataEntrySection" class="user-section"> <hr> <h2>تسجيل أضحية/تبرع جديد</h2><form id="adahiForm"><div><label for="donorName">اسم المتبرع:</label><input type="text" id="donorName" name="donorName" required></div><div><label for="sacrificeFor">الأضحية عن (اسم الشخص/الجهة):</label><input type="text" id="sacrificeFor" name="sacrificeFor" required></div><div><label class="radio-group-label">هل يريد الحضور؟</label><input type="radio" id="wantsToAttendYes" name="wantsToAttend" value="yes"><label for="wantsToAttendYes">نعم</label><input type="radio" id="wantsToAttendNo" name="wantsToAttend" value="no" checked><label for="wantsToAttendNo">لا</label></div><div><label for="phoneNumber">رقم الهاتف (اختياري):</label><input type="tel" id="phoneNumber" name="phoneNumber"></div><div><label class="radio-group-label">هل يريد جزءًا من الأضحية؟</label><input type="radio" id="wantsPortionYes" name="wantsPortion" value="yes"><label for="wantsPortionYes">نعم</label><input type="radio" id="wantsPortionNo" name="wantsPortion" value="no" checked><label for="wantsPortionNo">لا</label></div><div id="portionDetailsDiv" class="hidden-field"><label for="portionDetails">ماذا يريد من الأضحية؟</label><textarea id="portionDetails" name="portionDetails" rows="3"></textarea></div><div id="addressFieldDiv" class="hidden-field"><label for="address">العنوان (لتوصيل الجزء إذا اختار "نعم"):</label><input type="text" id="address" name="address"></div><div><label class="radio-group-label">هل تم الدفع؟</label><input type="radio" id="paymentDoneYes" name="paymentDone" value="yes"><label for="paymentDoneYes">نعم</label><input type="radio" id="paymentDoneNo" name="paymentDone" value="no" checked><label for="paymentDoneNo">لا</label></div><div id="paymentDetailsDiv" class="hidden-field"><div><label for="receiptBookNumber">رقم الدفتر:</label><input type="text" id="receiptBookNumber" name="receiptBookNumber"></div><div><label for="receiptNumber">رقم السند:</label><input type="text" id="receiptNumber" name="receiptNumber"></div></div><div><label for="assistanceFor">لمن المساعدة (توزيع اللحم)؟</label><select id="assistanceFor" name="assistanceFor"><option value="inside_ramtha">داخل الرمثا</option><option value="gaza_people">لأهل غزة</option><option value="for_himself">لنفسه (إذا كان سيأخذها كاملة)</option></select></div><div style="text-align: center;"><button type="submit">تسجيل البيانات</button></div></form><div id="statusMessage"></div><hr></div><div id="userDataViewSection" class="user-data-section"><h2>تسجيلاتك الحالية</h2><p id="userLoadingMessage">جاري تحميل تسجيلاتك...</p><table id="userSacrificesTable" border="1"><thead><tr><th>م.</th><th>اسم المتبرع</th><th>الأضحية عن</th><th>تاريخ التسجيل</th><th>الحالة</th></tr></thead><tbody id="userSacrificesTableBody"></tbody></table><hr></div><div id="adminViewSection" class="admin-section"> <h2>سجلات الأضاحي المسجلة</h2><div id="adminActions"><button id="filterPending">عرض "جاري الإدخال" فقط</button><button id="filterApproved">عرض "تم الإدخال" فقط</button><button id="filterRejected">عرض المرفوضة فقط</button><button id="filterAll">عرض الكل</button></div><div id="sacrificesTableContainer"><p id="loadingMessage">جاري تحميل البيانات...</p><table id="sacrificesTable" border="1"><thead><tr><th>م.</th><th>اسم المتبرع</th><th>الأضحية عن</th><th>يريد الحضور</th><th>رقم الهاتف</th><th>يريد جزءًا</th><th>تفاصيل الجزء</th><th>العنوان</th><th>تم الدفع</th><th>رقم الدفتر</th><th>رقم السند</th><th>لمن المساعدة</th><th>تاريخ التسجيل</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody id="sacrificesTableBody"></tbody></table></div><hr></div>
         </div>
     </div>
 
@@ -89,9 +90,9 @@
 
       const adahiForm = document.getElementById('adahiForm');
       const statusMessage = document.getElementById('statusMessage');
-      const dataEntrySectionH2 = dataEntrySection.querySelector('h2'); // للوصول إلى عنوان قسم الإدخال
+      const dataEntrySectionH2 = dataEntrySection.querySelector('h2');
       const adahiFormSubmitButton = adahiForm.querySelector('button[type="submit"]');
-      let editingDocId = null; // لتخزين ID المستند الذي يتم تعديله
+      let editingDocId = null;
 
 
       function resetFormToEntryMode() {
@@ -112,7 +113,6 @@
           if (cancelButton) {
               cancelButton.style.display = 'none';
           }
-          // statusMessage.textContent = ''; // Optional: clear status message
       }
 
       function populateFormForEdit(docId, data) {
@@ -140,7 +140,6 @@
               document.getElementById('portionDetails').value = '';
               document.getElementById('address').value = '';
           }
-          // Manually trigger change for radio buttons to ensure dependent UI updates
           document.getElementById('wantsPortionYes').dispatchEvent(new Event('change'));
 
 
@@ -154,7 +153,6 @@
               document.getElementById('receiptBookNumber').value = '';
               document.getElementById('receiptNumber').value = '';
           }
-          // Manually trigger change for radio buttons to ensure dependent UI updates
           document.getElementById('paymentDoneYes').dispatchEvent(new Event('change'));
 
 
@@ -167,9 +165,8 @@
               cancelButton.id = 'cancelEditButton';
               cancelButton.textContent = 'إلغاء التعديل';
               cancelButton.style.backgroundColor = '#e74c3c';
-              cancelButton.style.marginRight = '10px'; // Keep some space
+              cancelButton.style.marginRight = '10px';
               cancelButton.onclick = resetFormToEntryMode;
-              // Insert before the submit button if submit is the last child, or adjust as needed
               adahiFormSubmitButton.parentNode.insertBefore(cancelButton, adahiFormSubmitButton);
           }
           cancelButton.style.display = 'inline-block';
@@ -212,7 +209,6 @@
           if (editingDocId) {
               statusMessage.textContent = 'جاري تحديث البيانات...';
               statusMessage.className = '';
-              console.log("Attempting to update doc ID:", editingDocId, "with data:", adahiDataToSave);
               try {
                   const docRef = doc(db, "sacrifices", editingDocId);
                   await updateDoc(docRef, {
@@ -227,21 +223,18 @@
                   statusMessage.textContent = 'حدث خطأ أثناء تحديث البيانات: ' + e.message;
                   statusMessage.className = 'error';
               }
-          } else {
+          } else { // وضع الإضافة
               statusMessage.textContent = 'جاري حفظ البيانات...';
               statusMessage.className = '';
               adahiDataToSave.userId = currentUser.uid;
-              adahiDataToSave.status = 'pending_approval';
+              adahiDataToSave.status = 'pending_entry'; // <--- CHANGED
               adahiDataToSave.createdAt = serverTimestamp();
 
-              console.log("[Form Submit - Add New] Current user UID for saving data:", currentUser.uid);
-              console.log("[Form Submit - Add New] Data to be added:", adahiDataToSave);
               try {
-                  const docRefDb = await addDoc(collection(db, "sacrifices"), adahiDataToSave); // Renamed docRef to docRefDb to avoid conflict
-                  console.log("[Form Submit - Add New] Document written with ID: ", docRefDb.id);
+                  const docRefDb = await addDoc(collection(db, "sacrifices"), adahiDataToSave);
                   statusMessage.textContent = 'تم حفظ البيانات بنجاح! رقم المرجع: ' + docRefDb.id;
                   statusMessage.className = 'success';
-                  resetFormToEntryMode(); // Reset form also after successful addition
+                  resetFormToEntryMode();
               } catch (e) {
                   console.error("Error adding document: ", e);
                   statusMessage.textContent = 'حدث خطأ أثناء حفظ البيانات: ' + e.message;
@@ -275,17 +268,39 @@
               row.insertCell().textContent = data.receiptNumber || '';
               row.insertCell().textContent = data.assistanceFor ? (data.assistanceFor === 'inside_ramtha' ? 'داخل الرمثا' : data.assistanceFor === 'gaza_people' ? 'لأهل غزة' : data.assistanceFor === 'for_himself' ? 'لنفسه' : data.assistanceFor) : '';
               row.insertCell().textContent = formatFirestoreTimestamp(data.createdAt);
-              row.insertCell().textContent = data.status === 'pending_approval' ? 'قيد المراجعة' : data.status === 'approved' ? 'موافق عليه' : data.status === 'rejected' ? 'مرفوض' : data.status;
+
+              let statusText = data.status;
+              if (data.status === 'pending_entry') { statusText = 'جاري الإدخال'; } // <--- CHANGED
+              else if (data.status === 'entered') { statusText = 'تم الإدخال'; } // <--- CHANGED
+              else if (data.status === 'rejected') { statusText = 'مرفوض'; }
+              row.insertCell().textContent = statusText;
+
               const actionsCell = row.insertCell();
 
-              if (data.status === 'pending_approval') {
-                  const approveButton = document.createElement('button'); approveButton.textContent = 'موافقة'; approveButton.onclick = () => updateSacrificeStatus(docSnapshot.id, 'approved'); actionsCell.appendChild(approveButton);
-                  const rejectButton = document.createElement('button'); rejectButton.textContent = 'رفض'; rejectButton.style.backgroundColor = '#e74c3c'; rejectButton.style.marginRight = '5px'; rejectButton.onclick = () => updateSacrificeStatus(docSnapshot.id, 'rejected'); actionsCell.appendChild(rejectButton);
-              } else if (data.status === 'approved' || data.status === 'rejected') {
-                  const revertButton = document.createElement('button'); revertButton.textContent = 'إعادة للمراجعة'; revertButton.style.backgroundColor = '#f39c12'; revertButton.onclick = () => { console.log(`Revert button clicked for docId: ${docSnapshot.id}, current status: ${data.status}, new status to set: pending_approval`); updateSacrificeStatus(docSnapshot.id, 'pending_approval'); }; actionsCell.appendChild(revertButton);
+              if (data.status === 'pending_entry') { // <--- CHANGED
+                  const approveButton = document.createElement('button');
+                  approveButton.textContent = 'تأكيد الإدخال'; // <--- CHANGED
+                  approveButton.onclick = () => updateSacrificeStatus(docSnapshot.id, 'entered'); // <--- CHANGED
+                  actionsCell.appendChild(approveButton);
+
+                  const rejectButton = document.createElement('button');
+                  rejectButton.textContent = 'رفض';
+                  rejectButton.style.backgroundColor = '#e74c3c';
+                  rejectButton.style.marginRight = '5px';
+                  rejectButton.onclick = () => updateSacrificeStatus(docSnapshot.id, 'rejected');
+                  actionsCell.appendChild(rejectButton);
+
+              } else if (data.status === 'entered' || data.status === 'rejected') { // <--- CHANGED (included 'rejected')
+                  const revertButton = document.createElement('button');
+                  revertButton.textContent = 'إعادة لـ "جاري الإدخال"'; // <--- CHANGED
+                  revertButton.style.backgroundColor = '#f39c12';
+                  revertButton.onclick = () => {
+                      updateSacrificeStatus(docSnapshot.id, 'pending_entry'); // <--- CHANGED
+                  };
+                  actionsCell.appendChild(revertButton);
               }
 
-              const editButton = document.createElement('button'); // زر التعديل
+              const editButton = document.createElement('button');
               editButton.textContent = 'تعديل';
               editButton.style.backgroundColor = '#5dade2';
               editButton.style.marginLeft = '5px';
@@ -309,7 +324,11 @@
               console.error("Error fetching admin documents: ", error);loadingMessage.textContent = 'حدث خطأ أثناء جلب البيانات.';sacrificesTableBody.innerHTML = `<tr><td colspan="15">خطأ في تحميل البيانات.</td></tr>`;
           });
       }
-      document.getElementById('filterPending').addEventListener('click', () => fetchAndRenderSacrificesForAdmin('pending_approval'));document.getElementById('filterApproved').addEventListener('click', () => fetchAndRenderSacrificesForAdmin('approved'));document.getElementById('filterRejected').addEventListener('click', () => fetchAndRenderSacrificesForAdmin('rejected'));document.getElementById('filterAll').addEventListener('click', () => fetchAndRenderSacrificesForAdmin(null));
+      // Filter buttons text already changed in HTML, now update their functionality
+      document.getElementById('filterPending').addEventListener('click', () => fetchAndRenderSacrificesForAdmin('pending_entry')); // <--- CHANGED
+      document.getElementById('filterApproved').addEventListener('click', () => fetchAndRenderSacrificesForAdmin('entered')); // <--- CHANGED
+      document.getElementById('filterRejected').addEventListener('click', () => fetchAndRenderSacrificesForAdmin('rejected'));
+      document.getElementById('filterAll').addEventListener('click', () => fetchAndRenderSacrificesForAdmin(null));
 
       const userSacrificesTableBody = document.getElementById('userSacrificesTableBody');
       const userLoadingMessage = document.getElementById('userLoadingMessage');
@@ -318,7 +337,6 @@
       function renderSacrificesForUser(docs) {
           userSacrificesTableBody.innerHTML = '';
           if (docs.empty) {
-              console.log("[Render User] No documents to render for user.");
               userLoadingMessage.textContent = 'ليس لديك أي تسجيلات حالية.';
               userLoadingMessage.style.display = 'block';
               userSacrificesTableBody.innerHTML = '<tr><td colspan="5">لا توجد تسجيلات.</td></tr>';
@@ -328,36 +346,32 @@
           let counter = 1;
           docs.forEach((docSnapshot) => {
               const data = docSnapshot.data();
-              console.log("[Render User] Rendering doc:", docSnapshot.id, data.donorName);
               const row = userSacrificesTableBody.insertRow();
               row.insertCell().textContent = counter++;
               row.insertCell().textContent = data.donorName || '';
               row.insertCell().textContent = data.sacrificeFor || '';
               row.insertCell().textContent = formatFirestoreTimestamp(data.createdAt);
-              row.insertCell().textContent = data.status === 'pending_approval' ? 'قيد المراجعة' : data.status === 'approved' ? 'موافق عليه' : data.status === 'rejected' ? 'مرفوض' : data.status;
+
+              let statusText = data.status;
+              if (data.status === 'pending_entry') { statusText = 'جاري الإدخال'; } // <--- CHANGED
+              else if (data.status === 'entered') { statusText = 'تم الإدخال'; } // <--- CHANGED
+              else if (data.status === 'rejected') { statusText = 'مرفوض'; }
+              row.insertCell().textContent = statusText;
           });
       }
 
       function fetchAndRenderSacrificesForUser(userId) {
-          console.log("[Fetch User] Attempting to fetch sacrifices for userId:", userId);
           userLoadingMessage.textContent = 'جاري تحميل تسجيلاتك...';
           userLoadingMessage.style.display = 'block';
           userSacrificesTableBody.innerHTML = '';
 
           if (unsubscribeUserSacrifices) {
-              console.log("[Fetch User] Unsubscribing from previous user sacrifices listener.");
               unsubscribeUserSacrifices();
               unsubscribeUserSacrifices = null;
           }
 
           const q = query(collection(db, "sacrifices"), where("userId", "==", userId), orderBy("createdAt", "desc"));
-          console.log("[Fetch User] Query object for user:", q);
-
           unsubscribeUserSacrifices = onSnapshot(q, (querySnapshot) => {
-              console.log(`[Fetch User] Data snapshot received for userId: ${userId}. Number of docs: ${querySnapshot.size}`);
-              querySnapshot.docChanges().forEach((change) => {
-                  console.log(`[Fetch User] Doc change: ${change.type}`, change.doc.id, change.doc.data().donorName);
-              });
               renderSacrificesForUser(querySnapshot);
           }, (error) => {
               console.error(`[Fetch User] Error fetching user (userId: ${userId}) documents: `, error);
@@ -372,30 +386,25 @@
 
       onAuthStateChanged(auth, (user) => {
         if (user) {
-            console.log("[Auth State Change] User is now:", user.uid, user.email);
             authStatus.textContent = `مرحباً بك، ${user.email}`; authStatus.className = 'success';loginSection.style.display = 'none'; logoutButton.style.display = 'inline-block'; hrAfterLogout.style.display = 'block';dataEntrySection.style.display = 'block';
-            resetFormToEntryMode(); // << Reset form to entry mode on auth change
+            resetFormToEntryMode();
             if (user.uid === ADMIN_UID) {
-                console.log("[Auth State Change] User is ADMIN.");
                 if (unsubscribeUserSacrifices) {
-                    console.log("[Auth State Change] Admin logged in, unsubscribing user listener if active.");
                     unsubscribeUserSacrifices();
                     unsubscribeUserSacrifices = null;
                 }
                 adminViewSection.style.display = 'block'; userDataViewSection.style.display = 'none';
                 fetchAndRenderSacrificesForAdmin(null);
             } else {
-                console.log("[Auth State Change] User is NOT admin. Calling fetchAndRenderSacrificesForUser with UID:", user.uid);
                 adminViewSection.style.display = 'none';userDataViewSection.style.display = 'block';
                 fetchAndRenderSacrificesForUser(user.uid);
             }
         } else {
-            console.log("[Auth State Change] User logged out. Unsubscribing user listener if active.");
             if (unsubscribeUserSacrifices) {
                 unsubscribeUserSacrifices();
                 unsubscribeUserSacrifices = null;
             }
-            resetFormToEntryMode(); // << Reset form to entry mode on logout
+            resetFormToEntryMode();
             authStatus.textContent = 'يرجى تسجيل الدخول للوصول.';authStatus.className = '';loginSection.style.display = 'block'; dataEntrySection.style.display = 'none'; adminViewSection.style.display = 'none'; userDataViewSection.style.display = 'none'; logoutButton.style.display = 'none';hrAfterLogout.style.display = 'none';if (sacrificesTableBody) sacrificesTableBody.innerHTML = ''; if (userSacrificesTableBody) userSacrificesTableBody.innerHTML = ''; if (loadingMessage) loadingMessage.textContent = 'يرجى تسجيل الدخول لعرض البيانات.';if (userLoadingMessage) userLoadingMessage.textContent = 'يرجى تسجيل الدخول لعرض تسجيلاتك.';
         }
       });
@@ -407,17 +416,11 @@
           authStatus.className = '';
           const usernameOrEmail = document.getElementById('usernameInput').value;
           const password = document.getElementById('passwordInput').value;
-          console.log("[Login Form] Attempting login with input:", usernameOrEmail);
-          console.log("[Login Form] Password being used (should not be empty):", password ? "Exists" : "EMPTY OR NULL");
           try {
-            console.log("[Login Form] Attempting direct sign-in with email/username:", usernameOrEmail, "and password:", password ? "Exists" : "EMPTY");
             const userCredential = await signInWithEmailAndPassword(auth, usernameOrEmail, password);
-            console.log("[Login Form] Direct email sign-in successful for:", userCredential.user.email);
             return;
           } catch (emailSignInError) {
-            console.log("[Login Form] Direct email/password sign-in failed. Error code:", emailSignInError.code, "Message:", emailSignInError.message);
             if (emailSignInError.code === 'auth/invalid-email' || emailSignInError.code === 'auth/invalid-credential') {
-              console.log("[Login Form] Attempting username lookup in 'user_credentials_map' for:", usernameOrEmail);
               try {
                 const usersMapRef = collection(db, "user_credentials_map");
                 const q = query(usersMapRef, where("username", "==", usernameOrEmail));
@@ -425,31 +428,24 @@
                 if (querySnapshot.empty) {
                   authStatus.textContent = 'رقم/اسم المستخدم أو كلمة المرور غير صحيحة.';
                   authStatus.className = 'error';
-                  console.log("[Login Form] Username not found in map:", usernameOrEmail);
                   return;
                 }
                 let foundUserEmail = null;
                 querySnapshot.forEach((doc) => {
                   foundUserEmail = doc.data().email;
-                  console.log("[Login Form] Found match in map. Username:", doc.data().username, "Mapped Email:", foundUserEmail);
                 });
                 if (foundUserEmail) {
-                  console.log("[Login Form] Attempting sign-in with mapped email:", foundUserEmail, "and password:", password ? "Exists" : "EMPTY");
                   if (!foundUserEmail || typeof foundUserEmail !== 'string' || !foundUserEmail.includes('@')) {
-                      console.error("[Login Form] Mapped email is invalid or not a string:", foundUserEmail);
                       authStatus.textContent = 'خطأ في بيانات المستخدم (البريد الإلكتروني المرتبط غير صالح).';
                       authStatus.className = 'error';
                       return;
                   }
                   await signInWithEmailAndPassword(auth, foundUserEmail, password);
-                  console.log("[Login Form] Sign-in successful with mapped email:", foundUserEmail);
                 } else {
                   authStatus.textContent = 'خطأ في بيانات المستخدم (لم يتم العثور على بريد مطابق بعد البحث).';
                   authStatus.className = 'error';
-                  console.log("[Login Form] Error: foundUserEmail is null after map lookup, though querySnapshot was not empty.");
                 }
               } catch (lookupError) {
-                console.error("[Login Form] Error during username lookup or secondary sign-in:", lookupError.code, lookupError.message);
                 if (lookupError.code === 'auth/invalid-credential') {
                     authStatus.textContent = 'كلمة المرور غير صحيحة لاسم المستخدم المقدم.';
                 } else if (lookupError.code === 'auth/invalid-email') {
@@ -463,7 +459,6 @@
                 authStatus.className = 'error';
               }
             } else {
-              console.error("[Login Form] Unexpected error during direct email sign-in:", emailSignInError);
               authStatus.textContent = `خطأ في تسجيل الدخول: ${emailSignInError.message}`;
               authStatus.className = 'error';
             }
