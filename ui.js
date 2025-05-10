@@ -1,7 +1,6 @@
 // ui.js
 
-// --- دوال للحصول على عناصر الواجهة (سيتم استدعاؤها من main.js داخل DOMContentLoaded) ---
-
+// --- دوال للحصول على عناصر الواجهة ---
 export function getLoginElements() {
     return {
         loginSection: document.getElementById('loginSection'),
@@ -79,6 +78,15 @@ export function getAdminViewElements() {
         filterAllButton: document.getElementById('filterAll'),
         exportAllToExcelButton: document.getElementById('exportAllToExcelButton'),
         exportAllUsersSeparateExcelButton: document.getElementById('exportAllUsersSeparateExcelButton'),
+        // عناصر قسم المجاميع
+        sacrificesSummaryDiv: document.getElementById('sacrificesSummary'),
+        summaryGazaEl: document.getElementById('summaryGaza'),
+        summarySolidarityEl: document.getElementById('summarySolidarity'),
+        summaryRamthaEl: document.getElementById('summaryRamtha'),
+        summaryHimselfEl: document.getElementById('summaryHimself'),
+        summaryTotalEl: document.getElementById('summaryTotal'),
+        hrAfterSummary: document.getElementById('hrAfterSummary'),
+        // بقية عناصر قسم المسؤول
         sacrificesTableContainer: document.getElementById('sacrificesTableContainer'),
         adminLoadingMessage: document.getElementById('adminLoadingMessage'),
         sacrificesTable: document.getElementById('sacrificesTable'),
@@ -95,28 +103,20 @@ export function getUserDataViewElements() {
     };
 }
 
-
-// --- دوال مساعدة للواجهة (تعتمد على أن العناصر ستكون متاحة عند استدعائها) ---
+// --- دوال مساعدة للواجهة ---
 let formElementsCache = null; 
+export function cacheFormElements(elements) { // جعلها export ليتمكن main.js من استدعائها
+    formElementsCache = elements;
+}
 function getFormElements() {
-    // هذه الدالة يجب أن تُستدعى فقط بعد أن يتم تعبئة formElementsCache
-    // بواسطة استدعاء getDataEntryFormElements() من main.js وتخزينها.
-    // للتأكد، سنقوم بالحصول عليها مباشرة إذا كانت فارغة، ولكن هذا لا ينبغي أن يحدث.
     if (!formElementsCache) {
-        // console.warn("[UI_LOG] formElementsCache was null in getFormElements. Fetching directly. This should ideally be pre-filled by main.js.");
-        formElementsCache = getDataEntryFormElements(); // الحصول عليها مباشرة كإجراء احتياطي
+        formElementsCache = getDataEntryFormElements(); 
     }
     return formElementsCache;
 }
 
-// دالة لتعيين الكاش من main.js
-export function cacheFormElements(elements) {
-    formElementsCache = elements;
-}
-
-
 function updateWantsPortionVisibility() {
-    const elements = getFormElements(); // استخدام الكاش
+    const elements = getFormElements();
     if (elements.wantsPortionYesRadio && elements.portionDetailsDiv && elements.addressFieldDiv) {
         const show = elements.wantsPortionYesRadio.checked;
         elements.portionDetailsDiv.style.display = show ? 'block' : 'none';
@@ -145,7 +145,6 @@ function updateAllConditionalFieldsVisibility() {
     updatePaymentDetailsVisibility();
     updateBroughtByOtherVisibility();
 }
-
 
 export function resetAdahiFormToEntryMode(setCurrentEditingDocIdCallback) {
     const elements = getFormElements();
@@ -225,7 +224,7 @@ export function formatFirestoreTimestamp(timestamp) {
 }
 
 export function setupConditionalFieldListeners() {
-    const elements = getFormElements(); // الحصول على العناصر من الكاش (يجب أن يكون قد تم تعبئته بواسطة main.js)
+    const elements = getFormElements(); 
 
     if (elements.wantsPortionYesRadio && elements.wantsPortionNoRadio) {
         [elements.wantsPortionYesRadio, elements.wantsPortionNoRadio].forEach(radio => {
@@ -245,6 +244,5 @@ export function setupConditionalFieldListeners() {
         });
     }
     
-    // التحديث الأولي للرؤية بعد ربط المستمعين مباشرة
     updateAllConditionalFieldsVisibility(); 
 }
