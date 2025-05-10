@@ -20,7 +20,7 @@ function setCurrentEditingDocId(id) {
     currentEditingDocId = id;
 }
 
-// --- دوال العرض والتحديث للجداول (يجب أن تكون معرفة قبل استخدامها) ---
+// --- دوال العرض والتحديث للجداول ---
 function renderCellValue(value, isBooleanNoMeansEmpty = false, conditionalEmptyValue = '') {
     if (value === null || typeof value === 'undefined') return '';
     if (isBooleanNoMeansEmpty && value === false) return '';
@@ -31,7 +31,6 @@ function renderCellValue(value, isBooleanNoMeansEmpty = false, conditionalEmptyV
 
 function renderSacrificesForAdminUI(docsSnapshot) {
     if (!ui.adminViewElements || !ui.adminViewElements.sacrificesTableBody) { 
-        // console.warn("Admin table body not found in renderSacrificesForAdminUI"); 
         return; 
     }
     ui.adminViewElements.sacrificesTableBody.innerHTML = '';
@@ -67,7 +66,7 @@ function renderSacrificesForAdminUI(docsSnapshot) {
         row.insertCell().textContent = renderCellValue(data.enteredBy, false, 'غير معروف'); 
         row.insertCell().textContent = renderCellValue(data.broughtByOther, true); 
         row.insertCell().textContent = data.broughtByOther ? renderCellValue(data.broughtByOtherName, false, 'غير محدد') : '';
-        row.insertCell().textContent = data.createdAt ? uiGetters.formatFirestoreTimestamp(data.createdAt) : ''; // استخدام uiGetters
+        row.insertCell().textContent = data.createdAt ? uiGetters.formatFirestoreTimestamp(data.createdAt) : '';
         let statusText = ''; 
         if (data.status === 'pending_entry') statusText = 'لم تدخل بعد';
         else if (data.status === 'entered') statusText = 'تم الإدخال';
@@ -107,7 +106,7 @@ function renderSacrificesForAdminUI(docsSnapshot) {
         const editButton = document.createElement('button');
         editButton.textContent = 'تعديل';
         editButton.className = 'action-button edit';
-        editButton.onclick = () => uiGetters.populateAdahiFormForEdit(docSnapshot.id, data, setCurrentEditingDocId); // استخدام uiGetters
+        editButton.onclick = () => uiGetters.populateAdahiFormForEdit(docSnapshot.id, data, setCurrentEditingDocId);
         actionsCell.appendChild(editButton);
         const deleteButton = document.createElement('button');
         deleteButton.textContent = 'حذف';
@@ -125,7 +124,6 @@ function renderSacrificesForAdminUI(docsSnapshot) {
 
 function renderSacrificesForUserUI(docsSnapshot) {
     if (!ui.userDataViewElements || !ui.userDataViewElements.userSacrificesTableBody) { 
-        // console.warn("User table body not found in renderSacrificesForUserUI");
         return; 
     }
     ui.userDataViewElements.userSacrificesTableBody.innerHTML = '';
@@ -147,7 +145,7 @@ function renderSacrificesForUserUI(docsSnapshot) {
         row.insertCell().textContent = renderCellValue(data.sacrificeFor);
         row.insertCell().textContent = renderCellValue(data.broughtByOther, true);
         row.insertCell().textContent = data.broughtByOther ? renderCellValue(data.broughtByOtherName, false, 'غير محدد') : '';
-        row.insertCell().textContent = data.createdAt ? uiGetters.formatFirestoreTimestamp(data.createdAt) : ''; // استخدام uiGetters
+        row.insertCell().textContent = data.createdAt ? uiGetters.formatFirestoreTimestamp(data.createdAt) : '';
         let statusText = '';
         if (data.status === 'pending_entry') statusText = 'قيد المراجعة';
         else if (data.status === 'entered') statusText = 'مؤكد';
@@ -158,7 +156,7 @@ function renderSacrificesForUserUI(docsSnapshot) {
 async function fetchAndRenderSacrificesForAdmin(filterStatus = 'all') {
     const authService = authModule.getAuthInstance();
     if (!authService || !authService.currentUser || authService.currentUser.uid !== ADMIN_UID) return;
-    if (ui.adminViewElements && ui.adminViewElements.adminLoadingMessage) { // التحقق من وجود الكائن قبل الوصول لخصائصه
+    if (ui.adminViewElements && ui.adminViewElements.adminLoadingMessage) { 
         ui.adminViewElements.adminLoadingMessage.style.display = 'block';
         ui.adminViewElements.adminLoadingMessage.textContent = 'جاري تحميل بيانات المسؤول...';
     }
@@ -187,7 +185,7 @@ async function fetchAndRenderSacrificesForAdmin(filterStatus = 'all') {
 
 async function fetchAndRenderSacrificesForUserUI(userId) {
     if (!userId) return;
-    if (ui.userDataViewElements && ui.userDataViewElements.userLoadingMessage) { // التحقق من وجود الكائن
+    if (ui.userDataViewElements && ui.userDataViewElements.userLoadingMessage) { 
         ui.userDataViewElements.userLoadingMessage.style.display = 'block';
         ui.userDataViewElements.userLoadingMessage.textContent = 'جاري تحميل أضاحيك المسجلة...';
     }
@@ -209,11 +207,8 @@ async function fetchAndRenderSacrificesForUserUI(userId) {
     });
 }
 
-
 // --- كل المنطق الذي يعتمد على عناصر UI يتم نقله إلى DOMContentLoaded ---
 document.addEventListener('DOMContentLoaded', () => {
-    // console.log("--- DOMContentLoaded in main.js ---");
-
     ui.loginElements = uiGetters.getLoginElements();
     ui.registrationElements = uiGetters.getRegistrationElements();
     ui.toggleLinkElements = uiGetters.getToggleLinkElements();
@@ -229,7 +224,6 @@ document.addEventListener('DOMContentLoaded', () => {
         ui.commonUIElements.authStatusEl.className = '';
     }
 
-    // Auth form event listeners
     if (ui.loginElements.loginForm && ui.loginElements.loginEmailInput && ui.loginElements.loginPasswordInput && ui.loginElements.rememberMeCheckbox) {
         ui.loginElements.loginForm.addEventListener('submit', async (event) => {
             event.preventDefault(); 
@@ -446,7 +440,51 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (ui.adminViewElements.exportAllToExcelButton) {
         ui.adminViewElements.exportAllToExcelButton.addEventListener('click', async () => {
-            // ... (منطق التصدير العام) ...
+             if (ui.commonUIElements.authStatusEl) {ui.commonUIElements.authStatusEl.textContent = "جاري تجهيز كل البيانات للتصدير (Excel)..."; ui.commonUIElements.authStatusEl.className = '';}
+            try {
+                const q_excel = query(collection(db, "sacrifices"), orderBy("createdAt", "desc"));
+                const querySnapshot_excel = await getDocs(q_excel);
+                if (querySnapshot_excel.empty) { 
+                    if (ui.commonUIElements.authStatusEl) {ui.commonUIElements.authStatusEl.textContent = "لا توجد بيانات للتصدير."; ui.commonUIElements.authStatusEl.className = 'error';}
+                    return; 
+                }
+                const allData_excel = [];
+                querySnapshot_excel.forEach(doc => {
+                    const data_excel = doc.data();
+                    allData_excel.push({ 
+                        donorName: data_excel.donorName, 
+                        sacrificeFor: data_excel.sacrificeFor,
+                        wantsToAttend: data_excel.wantsToAttend, 
+                        phoneNumber: data_excel.phoneNumber, 
+                        portionDetails: data_excel.portionDetails, 
+                        address: data_excel.address, 
+                        paymentDone: data_excel.paymentDone,
+                        receiptBookNumber: data_excel.receiptBookNumber, 
+                        receiptNumber: data_excel.receiptNumber,
+                        assistanceFor: data_excel.assistanceFor, 
+                        broughtByOther: data_excel.broughtByOther,
+                        broughtByOtherName: data_excel.broughtByOtherName,
+                        createdAt: data_excel.createdAt, 
+                        enteredBy: data_excel.enteredBy || ''
+                    });
+                });
+                const headerKeys_excel = [
+                    "donorName", "sacrificeFor", "wantsToAttend", "phoneNumber", 
+                    "portionDetails", "address", "paymentDone", "receiptBookNumber", "receiptNumber", 
+                    "assistanceFor", "broughtByOther", "broughtByOtherName", "createdAt", "enteredBy"
+                ];
+                const displayHeaders_excel = [
+                    "المتبرع", "الأضحية عن", "حضور؟", "هاتف", 
+                    "تفاصيل الجزء", "العنوان", "مدفوع؟", "ر.الدفتر", "ر.السند", 
+                    "المساعدة لـ", "بوسيط؟", "اسم الوسيط", "ت.التسجيل", "أدخل بواسطة"
+                ];
+                
+                exportDataToExcel(allData_excel, headerKeys_excel, displayHeaders_excel, 'كل_بيانات_الاضاحي.xlsx');
+                if (ui.commonUIElements.authStatusEl) {ui.commonUIElements.authStatusEl.textContent = "تم تصدير كل البيانات بنجاح (Excel)."; ui.commonUIElements.authStatusEl.className = 'success';}
+            } catch (error) { 
+                console.error("Error exporting all data to Excel: ", error); 
+                if (ui.commonUIElements.authStatusEl) {ui.commonUIElements.authStatusEl.textContent = "خطأ في تصدير كل البيانات (Excel): " + error.message; ui.commonUIElements.authStatusEl.className = 'error';}
+            }
         });
     } else {
         console.error("ui.adminViewElements.exportAllToExcelButton not found. (DOMContentLoaded)");
@@ -454,7 +492,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (ui.adminViewElements.exportAllUsersSeparateExcelButton) {
         ui.adminViewElements.exportAllUsersSeparateExcelButton.addEventListener('click', async () => {
-            // ... (منطق تصدير المستخدمين المنفصل) ...
+            // ... (منطق تصدير المستخدمين المنفصل كما هو من الرد السابق، مع التأكد من استخدام ui.commonUIElements.authStatusEl)
         });
     } else {
         console.error("ui.adminViewElements.exportAllUsersSeparateExcelButton not found. (DOMContentLoaded)");
@@ -464,26 +502,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 function handleAuthStateChange(user) {
-    // console.log("--- handleAuthStateChange Fired ---", user); 
-
-    if (!ui.loginElements || !ui.commonUIElements) { // تحقق أساسي من أن كائن ui تم تعبئته
-        // console.warn("UI elements cache (ui object) not yet initialized in handleAuthStateChange. DOM might not be ready or ui object not populated from DOMContentLoaded.");
-        // يمكن إضافة تأخير بسيط أو محاولة إعادة التعبئة، لكن من المفترض أن DOMContentLoaded قد انتهى
-        // إذا استمر هذا التحذير، فهناك مشكلة أعمق في توقيت DOMContentLoaded و onAuthStateChanged
+    if (!ui.loginElements || !ui.commonUIElements) { 
         return; 
     }
-
     const allMainSections = [
         ui.loginElements.loginSection, ui.registrationElements.registrationSection, 
         ui.toggleLinkElements.formToggleLinksDiv, ui.dataEntryFormElements.dataEntrySection, 
         ui.adminViewElements.adminViewSection, ui.userDataViewElements.userDataViewSection,
         ui.commonUIElements.logoutButton, ui.commonUIElements.hrAfterLogout
     ];
-
     allMainSections.forEach(el => { 
         if (el) el.classList.add('hidden-field'); 
     });
-    
     const exportAllBtn = ui.adminViewElements.exportAllToExcelButton; 
     const exportUsersSepBtn = ui.adminViewElements.exportAllUsersSeparateExcelButton;
     if(exportAllBtn) exportAllBtn.classList.add('hidden-field');
@@ -497,7 +527,6 @@ function handleAuthStateChange(user) {
         if (ui.commonUIElements.logoutButton) ui.commonUIElements.logoutButton.classList.remove('hidden-field');
         if (ui.commonUIElements.hrAfterLogout) ui.commonUIElements.hrAfterLogout.classList.remove('hidden-field');
         if (ui.dataEntryFormElements.dataEntrySection) ui.dataEntryFormElements.dataEntrySection.classList.remove('hidden-field');
-
         if (user.uid === ADMIN_UID) {
             if (ui.adminViewElements.adminViewSection) ui.adminViewElements.adminViewSection.classList.remove('hidden-field');
             fetchAndRenderSacrificesForAdmin(); 
@@ -507,17 +536,15 @@ function handleAuthStateChange(user) {
             if (ui.userDataViewElements.userDataViewSection) ui.userDataViewElements.userDataViewSection.classList.remove('hidden-field');
             fetchAndRenderSacrificesForUserUI(user.uid); 
         }
-        if (ui.dataEntryFormElements.adahiForm) uiGetters.resetAdahiFormToEntryMode(setCurrentEditingDocId); // استخدام uiGetters هنا للدوال من ui.js
+        if (ui.dataEntryFormElements.adahiForm) uiGetters.resetAdahiFormToEntryMode(setCurrentEditingDocId);
     } else {
         if (ui.loginElements.loginSection) ui.loginElements.loginSection.classList.remove('hidden-field');
         if (ui.toggleLinkElements.formToggleLinksDiv) ui.toggleLinkElements.formToggleLinksDiv.classList.remove('hidden-field');
         if (ui.toggleLinkElements.switchToLoginLink) ui.toggleLinkElements.switchToLoginLink.classList.add('hidden-field');
         if (ui.toggleLinkElements.switchToRegisterLink) ui.toggleLinkElements.switchToRegisterLink.classList.remove('hidden-field');
         if (ui.registrationElements.registrationSection) ui.registrationElements.registrationSection.classList.add('hidden-field');
-        
         if (ui.adminViewElements.sacrificesTableBody) ui.adminViewElements.sacrificesTableBody.innerHTML = '';
         if (ui.userDataViewElements.userSacrificesTableBody) ui.userDataViewElements.userSacrificesTableBody.innerHTML = '';
-
         const initialAuthMsg = 'يرجى تسجيل الدخول أو إنشاء حساب جديد للمتابعة.';
          if (ui.commonUIElements.authStatusEl) {
             if (ui.commonUIElements.authStatusEl.textContent.includes('مرحباً بك') || 
@@ -541,11 +568,10 @@ function handleAuthStateChange(user) {
 
 authModule.onAuthStateChanged(handleAuthStateChange);
 
-// --- Excel Export Functions (كما هي من الرد السابق) ---
 function exportDataToExcel(dataArray, headerKeys, displayHeaders, filename) {
     if (typeof XLSX === 'undefined') {
         console.error("SheetJS (XLSX) library is not loaded!");
-        if (ui.commonUIElements.authStatusEl) { // استخدام ui.commonUIElements
+        if (ui.commonUIElements.authStatusEl) { 
             ui.commonUIElements.authStatusEl.textContent = "خطأ: مكتبة تصدير Excel غير محملة.";
             ui.commonUIElements.authStatusEl.className = 'error';
         }
@@ -556,7 +582,7 @@ function exportDataToExcel(dataArray, headerKeys, displayHeaders, filename) {
         const row = headerKeys.map(key => {
             let cellValue = obj[key];
             if ((key === 'createdAt' || key === 'lastEditedAt') && cellValue && typeof cellValue.seconds === 'number') {
-                cellValue = uiGetters.formatFirestoreTimestamp(cellValue); // استخدام uiGetters
+                cellValue = uiGetters.formatFirestoreTimestamp(cellValue); 
             } else if (typeof cellValue === 'boolean') {
                 cellValue = cellValue ? 'نعم' : ''; 
             } else if (cellValue === null || typeof cellValue === 'undefined') {
