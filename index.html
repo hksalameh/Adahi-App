@@ -7,7 +7,10 @@
     <title>تسجيل الأضاحي</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <style>
-        /* ... جميع أنماط CSS الأصلية ... */
+        /* ... (كل أنماط CSS الأصلية هنا بدون حذف) ... */
+        
+        /* أنماط جديدة مضافة */
+        .admin-only { display: none; }
         .loader {
             border: 2px solid #f3f3f3;
             border-top: 2px solid #3498db;
@@ -19,7 +22,6 @@
             vertical-align: middle;
             margin-left: 5px;
         }
-
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -27,6 +29,18 @@
     </style>
 </head>
 <body>
-    <!-- ... المحتوى الأصلي دون تغيير ... -->
+    <!-- ... (كل محتوى HTML الأصلي هنا بدون حذف) ... -->
+    
+    <!-- قسم إدارة المشرفين المضاف -->
+    <div id="adminManagementSection" class="hidden-field admin-only">
+        <h2>إدارة المشرفين</h2>
+        <div style="margin: 20px 0;">
+            <input type="email" id="adminEmailInput" placeholder="البريد الإلكتروني" style="padding: 8px; margin-left: 10px;">
+            <button onclick="grantAdmin()" class="admin-only">منح صلاحية مشرف</button>
+            <button onclick="revokeAdmin()" class="admin-only">سحب صلاحية مشرف</button>
+        </div>
+    </div>
+
+    <script type="module" src="main.js"></script>
 </body>
 </html>
