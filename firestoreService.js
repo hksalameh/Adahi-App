@@ -3,12 +3,11 @@ import { getFirestore, collection, addDoc, serverTimestamp, onSnapshot, query, o
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
 import { firebaseConfig } from './config.js';
 
-const app = initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig); // تهيئة Firebase مرة واحدة هنا
 const db = getFirestore(app);
 
 const SACRIFICES_COLLECTION = "sacrifices";
 
-// --- عمليات الأضاحي ---
 export async function addSacrifice(data) {
     return await addDoc(collection(db, SACRIFICES_COLLECTION), data);
 }
@@ -30,17 +29,16 @@ export function getSacrificesForAdmin(statusFilter, callback, errorCallback) {
     } else {
         q = query(collection(db, SACRIFICES_COLLECTION), orderBy("createdAt", "desc"));
     }
-    return onSnapshot(q, callback, errorCallback); // onSnapshot يرجع دالة إلغاء الاشتراك
+    return onSnapshot(q, callback, errorCallback);
 }
 
 export function getSacrificesForUser(userId, callback, errorCallback) {
     const q = query(collection(db, SACRIFICES_COLLECTION), where("userId", "==", userId), orderBy("createdAt", "desc"));
-    return onSnapshot(q, callback, errorCallback); // onSnapshot يرجع دالة إلغاء الاشتراك
+    return onSnapshot(q, callback, errorCallback);
 }
 
 export async function getAllSacrificesForExport() {
-    const q = query(collection(db, SACRIFICES_COLLECTION), orderBy("userId"), orderBy("createdAt", "desc")); // لفرز المستخدمين
+    // هذا الاستعلام قد يتطلب فهرسًا مركبًا: userId (تصاعدي), createdAt (تنازلي)
+    const q = query(collection(db, SACRIFICES_COLLECTION), orderBy("userId"), orderBy("createdAt", "desc"));
     return await getDocs(q);
 }
-
-// --- (يمكن إضافة عمليات أخرى هنا إذا لزم الأمر) ---
