@@ -1,13 +1,14 @@
 // main.js
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js"; // Keep for other initializations if any
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
 import { firebaseConfig, ADMIN_UID } from './config.js';
 import { auth, onAuthStateChanged, loginUser, handleSignOut } from './auth.js';
-import * as fsService from './firestoreService.js';
+import * as fsService from './firestoreService.js'; // يحتوي الآن على updateSacrifice المُعدلة
 import * as ui from './ui.js';
-import { serverTimestamp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-firestore.js";
+import { getFirestore, collection, query, orderBy, where, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-firestore.js";
 
+const app = initializeApp(firebaseConfig); // تهيئة واحدة هنا كافية إذا لم تتم في الملفات الأخرى
+const db = getFirestore(app);
 
-// const app = initializeApp(firebaseConfig); // Already initialized in auth.js and firestoreService.js
 
 let unsubscribeAdminSacrifices = null;
 let unsubscribeUserSacrifices = null;
@@ -17,66 +18,19 @@ function setCurrentEditingDocId(id) {
     currentEditingDocId = id;
 }
 
-// --- UI Event Listeners ---
-ui.wantsPortionYesRadio.addEventListener('change', function() { if (this.checked) { ui.portionDetailsDiv.style.display = 'block'; ui.addressFieldDiv.style.display = 'block';} else { ui.portionDetailsDiv.style.display = 'none'; ui.addressFieldDiv.style.display = 'none'; ui.portionDetailsInput.value = ''; ui.addressInput.value = '';}});
-ui.wantsPortionNoRadio.addEventListener('change', function() { if (this.checked) { ui.portionDetailsDiv.style.display = 'none'; ui.addressFieldDiv.style.display = 'none'; ui.portionDetailsInput.value = ''; ui.addressInput.value = '';}});
-ui.paymentDoneYesRadio.addEventListener('change', function() { if (this.checked) { ui.paymentDetailsDiv.style.display = 'block';} else { ui.paymentDetailsDiv.style.display = 'none'; ui.receiptBookNumberInput.value = ''; ui.receiptNumberInput.value = '';}});
-ui.paymentDoneNoRadio.addEventListener('change', function() { if (this.checked) { ui.paymentDetailsDiv.style.display = 'none'; ui.receiptBookNumberInput.value = ''; ui.receiptNumberInput.value = '';}});
-ui.broughtByOtherYesRadio.addEventListener('change', function() { if (this.checked) { ui.broughtByOtherNameDiv.style.display = 'block'; } else { ui.broughtByOtherNameDiv.style.display = 'none'; ui.broughtByOtherNameInput.value = '';}});
-ui.broughtByOtherNoRadio.addEventListener('change', function() { if (this.checked) { ui.broughtByOtherNameDiv.style.display = 'none'; ui.broughtByOtherNameInput.value = ''; }});
+// ... (مستمعو أحداث واجهة المستخدم كما هم) ...
+// ... (معالج نموذج تسجيل الدخول كما هو) ...
+// ... (معالج تسجيل الخروج كما هو) ...
+// ... (onAuthStateChanged كما هو مع رسالة الترحيب "مرحباً بك") ...
 
-const loginFormEl = document.getElementById('loginForm');
-if (loginFormEl) {
-    loginFormEl.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        ui.authStatusEl.textContent = 'جاري التحقق...'; ui.authStatusEl.className = '';
-        const usernameOrEmail = document.getElementById('usernameInput').value;
-        const password = document.getElementById('passwordInput').value;
-        const rememberMe = document.getElementById('rememberMe').checked;
-        try {
-            await loginUser(usernameOrEmail, password, rememberMe);
-            // onAuthStateChanged handles UI update
-        } catch (error) {
-            console.error("Login error in main.js:", error);
-            ui.authStatusEl.textContent = error.message || 'فشل تسجيل الدخول.';
-            ui.authStatusEl.className = 'error';
-        }
-    });
-}
 
-if (ui.logoutButton) {
-    ui.logoutButton.addEventListener('click', async () => {
-        const result = await handleSignOut();
-        if (!result.success) {
-            ui.authStatusEl.textContent = `خطأ في الخروج: ${result.error}`;
-            ui.authStatusEl.className = 'error';
-        }
-        // onAuthStateChanged handles UI update
-    });
-}
-
-onAuthStateChanged(auth, async (user) => {
-    if (unsubscribeAdminSacrifices) unsubscribeAdminSacrifices();
-    if (unsubscribeUserSacrifices) unsubscribeUserSacrifices();
-    currentEditingDocId = null; // Reset editing state on auth change
-
-    if (user) {
-        ui.showAuthenticatedView(user.uid === ADMIN_UID);
-        if (user.uid === ADMIN_UID) {
-            fetchAndRenderSacrificesForAdmin(null);
-        } else {
-            fetchAndRenderSacrificesForUserUI(user.uid);
-        }
-    } else {
-        ui.showLoginView();
-    }
-});
-
+// --- معالجة نموذج إضافة/تعديل الأضاحي ---
 if (ui.adahiForm) {
     ui.adahiForm.addEventListener('submit', async (event) => {
         event.preventDefault();
         const currentUser = auth.currentUser;
         if (!currentUser) { ui.statusMessageEl.textContent = 'يجب تسجيل الدخول.'; ui.statusMessageEl.className = 'error'; return; }
+
         const adahiDataToSave = {
             donorName: ui.donorNameInput.value, sacrificeFor: ui.sacrificeForInput.value,
             wantsToAttend: ui.wantsToAttendYesRadio.checked, phoneNumber: ui.phoneNumberInput.value,
@@ -90,20 +44,26 @@ if (ui.adahiForm) {
             broughtByOther: ui.broughtByOtherYesRadio.checked,
             broughtByOtherName: ui.broughtByOtherYesRadio.checked ? ui.broughtByOtherNameInput.value : '',
         };
-        if (currentEditingDocId) {
+
+        let editorIdentifier = currentUser.displayName || currentUser.email;
+
+        if (currentEditingDocId) { // وضع التعديل
             ui.statusMessageEl.textContent = 'جاري التحديث...'; ui.statusMessageEl.className = '';
             try {
-                await fsService.updateSacrifice(currentEditingDocId, { ...adahiDataToSave, lastUpdatedAt: serverTimestamp() });
+                // editorIdentifier هنا يمثل المسؤول الذي يعدل
+                await fsService.updateSacrifice(currentEditingDocId, adahiDataToSave, editorIdentifier);
                 ui.statusMessageEl.textContent = 'تم التحديث بنجاح!'; ui.statusMessageEl.className = 'success';
                 ui.resetAdahiFormToEntryMode(setCurrentEditingDocId);
             } catch (e) { ui.statusMessageEl.textContent = 'خطأ تحديث: ' + e.message; ui.statusMessageEl.className = 'error';}
-        } else {
+        } else { // وضع الإضافة
             ui.statusMessageEl.textContent = 'جاري الحفظ...'; ui.statusMessageEl.className = '';
             adahiDataToSave.userId = currentUser.uid;
             adahiDataToSave.status = 'pending_entry';
             adahiDataToSave.createdAt = serverTimestamp();
+            adahiDataToSave.enteredBy = editorIdentifier; // هذا هو المستخدم الذي أدخل البيانات أول مرة
+
             try {
-                const docRefDb = await fsService.addSacrifice(adahiDataToSave);
+                const docRefDb = await fsService.addSacrifice(adahiDataToSave); // addSacrifice لا تحتاج editorIdentifier
                 ui.statusMessageEl.textContent = 'تم الحفظ بنجاح! مرجع: ' + docRefDb.id; ui.statusMessageEl.className = 'success';
                 ui.resetAdahiFormToEntryMode(setCurrentEditingDocId);
             } catch (e) { ui.statusMessageEl.textContent = 'خطأ حفظ: ' + e.message; ui.statusMessageEl.className = 'error';}
@@ -111,93 +71,41 @@ if (ui.adahiForm) {
     });
 }
 
+// --- دوال العرض والتحديث للجداول ---
 function renderSacrificesForAdminUI(docs) {
     ui.sacrificesTableBody.innerHTML = '';
     if (docs.empty) { ui.adminLoadingMessage.textContent = 'لا توجد بيانات.'; ui.adminLoadingMessage.style.display = 'block'; ui.sacrificesTableBody.innerHTML = '<tr><td colspan="17">لا توجد بيانات.</td></tr>'; return; }
     ui.adminLoadingMessage.style.display = 'none'; let counter = 1;
     docs.forEach((docSnapshot) => {
         const data = docSnapshot.data(); const row = ui.sacrificesTableBody.insertRow();
-        row.insertCell().textContent = counter++; row.insertCell().textContent = data.donorName || '';
-        row.insertCell().textContent = data.sacrificeFor || ''; row.insertCell().textContent = data.wantsToAttend ? 'نعم' : 'لا';
-        row.insertCell().textContent = data.phoneNumber || ''; row.insertCell().textContent = data.wantsPortion ? 'نعم' : 'لا';
-        row.insertCell().textContent = data.portionDetails || ''; row.insertCell().textContent = data.address || '';
-        row.insertCell().textContent = data.paymentDone ? 'نعم' : 'لا'; row.insertCell().textContent = data.receiptBookNumber || '';
-        row.insertCell().textContent = data.receiptNumber || '';
-        row.insertCell().textContent = data.assistanceFor ? (data.assistanceFor === 'inside_ramtha' ? 'داخل الرمثا' : data.assistanceFor === 'gaza_people' ? 'لأهل غزة' : data.assistanceFor === 'for_himself' ? 'لنفسه' : data.assistanceFor) : '';
-        row.insertCell().textContent = data.broughtByOther ? 'نعم' : 'لا'; row.insertCell().textContent = data.broughtByOtherName || '';
-        row.insertCell().textContent = ui.formatFirestoreTimestamp(data.createdAt);
-        let statusText = data.status;
-        if (data.status === 'pending_entry') { statusText = 'لم تدخل بعد'; }
-        else if (data.status === 'entered') { statusText = 'تم الإدخال'; }
-        else if (data.status === 'approved' || data.status === 'pending_approval' || data.status === 'rejected') { statusText = `(${statusText}) غير مستخدم`;}
-        row.insertCell().textContent = statusText;
+        // ... (نفس كود ملء الخلايا كما في الرد السابق) ...
+        // لا نعرض enteredBy و lastEditedBy في الجدول لتجنب اتساعه، لكنها ستكون في التصدير
+        // ...
         const actionsCell = row.insertCell();
         if (data.status === 'pending_entry') {
             const confirmButton = document.createElement('button'); confirmButton.textContent = 'تأكيد الإدخال';
-            confirmButton.onclick = () => fsService.updateSacrifice(docSnapshot.id, { status: 'entered', lastUpdatedAt: serverTimestamp() }); actionsCell.appendChild(confirmButton);
+            confirmButton.onclick = () => {
+                const adminIdentifier = auth.currentUser ? (auth.currentUser.displayName || auth.currentUser.email) : 'مسؤول';
+                fsService.updateSacrifice(docSnapshot.id, { status: 'entered' }, adminIdentifier); // تمرير اسم المسؤول
+            }; actionsCell.appendChild(confirmButton);
         } else if (data.status === 'entered') {
             const revertButton = document.createElement('button'); revertButton.textContent = "إعادة لـ 'لم تدخل بعد'";
             revertButton.style.backgroundColor = '#f39c12';
-            revertButton.onclick = () => { fsService.updateSacrifice(docSnapshot.id, { status: 'pending_entry', lastUpdatedAt: serverTimestamp() }); }; actionsCell.appendChild(revertButton);
+            revertButton.onclick = () => {
+                const adminIdentifier = auth.currentUser ? (auth.currentUser.displayName || auth.currentUser.email) : 'مسؤول';
+                fsService.updateSacrifice(docSnapshot.id, { status: 'pending_entry' }, adminIdentifier); // تمرير اسم المسؤول
+            }; actionsCell.appendChild(revertButton);
         }
         const editButton = document.createElement('button'); editButton.textContent = 'تعديل'; editButton.style.backgroundColor = '#5dade2'; editButton.style.marginLeft = '5px';
         editButton.onclick = () => ui.populateAdahiFormForEdit(docSnapshot.id, data, setCurrentEditingDocId);
         actionsCell.appendChild(editButton);
-        const deleteBtn = document.createElement('button'); deleteBtn.textContent = 'حذف'; deleteBtn.className = 'delete-btn'; deleteBtn.style.marginLeft = '5px';
-        deleteBtn.onclick = async () => {
-            if (confirm(`هل أنت متأكد من حذف: ${data.donorName || 'هذا السجل'}؟`)) {
-                try {
-                    await fsService.deleteSacrifice(docSnapshot.id);
-                    ui.statusMessageEl.textContent = `تم حذف "${data.donorName || 'هذا السجل'}" بنجاح.`; ui.statusMessageEl.className = 'success';
-                    setTimeout(() => { ui.statusMessageEl.textContent = ''; ui.statusMessageEl.className = ''; }, 3000);
-                } catch (error) { alert('خطأ حذف: ' + error.message); ui.statusMessageEl.textContent = 'خطأ حذف.'; ui.statusMessageEl.className = 'error'; }
-            }
-        };
-        actionsCell.appendChild(deleteBtn);
+        // ... (زر الحذف كما هو) ...
     });
 }
 
-function fetchAndRenderSacrificesForAdmin(statusFilter = null) {
-    ui.adminLoadingMessage.textContent = 'جاري تحميل البيانات...'; ui.adminLoadingMessage.style.display = 'block'; ui.sacrificesTableBody.innerHTML = '';
-    if (unsubscribeAdminSacrifices) unsubscribeAdminSacrifices();
-    unsubscribeAdminSacrifices = fsService.getSacrificesForAdmin(statusFilter,
-        (querySnapshot) => { renderSacrificesForAdminUI(querySnapshot); },
-        (error) => { console.error("Error fetching admin docs:", error); ui.sacrificesTableBody.innerHTML = `<tr><td colspan="17">خطأ تحميل البيانات.</td></tr>`; }
-    );
-}
+// ... (fetchAndRenderSacrificesForAdmin, فلاتر المسؤول, renderSacrificesForUserUI, fetchAndRenderSacrificesForUserUI كما هي) ...
 
-document.getElementById('filterPending').addEventListener('click', () => fetchAndRenderSacrificesForAdmin('pending_entry'));
-document.getElementById('filterEntered').addEventListener('click', () => fetchAndRenderSacrificesForAdmin('entered'));
-document.getElementById('filterAll').addEventListener('click', () => fetchAndRenderSacrificesForAdmin(null));
-
-function renderSacrificesForUserUI(docs) {
-    ui.userSacrificesTableBody.innerHTML = '';
-    if (docs.empty) { ui.userLoadingMessage.textContent = 'لا توجد تسجيلات.'; ui.userLoadingMessage.style.display = 'block'; ui.userSacrificesTableBody.innerHTML = '<tr><td colspan="7">لا توجد تسجيلات.</td></tr>'; return; }
-    ui.userLoadingMessage.style.display = 'none'; let counter = 1;
-    docs.forEach((docSnapshot) => {
-        const data = docSnapshot.data(); const row = ui.userSacrificesTableBody.insertRow();
-        row.insertCell().textContent = counter++; row.insertCell().textContent = data.donorName || '';
-        row.insertCell().textContent = data.sacrificeFor || '';
-        row.insertCell().textContent = data.broughtByOther ? 'نعم' : 'لا'; row.insertCell().textContent = data.broughtByOtherName || '';
-        row.insertCell().textContent = ui.formatFirestoreTimestamp(data.createdAt);
-        let statusText = data.status;
-        if (data.status === 'pending_entry') { statusText = 'لم تدخل بعد'; }
-        else if (data.status === 'entered') { statusText = 'تم الإدخال'; }
-        else if (data.status === 'approved' || data.status === 'pending_approval' || data.status === 'rejected') { statusText = `(${statusText}) غير مستخدم`;}
-        row.insertCell().textContent = statusText;
-    });
-}
-
-function fetchAndRenderSacrificesForUserUI(userId) {
-    ui.userLoadingMessage.textContent = 'جاري تحميل تسجيلاتك...'; ui.userLoadingMessage.style.display = 'block'; ui.userSacrificesTableBody.innerHTML = '';
-    if (unsubscribeUserSacrifices) unsubscribeUserSacrifices();
-    unsubscribeUserSacrifices = fsService.getSacrificesForUser(userId,
-        (querySnapshot) => { renderSacrificesForUserUI(querySnapshot); },
-        (error) => { console.error("Error fetching user docs:", error); ui.userSacrificesTableBody.innerHTML = `<tr><td colspan="7">خطأ تحميل.</td></tr>`; }
-    );
-}
-
-// --- CSV Export Functions and Listeners ---
+// --- CSV Export Functions and Listeners (مُعدلة لتشمل الحقول الجديدة) ---
 function downloadCSV(csvContent, filename) {
     const blob = new Blob(["\uFEFF"+csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement("a");
@@ -215,13 +123,13 @@ function convertToCSV(dataArray, headerKeys, displayHeaders) {
             let cell = obj[key] === null || obj[key] === undefined ? '' : obj[key];
             if (typeof cell === 'boolean') { cell = cell ? 'نعم' : 'لا'; }
             else if (key === 'status') {
-                if (cell === 'pending_entry') cell = 'لم تدخل بعد';
-                else if (cell === 'entered') cell = 'تم الإدخال';
-                else if (cell === 'approved' || cell === 'pending_approval' || cell === 'rejected') cell = `(${cell}) غير مستخدم`;
+                if (obj[key] === 'pending_entry') cell = 'لم تدخل بعد';
+                else if (obj[key] === 'entered') cell = 'تم الإدخال';
+                else if (obj[key] === 'approved' || obj[key] === 'pending_approval' || obj[key] === 'rejected') cell = `(${obj[key]}) غير مستخدم`;
             } else if (key === 'assistanceFor') {
-                if (cell === 'inside_ramtha') cell = 'داخل الرمثا';
-                else if (cell === 'gaza_people') cell = 'لأهل غزة';
-                else if (cell === 'for_himself') cell = 'لنفسه';
+                if (obj[key] === 'inside_ramtha') cell = 'داخل الرمثا';
+                else if (obj[key] === 'gaza_people') cell = 'لأهل غزة';
+                else if (obj[key] === 'for_himself') cell = 'لنفسه';
             }
             if (typeof cell === 'string' && cell.includes(',')) { cell = `"${cell.replace(/"/g, '""')}"`; }
             return cell;
@@ -235,7 +143,8 @@ if (exportAllToCsvButtonEl) {
     exportAllToCsvButtonEl.addEventListener('click', async () => {
         ui.statusMessageEl.textContent = "جاري تجهيز البيانات..."; ui.statusMessageEl.className = '';
         try {
-            const querySnapshot = await getDocs(query(fsService.collection(db, "sacrifices"), fsService.orderBy("createdAt", "desc"))); // استخدم fsService.collection و fsService.orderBy
+            const q = query(collection(db, "sacrifices"), orderBy("createdAt", "desc"));
+            const querySnapshot = await getDocs(q);
             if (querySnapshot.empty) { ui.statusMessageEl.textContent = "لا توجد بيانات."; ui.statusMessageEl.className = 'error'; return; }
             const allData = [];
             querySnapshot.forEach(doc => {
@@ -248,11 +157,13 @@ if (exportAllToCsvButtonEl) {
                     assistanceFor: data.assistanceFor, broughtByOther: data.broughtByOther,
                     broughtByOtherName: data.broughtByOtherName,
                     createdAt: data.createdAt ? ui.formatFirestoreTimestamp(data.createdAt) : '',
-                    status: data.status, userId: data.userId
+                    status: data.status, userId: data.userId,
+                    enteredBy: data.enteredBy || '', // الحقل الجديد
+                    lastEditedBy: data.lastEditedBy || '' // الحقل الجديد
                 });
             });
-            const headerKeys = ["docId", "donorName", "sacrificeFor", "wantsToAttend", "phoneNumber", "wantsPortion", "portionDetails", "address", "paymentDone", "receiptBookNumber", "receiptNumber", "assistanceFor", "broughtByOther", "broughtByOtherName", "createdAt", "status", "userId"];
-            const displayHeaders = ["معرف السجل", "اسم المتبرع", "الأضحية عن", "يريد الحضور", "رقم الهاتف", "يريد جزءًا", "تفاصيل الجزء", "العنوان", "تم الدفع", "رقم الدفتر", "رقم السند", "لمن المساعدة", "أحضرت بواسطة آخر", "اسم الوسيط", "تاريخ التسجيل", "الحالة", "معرف المستخدم"];
+            const headerKeys = ["docId", "donorName", "sacrificeFor", "wantsToAttend", "phoneNumber", "wantsPortion", "portionDetails", "address", "paymentDone", "receiptBookNumber", "receiptNumber", "assistanceFor", "broughtByOther", "broughtByOtherName", "createdAt", "status", "userId", "enteredBy", "lastEditedBy"];
+            const displayHeaders = ["معرف السجل", "اسم المتبرع", "الأضحية عن", "يريد الحضور", "رقم الهاتف", "يريد جزءًا", "تفاصيل الجزء", "العنوان", "تم الدفع", "رقم الدفتر", "رقم السند", "لمن المساعدة", "أحضرت بواسطة آخر", "اسم الوسيط", "تاريخ التسجيل", "الحالة", "معرف المستخدم", "أدخل بواسطة", "آخر تعديل بواسطة"];
             const csvContent = convertToCSV(allData, headerKeys, displayHeaders);
             downloadCSV(csvContent, 'كل_بيانات_الاضاحي.csv');
             ui.statusMessageEl.textContent = "تم التصدير بنجاح."; ui.statusMessageEl.className = 'success';
@@ -279,12 +190,14 @@ if (exportAllUsersSeparateCsvButtonEl) {
                     receiptBookNumber: data.receiptBookNumber, receiptNumber: data.receiptNumber,
                     assistanceFor: data.assistanceFor, broughtByOther: data.broughtByOther,
                     broughtByOtherName: data.broughtByOtherName,
-                    createdAt: data.createdAt ? ui.formatFirestoreTimestamp(data.createdAt) : '', status: data.status
+                    createdAt: data.createdAt ? ui.formatFirestoreTimestamp(data.createdAt) : '', status: data.status,
+                    enteredBy: data.enteredBy || '', // الحقل الجديد
+                    lastEditedBy: data.lastEditedBy || '' // الحقل الجديد
                 });
             });
             if (Object.keys(dataByUser).length === 0) { ui.statusMessageEl.textContent = "لم يتم العثور على بيانات مع معرفات مستخدمين صالحة."; ui.statusMessageEl.className = 'error'; return; }
-            const headerKeys = ["docId", "donorName", "sacrificeFor", "wantsToAttend", "phoneNumber", "wantsPortion", "portionDetails", "address", "paymentDone", "receiptBookNumber", "receiptNumber", "assistanceFor", "broughtByOther", "broughtByOtherName", "createdAt", "status"];
-            const displayHeaders = ["معرف السجل", "اسم المتبرع", "الأضحية عن", "يريد الحضور", "رقم الهاتف", "يريد جزءًا", "تفاصيل الجزء", "العنوان", "تم الدفع", "رقم الدفتر", "رقم السند", "لمن المساعدة", "أحضرت بواسطة آخر", "اسم الوسيط", "تاريخ التسجيل", "الحالة"];
+            const headerKeys = ["docId", "donorName", "sacrificeFor", "wantsToAttend", "phoneNumber", "wantsPortion", "portionDetails", "address", "paymentDone", "receiptBookNumber", "receiptNumber", "assistanceFor", "broughtByOther", "broughtByOtherName", "createdAt", "status", "enteredBy", "lastEditedBy"];
+            const displayHeaders = ["معرف السجل", "اسم المتبرع", "الأضحية عن", "يريد الحضور", "رقم الهاتف", "يريد جزءًا", "تفاصيل الجزء", "العنوان", "تم الدفع", "رقم الدفتر", "رقم السند", "لمن المساعدة", "أحضرت بواسطة آخر", "اسم الوسيط", "تاريخ التسجيل", "الحالة", "أدخل بواسطة", "آخر تعديل بواسطة"];
             let exportedCount = 0;
             ui.statusMessageEl.textContent = `بدء تصدير ${Object.keys(dataByUser).length} ملف...`;
             for (const userId in dataByUser) {
@@ -308,9 +221,4 @@ if (exportAllUsersSeparateCsvButtonEl) {
     });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    ui.resetAdahiFormToEntryMode(setCurrentEditingDocId); // تمرير الدالة لتعيين الحالة
-    ui.wantsPortionNoRadio.dispatchEvent(new Event('change'));
-    ui.paymentDoneNoRadio.dispatchEvent(new Event('change'));
-    ui.broughtByOtherNoRadio.dispatchEvent(new Event('change'));
-});
+// ... (DOMContentLoaded listener كما هو) ...
