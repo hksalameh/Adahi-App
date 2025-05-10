@@ -61,10 +61,7 @@
         measurementId: "G-1T2TGPK72K"
       };
 
-      // console.log("Firebase config object:", firebaseConfig); // Kept for basic check
       const app = initializeApp(firebaseConfig);
-      // console.log("Firebase app initialized:", app.name); // Kept for basic check
-
       const db = getFirestore(app);
       const auth = getAuth(app);
 
@@ -102,7 +99,7 @@
               statusMessage.className = 'error';
               return;
           }
-          console.log("[Form Submit] Current user UID for saving data:", currentUser.uid); // DEBUG
+          console.log("[Form Submit] Current user UID for saving data:", currentUser.uid);
           try {
               const donorName = document.getElementById('donorName').value;
               const sacrificeFor = document.getElementById('sacrificeFor').value;
@@ -116,7 +113,7 @@
               let receiptNumber = paymentDone === 'yes' ? document.getElementById('receiptNumber').value : '';
               const assistanceFor = document.getElementById('assistanceFor').value;
               const adahiData = {
-                  userId: currentUser.uid, // This is crucial
+                  userId: currentUser.uid,
                   donorName, sacrificeFor,
                   wantsToAttend: wantsToAttend === 'yes', phoneNumber,
                   wantsPortion: wantsPortion === 'yes', portionDetails, address,
@@ -124,7 +121,7 @@
                   assistanceFor, status: 'pending_approval', createdAt: serverTimestamp()
               };
               const docRef = await addDoc(collection(db, "sacrifices"), adahiData);
-              console.log("[Form Submit] Document written with ID: ", docRef.id, "and Data:", adahiData); // DEBUG
+              console.log("[Form Submit] Document written with ID: ", docRef.id, "and Data:", adahiData);
               statusMessage.textContent = 'تم حفظ البيانات بنجاح! رقم المرجع: ' + docRef.id;
               statusMessage.className = 'success';
               adahiForm.reset();
@@ -179,15 +176,13 @@
       }
       async function updateSacrificeStatus(docId, newStatus) { console.log(`Attempting to update docId: ${docId} to new status: ${newStatus}`); const sacrificeRef = doc(db, "sacrifices", docId); try { await updateDoc(sacrificeRef, { status: newStatus }); console.log(`Document ${docId} status successfully updated to ${newStatus} in Firestore.`); } catch (error) { console.error(`Error updating document ${docId} status to ${newStatus}: `, error); alert('حدث خطأ أثناء تحديث الحالة: ' + error.message); } }
       async function deleteSacrifice(docId, donorNameToConfirm) { if (confirm(`هل أنت متأكد أنك تريد حذف سجل المتبرع: ${donorNameToConfirm}؟ هذا الإجراء لا يمكن التراجع عنه.`)) { const sacrificeRef = doc(db, "sacrifices", docId); try { await deleteDoc(sacrificeRef); statusMessage.textContent = `تم حذف سجل "${donorNameToConfirm}" بنجاح.`; statusMessage.className = 'success'; setTimeout(() => { statusMessage.textContent = ''; statusMessage.className = ''; }, 3000); } catch (error) { console.error("Error deleting document: ", error); alert('حدث خطأ أثناء حذف السجل: ' + error.message); statusMessage.textContent = 'حدث خطأ أثناء حذف السجل.'; statusMessage.className = 'error'; } } }
-      
+
       function fetchAndRenderSacrificesForAdmin(statusFilter = null) {
           loadingMessage.textContent = 'جاري تحميل البيانات...'; loadingMessage.style.display = 'block'; sacrificesTableBody.innerHTML = '';
           let q;
           if (statusFilter) { q = query(collection(db, "sacrifices"), where("status", "==", statusFilter), orderBy("createdAt", "desc"));
           } else { q = query(collection(db, "sacrifices"), orderBy("createdAt", "desc")); }
-          // console.log("Admin query being executed:", q); // Kept for admin check
           onSnapshot(q, (querySnapshot) => {
-              // console.log("Admin data received, number of docs:", querySnapshot.size); // Kept for admin check
               renderSacrificesForAdmin(querySnapshot);
           }, (error) => {
               console.error("Error fetching admin documents: ", error);loadingMessage.textContent = 'حدث خطأ أثناء جلب البيانات.';sacrificesTableBody.innerHTML = `<tr><td colspan="15">خطأ في تحميل البيانات.</td></tr>`;
@@ -197,11 +192,12 @@
 
       const userSacrificesTableBody = document.getElementById('userSacrificesTableBody');
       const userLoadingMessage = document.getElementById('userLoadingMessage');
+      let unsubscribeUserSacrifices = null; // <<<<<<<<<<<<<<<<<<<< NEW: Variable to hold unsubscribe function
 
       function renderSacrificesForUser(docs) {
           userSacrificesTableBody.innerHTML = '';
           if (docs.empty) {
-              console.log("[Render User] No documents to render for user."); // DEBUG
+              console.log("[Render User] No documents to render for user.");
               userLoadingMessage.textContent = 'ليس لديك أي تسجيلات حالية.';
               userLoadingMessage.style.display = 'block';
               userSacrificesTableBody.innerHTML = '<tr><td colspan="5">لا توجد تسجيلات.</td></tr>';
@@ -211,7 +207,7 @@
           let counter = 1;
           docs.forEach((docSnapshot) => {
               const data = docSnapshot.data();
-              console.log("[Render User] Rendering doc:", docSnapshot.id, data); // DEBUG
+              console.log("[Render User] Rendering doc:", docSnapshot.id, data.donorName);
               const row = userSacrificesTableBody.insertRow();
               row.insertCell().textContent = counter++;
               row.insertCell().textContent = data.donorName || '';
@@ -222,41 +218,65 @@
       }
 
       function fetchAndRenderSacrificesForUser(userId) {
-          console.log("[Fetch User] Attempting to fetch sacrifices for userId:", userId); // DEBUG
+          console.log("[Fetch User] Attempting to fetch sacrifices for userId:", userId);
           userLoadingMessage.textContent = 'جاري تحميل تسجيلاتك...';
           userLoadingMessage.style.display = 'block';
           userSacrificesTableBody.innerHTML = '';
-          const q = query(collection(db, "sacrifices"), where("userId", "==", userId), orderBy("createdAt", "desc"));
-          console.log("[Fetch User] Query object for user:", q); // DEBUG
 
-          onSnapshot(q, (querySnapshot) => {
-              console.log(`[Fetch User] Data snapshot received for userId: ${userId}. Number of docs: ${querySnapshot.size}`); // DEBUG
-              querySnapshot.docChanges().forEach((change) => { // DEBUG: Log document changes
-                  console.log(`[Fetch User] Doc change: ${change.type}`, change.doc.id, change.doc.data());
+          // <<<<<<<<<<<<<<<<<<<< NEW: Unsubscribe from previous listener if it exists
+          if (unsubscribeUserSacrifices) {
+              console.log("[Fetch User] Unsubscribing from previous user sacrifices listener.");
+              unsubscribeUserSacrifices();
+              unsubscribeUserSacrifices = null;
+          }
+
+          const q = query(collection(db, "sacrifices"), where("userId", "==", userId), orderBy("createdAt", "desc"));
+          console.log("[Fetch User] Query object for user:", q);
+
+          // <<<<<<<<<<<<<<<<<<<< NEW: Store the new unsubscribe function
+          unsubscribeUserSacrifices = onSnapshot(q, (querySnapshot) => {
+              console.log(`[Fetch User] Data snapshot received for userId: ${userId}. Number of docs: ${querySnapshot.size}`);
+              querySnapshot.docChanges().forEach((change) => {
+                  console.log(`[Fetch User] Doc change: ${change.type}`, change.doc.id, change.doc.data().donorName);
               });
               renderSacrificesForUser(querySnapshot);
           }, (error) => {
-              console.error(`[Fetch User] Error fetching user (userId: ${userId}) documents: `, error); // DEBUG
+              console.error(`[Fetch User] Error fetching user (userId: ${userId}) documents: `, error);
               userLoadingMessage.textContent = 'حدث خطأ أثناء جلب تسجيلاتك.';
               userSacrificesTableBody.innerHTML = `<tr><td colspan="5">خطأ في تحميل البيانات: ${error.message}</td></tr>`;
+              if (unsubscribeUserSacrifices) { // Clean up on error too
+                  unsubscribeUserSacrifices();
+                  unsubscribeUserSacrifices = null;
+              }
           });
       }
 
       onAuthStateChanged(auth, (user) => {
         if (user) {
-            console.log("[Auth State] User logged in:", user.uid, user.email); // DEBUG
+            console.log("[Auth State Change] User is now:", user.uid, user.email);
             authStatus.textContent = `مرحباً بك، ${user.email}`; authStatus.className = 'success';loginSection.style.display = 'none'; logoutButton.style.display = 'inline-block'; hrAfterLogout.style.display = 'block';dataEntrySection.style.display = 'block';
             if (user.uid === ADMIN_UID) {
-                console.log("[Auth State] User is ADMIN."); // DEBUG
+                console.log("[Auth State Change] User is ADMIN.");
+                // <<<<<<<<<<<<<<<<<<<< NEW: Unsubscribe user listener if admin logs in
+                if (unsubscribeUserSacrifices) {
+                    console.log("[Auth State Change] Admin logged in, unsubscribing user listener if active.");
+                    unsubscribeUserSacrifices();
+                    unsubscribeUserSacrifices = null;
+                }
                 adminViewSection.style.display = 'block'; userDataViewSection.style.display = 'none';
                 fetchAndRenderSacrificesForAdmin(null);
             } else {
-                console.log("[Auth State] User is NOT admin. Fetching user-specific data."); // DEBUG
+                console.log("[Auth State Change] User is NOT admin. Calling fetchAndRenderSacrificesForUser with UID:", user.uid);
                 adminViewSection.style.display = 'none';userDataViewSection.style.display = 'block';
                 fetchAndRenderSacrificesForUser(user.uid);
             }
         } else {
-            console.log("[Auth State] User logged out."); // DEBUG
+            console.log("[Auth State Change] User logged out. Unsubscribing user listener if active.");
+            // <<<<<<<<<<<<<<<<<<<< NEW: Unsubscribe on logout
+            if (unsubscribeUserSacrifices) {
+                unsubscribeUserSacrifices();
+                unsubscribeUserSacrifices = null;
+            }
             authStatus.textContent = 'يرجى تسجيل الدخول للوصول.';authStatus.className = '';loginSection.style.display = 'block'; dataEntrySection.style.display = 'none'; adminViewSection.style.display = 'none'; userDataViewSection.style.display = 'none'; logoutButton.style.display = 'none';hrAfterLogout.style.display = 'none';if (sacrificesTableBody) sacrificesTableBody.innerHTML = ''; if (userSacrificesTableBody) userSacrificesTableBody.innerHTML = ''; if (loadingMessage) loadingMessage.textContent = 'يرجى تسجيل الدخول لعرض البيانات.';if (userLoadingMessage) userLoadingMessage.textContent = 'يرجى تسجيل الدخول لعرض تسجيلاتك.';
         }
       });
@@ -268,15 +288,11 @@
           authStatus.className = '';
           const usernameOrEmail = document.getElementById('usernameInput').value;
           const password = document.getElementById('passwordInput').value;
-          // console.log("Attempting login with input:", usernameOrEmail); // Kept
           try {
             const userCredential = await signInWithEmailAndPassword(auth, usernameOrEmail, password);
-            // console.log("Direct email sign-in successful for:", userCredential.user.email); // Kept
             return;
           } catch (emailSignInError) {
-            // console.log("Direct email/password sign-in failed. Error code:", emailSignInError.code); // Kept
             if (emailSignInError.code === 'auth/invalid-email' || emailSignInError.code === 'auth/invalid-credential') {
-              // console.log("Attempting username lookup in 'user_credentials_map' for:", usernameOrEmail); // Kept
               try {
                 const usersMapRef = collection(db, "user_credentials_map");
                 const q = query(usersMapRef, where("username", "==", usernameOrEmail));
@@ -284,25 +300,19 @@
                 if (querySnapshot.empty) {
                   authStatus.textContent = 'رقم/اسم المستخدم أو كلمة المرور غير صحيحة.';
                   authStatus.className = 'error';
-                  // console.log("Username not found in map:", usernameOrEmail); // Kept
                   return;
                 }
                 let foundUserEmail = null;
                 querySnapshot.forEach((doc) => {
                   foundUserEmail = doc.data().email;
-                  // console.log("Found match in map. Username:", doc.data().username, "Mapped Email:", foundUserEmail); // Kept
                 });
                 if (foundUserEmail) {
-                  // console.log("Attempting sign-in with mapped email:", foundUserEmail); // Kept
                   await signInWithEmailAndPassword(auth, foundUserEmail, password);
-                  // console.log("Sign-in successful with mapped email:", foundUserEmail); // Kept
                 } else {
                   authStatus.textContent = 'خطأ في بيانات المستخدم.';
                   authStatus.className = 'error';
-                  // console.log("Error: foundUserEmail is null after map lookup, though querySnapshot was not empty."); // Kept
                 }
               } catch (lookupError) {
-                // console.error("Error during username lookup or secondary sign-in:", lookupError); // Kept
                 if (lookupError.code === 'auth/invalid-credential') {
                     authStatus.textContent = 'كلمة المرور غير صحيحة لاسم المستخدم المقدم.';
                 } else {
@@ -311,7 +321,6 @@
                 authStatus.className = 'error';
               }
             } else {
-              // console.error("Unexpected error during direct email sign-in:", emailSignInError); // Kept
               authStatus.textContent = `خطأ في تسجيل الدخول: ${emailSignInError.message}`;
               authStatus.className = 'error';
             }
@@ -319,7 +328,18 @@
         });
       }
 
-      if (logoutButton) { logoutButton.addEventListener('click', () => {signOut(auth).then(() => { }).catch((error) => {console.error("Error signing out:", error);authStatus.textContent = `خطأ في الخروج: ${error.message}`;authStatus.className = 'error';});});}
+      if (logoutButton) {
+        logoutButton.addEventListener('click', () => {
+            signOut(auth).then(() => {
+                // No need to explicitly unsubscribe here, onAuthStateChanged will handle it
+                // but good to be aware.
+            }).catch((error) => {
+                console.error("Error signing out:", error);
+                authStatus.textContent = `خطأ في الخروج: ${error.message}`;
+                authStatus.className = 'error';
+            });
+        });
+      }
     </script>
 </body>
 </html>
