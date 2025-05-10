@@ -155,17 +155,3 @@ export function setupConditionalFieldListeners() {
 // الهيكل الحالي في main.js يستدعي uiGetters.getXxxElements()، لذا يجب أن تكون هذه الدوال مصدرة.
 // يجب أن يكون ملف ui.js الذي أرسلته سابقًا (والذي يحتوي على دوال getXxxElements) هو الصحيح.
 // سأفترض أنك تستخدم النسخة التي تحتوي على دوال getXxxElements.
-export * from './ui_getters.js'; // إذا فصلت دوال getXxxElements في ملف آخر
-// أو إذا كانت في نفس الملف:
-// export { getLoginElements, getRegistrationElements, ...الخ };
-// ولكن الرد السابق الذي أرسلته أنت لم يكن يحتوي على هذه الصادرات، بل تعريف مباشر للعناصر.
-// هذا الكود يفترض أن العناصر معرفة مباشرة في بداية الملف كما في ردك الأخير.
-// للتوضيح: إذا كان main.js يستخدم uiGetters.getLoginElements()، فإن ui.js يجب أن يصدر getLoginElements.
-// إذا كان ui.js يعرف export const loginForm = ... ، فإن main.js يستخدم ui.loginForm.
-// بناءً على آخر main.js أرسلته أنت، فإنه يستخدم uiGetters.getXxxElements()
-// لذا يجب أن يكون ui.js مهيكلاً كما في الردود التي قدمتها سابقًا مع دوال getXxxElements مصدرة.
-// سأفترض أنك ستستخدم النسخة الكاملة من ui.js التي أرسلتها لك في الرد الذي كان عنوانه:
-// "تمام، أنا في انتظار محتوى ملف ui.js الذي ستقوم بإرساله الآن."
-// حيث كانت دوال getXxxElements معرفة ومصدرة.
-// إذا كنت تستخدم ui.js حيث يتم تعريف العناصر مباشرة (مثل export const wantsPortionYesRadio = ...)،
-// فيجب تعديل `getFormElements` هنا لاستخدام هذه المتغيرات المصدرة مباشرة.
