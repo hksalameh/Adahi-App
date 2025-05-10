@@ -3,7 +3,7 @@ import { getFirestore, collection, addDoc, serverTimestamp, onSnapshot, query, o
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
 import { firebaseConfig } from './config.js';
 
-const app = initializeApp(firebaseConfig); // تهيئة Firebase مرة واحدة هنا
+const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 const SACRIFICES_COLLECTION = "sacrifices";
@@ -12,9 +12,14 @@ export async function addSacrifice(data) {
     return await addDoc(collection(db, SACRIFICES_COLLECTION), data);
 }
 
-export async function updateSacrifice(docId, data) {
+// تعديل: إضافة adminIdentifier لتخزين من قام بالتحديث (للحالة أو التعديل الكامل)
+export async function updateSacrifice(docId, dataToUpdate, editorIdentifier = null) {
     const docRef = doc(db, SACRIFICES_COLLECTION, docId);
-    return await updateDoc(docRef, data);
+    const finalData = { ...dataToUpdate, lastUpdatedAt: serverTimestamp() };
+    if (editorIdentifier) {
+        finalData.lastEditedBy = editorIdentifier;
+    }
+    return await updateDoc(docRef, finalData);
 }
 
 export async function deleteSacrifice(docId) {
@@ -38,7 +43,6 @@ export function getSacrificesForUser(userId, callback, errorCallback) {
 }
 
 export async function getAllSacrificesForExport() {
-    // هذا الاستعلام قد يتطلب فهرسًا مركبًا: userId (تصاعدي), createdAt (تنازلي)
     const q = query(collection(db, SACRIFICES_COLLECTION), orderBy("userId"), orderBy("createdAt", "desc"));
     return await getDocs(q);
 }
