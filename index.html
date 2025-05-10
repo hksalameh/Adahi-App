@@ -11,44 +11,92 @@
         .container { max-width: 950px; margin: 25px auto; background-color: #ffffff; padding: 30px 35px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.07); }
         h1 { color: #2c3e50; text-align: center; margin-bottom: 35px; font-size: 2.5em; font-weight: 700; }
         h2 { color: #34495e; text-align: center; margin-top: 35px; margin-bottom: 30px; border-bottom: 2px solid #eaecee; padding-bottom: 12px; font-size: 2em; font-weight: 700; }
-        #dataEntrySection form label, #loginSection form label { font-size: 1.1em; color: #34495e; margin-bottom: 8px; font-weight: 500; display: block; }
-        #loginSection .remember-me-label { font-size: 1em; font-weight: normal; margin-right: 5px; }
-        #loginSection input[type="checkbox"] { vertical-align: middle; margin-left: 5px; transform: scale(1.1); }
-        #dataEntrySection form input[type="text"], #dataEntrySection form input[type="tel"], #dataEntrySection form select, #loginSection form input[type="text"], #loginSection form input[type="password"] { font-size: 1.1em; padding: 12px; border: 1px solid #bcccdc; background-color: #fcfdff; border-radius: 6px; width: 100%; box-sizing: border-box; }
+        
+        /* Styles for Auth Forms (Login & Registration) */
+        .auth-form-section form label, #dataEntrySection form label { font-size: 1.1em; color: #34495e; margin-bottom: 8px; font-weight: 500; display: block; text-align: right; }
+        .auth-form-section .remember-me-label { font-size: 1em; font-weight: normal; margin-right: 5px; }
+        .auth-form-section input[type="checkbox"] { vertical-align: middle; margin-left: 5px; transform: scale(1.1); }
+        .auth-form-section form input[type="text"], 
+        .auth-form-section form input[type="email"], 
+        .auth-form-section form input[type="password"],
+        #dataEntrySection form input[type="text"], 
+        #dataEntrySection form input[type="tel"], 
+        #dataEntrySection form select { 
+            font-size: 1.1em; padding: 12px; border: 1px solid #bcccdc; background-color: #fcfdff; 
+            border-radius: 6px; width: 100%; box-sizing: border-box; 
+        }
+        .auth-form-section form input[type="text"]:focus,
+        .auth-form-section form input[type="email"]:focus,
+        .auth-form-section form input[type="password"]:focus,
+        #dataEntrySection form input[type="text"]:focus, 
+        #dataEntrySection form input[type="tel"]:focus, 
+        #dataEntrySection form textarea:focus, 
+        #dataEntrySection form select:focus { 
+            border-color: #5dade2; box-shadow: 0 0 0 0.2rem rgba(41,128,185,.25); outline: none; 
+        }
+        .auth-form-section form div:not(.remember-me-group), #dataEntrySection form div { margin-bottom: 20px; }
+        .auth-form-section .remember-me-group { margin-bottom: 15px; text-align: right;}
+        .auth-form-section form { max-width: 400px; margin-left: auto; margin-right: auto; }
+
+        /* Data Entry Form Specific */
         #dataEntrySection form textarea#portionDetails { font-size: 1.1em; padding: 10px; border: 1px solid #bcccdc; background-color: #fcfdff; border-radius: 6px; width: 100%; box-sizing: border-box; min-height: 60px; height: 80px; resize: vertical; }
-        #dataEntrySection form input[type="text"]:focus, #dataEntrySection form input[type="tel"]:focus, #dataEntrySection form textarea:focus, #dataEntrySection form select:focus, #loginSection form input[type="text"]:focus, #loginSection form input[type="password"]:focus { border-color: #5dade2; box-shadow: 0 0 0 0.2rem rgba(41,128,185,.25); outline: none; }
         #dataEntrySection form textarea#portionDetails:focus { border-color: #5dade2; box-shadow: 0 0 0 0.2rem rgba(41,128,185,.25); outline: none; }
-        #dataEntrySection form div, #loginSection form div:not(.remember-me-group) { margin-bottom: 20px; }
-        #loginSection .remember-me-group { margin-bottom: 15px; text-align: right;}
-        #loginSection form { max-width: 400px; margin-left: auto; margin-right: auto; }
-        #loginSection form label { text-align: right; }
-        #dataEntrySection .radio-group-label { font-size: 1.1em; margin-bottom: 10px;}
+        #dataEntrySection .radio-group-label { font-size: 1.1em; margin-bottom: 10px; display:block; text-align:right;}
         #dataEntrySection input[type="radio"] + label { font-weight: normal; font-size: 1.05em; margin-right: 15px; margin-left: 5px; color: #566573; display: inline-flex; align-items: center; }
         #dataEntrySection input[type="radio"] { margin-left: 8px; vertical-align: middle; width: auto; transform: scale(1.1); }
+        
+        /* General Button Styles */
         button, input[type="submit"] { padding: 12px 25px; background-color: #3498db; color: white; border: none; cursor: pointer; margin-top: 10px; margin-right: 10px; border-radius: 6px; font-size: 1.1em; font-weight: 500; transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        button:hover, input[type="submit"]:hover { background-color: #2980b9; } button:active, input[type="submit"]:active { transform: translateY(1px); box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        button:hover, input[type="submit"]:hover { background-color: #2980b9; } 
+        button:active, input[type="submit"]:active { transform: translateY(1px); box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        
         #adahiForm button[type="submit"] { background-color: #27ae60; min-width: 180px; font-weight: 700; font-size: 1.15em; padding: 13px 30px; }
         #adahiForm button[type="submit"]:hover { background-color: #229954; }
         #logoutButton { background-color: #e74c3c; font-size: 1.1em; padding: 12px 25px;}
         #logoutButton:hover { background-color: #c0392b; }
+        
         #adminActions { text-align: center; margin-bottom: 25px; }
         #adminActions button { background-color: #7f8c8d; font-size: 1em; padding: 10px 20px; box-shadow: none; margin-bottom: 5px; margin-left: 5px; }
         #adminActions button:hover { background-color: #6c7a7b; }
-        #sacrificesTableBody button { font-size: 0.9em; padding: 6px 12px; margin-right: 5px; box-shadow: none; border-radius: 4px; }
-        #sacrificesTableBody button.delete-btn { background-color: #e74c3c; }
-        #sacrificesTableBody button.delete-btn:hover { background-color: #c0392b; }
-        .hidden-field, .admin-section, .user-section, .user-data-section { display: none; } hr { margin: 40px 0; border: 0; border-top: 1px solid #bdc3c7; } #statusMessage, #authStatus { margin-top: 20px; padding: 14px; border-radius: 6px; font-weight: 500; font-size: 1.1em; } .success { background-color: #d0f0c0; color: #228B22; border: 1px solid #a0d0a0; } .error { background-color: #fddfdf; color: #D8000C; border: 1px solid #fccfcf; } table { width:100%; margin-top: 25px; border-collapse: separate; border-spacing: 0; box-shadow: 0 3px 8px rgba(0,0,0,0.06); border-radius: 8px; overflow: hidden; } th, td { border-bottom: 1px solid #d3d9e0; padding: 14px 18px; text-align: right; vertical-align: middle; font-size: 1.05em; } td { border-left: 1px solid #d3d9e0; } td:first-child { border-left: none; } th { background-color: #eaf0f7; font-weight: 700; color: #2c3e50; font-size: 1.1em; border-top: 1px solid #d3d9e0;} tbody tr:last-child td { border-bottom: none; } #sacrificesTableBody tr:nth-child(even), #userSacrificesTableBody tr:nth-child(even) { background-color: #fbfcfd; } #sacrificesTableBody tr:hover, #userSacrificesTableBody tr:hover { background-color: #e6f3ff; }
+        
+        #sacrificesTableBody button, #userSacrificesTableBody button { font-size: 0.9em; padding: 6px 12px; margin-right: 5px; box-shadow: none; border-radius: 4px; }
+        #sacrificesTableBody button.delete-btn, #userSacrificesTableBody button.delete-btn { background-color: #e74c3c; }
+        #sacrificesTableBody button.delete-btn:hover, #userSacrificesTableBody button.delete-btn:hover { background-color: #c0392b; }
+        #sacrificesTableBody button.confirm { background-color: #2ecc71; }
+        #sacrificesTableBody button.confirm:hover { background-color: #27ae60; }
+        #sacrificesTableBody button.revert { background-color: #f39c12; }
+        #sacrificesTableBody button.revert:hover { background-color: #e67e22; }
+        #sacrificesTableBody button.edit { background-color: #5dade2; }
+        #sacrificesTableBody button.edit:hover { background-color: #3498db; }
+
+        .hidden-field, .admin-section, .user-section, .user-data-section { display: none; } 
+        hr { margin: 40px 0; border: 0; border-top: 1px solid #bdc3c7; } 
+        #authStatus, #statusMessage { margin-top: 20px; padding: 14px; border-radius: 6px; font-weight: 500; font-size: 1.1em; text-align: center; } 
+        .success { background-color: #d0f0c0; color: #228B22; border: 1px solid #a0d0a0; } 
+        .error { background-color: #fddfdf; color: #D8000C; border: 1px solid #fccfcf; } 
+        
+        table { width:100%; margin-top: 25px; border-collapse: separate; border-spacing: 0; box-shadow: 0 3px 8px rgba(0,0,0,0.06); border-radius: 8px; overflow: hidden; } 
+        th, td { border-bottom: 1px solid #d3d9e0; padding: 14px 18px; text-align: right; vertical-align: middle; font-size: 1.05em; } 
+        td { border-left: 1px solid #d3d9e0; } td:first-child { border-left: none; } 
+        th { background-color: #eaf0f7; font-weight: 700; color: #2c3e50; font-size: 1.1em; border-top: 1px solid #d3d9e0;} 
+        tbody tr:last-child td { border-bottom: none; } 
+        #sacrificesTableBody tr:nth-child(even), #userSacrificesTableBody tr:nth-child(even) { background-color: #fbfcfd; } 
+        #sacrificesTableBody tr:hover, #userSacrificesTableBody tr:hover { background-color: #e6f3ff; }
+
+        #formToggleLinks a { color: #3498db; text-decoration: none; margin: 0 10px; font-size: 0.95em; }
+        #formToggleLinks a:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
     <div class="page-container">
         <div class="container">
             <h1>موقع تسجيل الأضاحي</h1>
-            <div id="authStatus"></div>
-            <div id="loginSection">
+            <div id="authStatus"></div> <!-- For login/registration/logout messages -->
+
+            <div id="loginSection" class="auth-form-section">
                 <h2>تسجيل الدخول</h2>
                 <form id="loginForm">
-                    <div><label for="usernameInput">رقم/اسم المستخدم:</label><input type="text" id="usernameInput" name="usernameInput" required></div>
+                    <div><label for="usernameInput">البريد الإلكتروني (لتسجيل الدخول):</label><input type="email" id="usernameInput" name="usernameInput" required></div>
                     <div><label for="passwordInput">كلمة المرور:</label><input type="password" id="passwordInput" name="passwordInput" required></div>
                     <div class="remember-me-group">
                         <input type="checkbox" id="rememberMe" name="rememberMe" checked>
@@ -57,58 +105,107 @@
                     <button type="submit">دخول</button>
                 </form>
             </div>
-            <button id="logoutButton" class="hidden-field">تسجيل الخروج</button>
+
+            <div id="registrationSection" class="auth-form-section" style="display: none;">
+                <h2>إنشاء حساب جديد</h2>
+                <form id="registrationForm">
+                    <div><label for="regDisplayNameInput">الاسم (الذي سيظهر للمسؤول):</label><input type="text" id="regDisplayNameInput" name="regDisplayNameInput" required></div>
+                    <div><label for="regEmailInput">البريد الإلكتروني (لتسجيل الدخول):</label><input type="email" id="regEmailInput" name="regEmailInput" required></div>
+                    <div><label for="regPasswordInput">كلمة المرور (6 أحرف على الأقل):</label><input type="password" id="regPasswordInput" name="regPasswordInput" required></div>
+                    <div><label for="regConfirmPasswordInput">تأكيد كلمة المرور:</label><input type="password" id="regConfirmPasswordInput" name="regConfirmPasswordInput" required></div>
+                    <button type="submit">إنشاء حساب</button>
+                </form>
+            </div>
+
+            <div id="formToggleLinks" style="text-align: center; margin-top: 15px; margin-bottom: 25px;">
+                <a href="#" id="switchToRegisterLink">ليس لديك حساب؟ أنشئ واحدًا</a>
+                <a href="#" id="switchToLoginLink" style="display: none;">لديك حساب بالفعل؟ سجل دخولك</a>
+            </div>
+            
+            <button id="logoutButton" class="hidden-field" style="display: block; margin-left:auto; margin-right:auto;">تسجيل الخروج</button>
             <hr class="hidden-field" id="hrAfterLogout">
-            <div id="dataEntrySection" class="user-section"> <hr>
+
+            <div id="dataEntrySection" class="user-section"> <hr> <!-- user-section class might be redundant if dataEntrySection itself is controlled -->
                 <h2>تسجيل أضحية/تبرع جديد</h2>
                 <form id="adahiForm">
-                    <div><label for="donorName">اسم المتبرع:</label><input type="text" id="donorName" name="donorName" required></div>
+                    <div><label for="donorName">اسم المتبرع (كما سيظهر في السجل):</label><input type="text" id="donorName" name="donorName" required></div>
                     <div><label for="sacrificeFor">الأضحية عن (اسم الشخص/الجهة):</label><input type="text" id="sacrificeFor" name="sacrificeFor" required></div>
-                    <div><label class="radio-group-label">هل يريد الحضور؟</label><input type="radio" id="wantsToAttendYes" name="wantsToAttend" value="yes"><label for="wantsToAttendYes">نعم</label><input type="radio" id="wantsToAttendNo" name="wantsToAttend" value="no" checked><label for="wantsToAttendNo">لا</label></div>
-                    <div><label for="phoneNumber">رقم الهاتف (اختياري):</label><input type="tel" id="phoneNumber" name="phoneNumber"></div>
-                    <div><label class="radio-group-label">هل يريد جزءًا من الأضحية؟</label><input type="radio" id="wantsPortionYes" name="wantsPortion" value="yes"><label for="wantsPortionYes">نعم</label><input type="radio" id="wantsPortionNo" name="wantsPortion" value="no" checked><label for="wantsPortionNo">لا</label></div>
-                    <div id="portionDetailsDiv" class="hidden-field"><label for="portionDetails">ماذا يريد من الأضحية؟</label><textarea id="portionDetails" name="portionDetails" rows="3"></textarea></div>
+                    <div>
+                        <label class="radio-group-label">هل يريد الحضور للذبح؟</label>
+                        <input type="radio" id="wantsToAttendYes" name="wantsToAttend" value="yes"><label for="wantsToAttendYes">نعم</label>
+                        <input type="radio" id="wantsToAttendNo" name="wantsToAttend" value="no" checked><label for="wantsToAttendNo">لا</label>
+                    </div>
+                    <div><label for="phoneNumber">رقم الهاتف (اختياري، للتواصل):</label><input type="tel" id="phoneNumber" name="phoneNumber"></div>
+                    <div>
+                        <label class="radio-group-label">هل يريد جزءًا من الأضحية؟</label>
+                        <input type="radio" id="wantsPortionYes" name="wantsPortion" value="yes"><label for="wantsPortionYes">نعم</label>
+                        <input type="radio" id="wantsPortionNo" name="wantsPortion" value="no" checked><label for="wantsPortionNo">لا</label>
+                    </div>
+                    <div id="portionDetailsDiv" class="hidden-field"><label for="portionDetails">ماذا يريد من الأضحية (مثال: الرأس، الكبد، إلخ)؟</label><textarea id="portionDetails" name="portionDetails" rows="3"></textarea></div>
                     <div id="addressFieldDiv" class="hidden-field"><label for="address">العنوان (لتوصيل الجزء إذا اختار "نعم"):</label><input type="text" id="address" name="address"></div>
-                    <div><label class="radio-group-label">هل تم الدفع؟</label><input type="radio" id="paymentDoneYes" name="paymentDone" value="yes"><label for="paymentDoneYes">نعم</label><input type="radio" id="paymentDoneNo" name="paymentDone" value="no" checked><label for="paymentDoneNo">لا</label></div>
-                    <div id="paymentDetailsDiv" class="hidden-field"><div><label for="receiptBookNumber">رقم الدفتر:</label><input type="text" id="receiptBookNumber" name="receiptBookNumber"></div><div><label for="receiptNumber">رقم السند:</label><input type="text" id="receiptNumber" name="receiptNumber"></div></div>
-                    <div><label for="assistanceFor">لمن المساعدة (توزيع اللحم)؟</label><select id="assistanceFor" name="assistanceFor"><option value="inside_ramtha">داخل الرمثا</option><option value="gaza_people">لأهل غزة</option><option value="for_himself">لنفسه (إذا كان سيأخذها كاملة)</option></select></div>
+                    <div>
+                        <label class="radio-group-label">هل تم الدفع؟</label>
+                        <input type="radio" id="paymentDoneYes" name="paymentDone" value="yes"><label for="paymentDoneYes">نعم</label>
+                        <input type="radio" id="paymentDoneNo" name="paymentDone" value="no" checked><label for="paymentDoneNo">لا</label>
+                    </div>
+                    <div id="paymentDetailsDiv" class="hidden-field">
+                        <div><label for="receiptBookNumber">رقم دفتر الإيصالات:</label><input type="text" id="receiptBookNumber" name="receiptBookNumber"></div>
+                        <div><label for="receiptNumber">رقم إيصال الدفع:</label><input type="text" id="receiptNumber" name="receiptNumber"></div>
+                    </div>
+                    <div>
+                        <label for="assistanceFor">لمن المساعدة (توزيع اللحم)؟</label>
+                        <select id="assistanceFor" name="assistanceFor">
+                            <option value="inside_ramtha">داخل الرمثا</option>
+                            <option value="gaza_people">لأهل غزة</option>
+                            <option value="for_himself">لنفسه (إذا كان سيأخذها كاملة)</option>
+                        </select>
+                    </div>
                     <div>
                         <label class="radio-group-label">هل تم إحضارها بواسطة شخص آخر (وسيط)؟</label>
                         <input type="radio" id="broughtByOtherYes" name="broughtByOther" value="yes"><label for="broughtByOtherYes">نعم</label>
                         <input type="radio" id="broughtByOtherNo" name="broughtByOther" value="no" checked><label for="broughtByOtherNo">لا</label>
                     </div>
                     <div id="broughtByOtherNameDiv" class="hidden-field">
-                        <label for="broughtByOtherName">اسم الشخص الذي أحضرها:</label>
+                        <label for="broughtByOtherName">اسم الشخص الذي أحضرها (الوسيط):</label>
                         <input type="text" id="broughtByOtherName" name="broughtByOtherName">
                     </div>
                     <div style="text-align: center;"><button type="submit">تسجيل البيانات</button></div>
                 </form>
-                <div id="statusMessage"></div><hr>
+                <div id="statusMessage"></div><!-- For adahiForm operation messages -->
+                <hr>
             </div>
-            <div id="userDataViewSection" class="user-data-section">
+
+            <div id="userDataViewSection" class="user-data-section"> <!-- Controlled by JS -->
                 <h2>تسجيلاتك الحالية</h2>
                 <p id="userLoadingMessage">جاري تحميل تسجيلاتك...</p>
                 <table id="userSacrificesTable" border="1">
                     <thead>
-                        <tr><th>م.</th><th>اسم المتبرع</th><th>الأضحية عن</th><th>أحضرت بواسطة آخر؟</th><th>اسم الوسيط</th><th>تاريخ التسجيل</th><th>الحالة</th></tr>
+                        <tr><th>م.</th><th>اسم المتبرع</th><th>الأضحية عن</th><th>بوسيط؟</th><th>اسم الوسيط</th><th>تاريخ التسجيل</th><th>الحالة</th></tr>
                     </thead>
                     <tbody id="userSacrificesTableBody"></tbody>
                 </table><hr>
             </div>
-            <div id="adminViewSection" class="admin-section">
-                <h2>سجلات الأضاحي المسجلة</h2>
+
+            <div id="adminViewSection" class="admin-section"> <!-- Controlled by JS -->
+                <h2>سجلات الأضاحي المسجلة (لوحة تحكم المسؤول)</h2>
                 <div id="adminActions">
                     <button id="filterPending">عرض "لم تدخل بعد" فقط</button>
                     <button id="filterEntered">عرض "تم الإدخال" فقط</button>
                     <button id="filterAll">عرض الكل</button>
                     <hr style="margin: 15px 0;">
                     <button id="exportAllToCsvButton">تصدير كل البيانات (CSV)</button>
-                    <button id="exportAllUsersSeparateCsvButton" style="margin-top:10px;">تصدير بيانات كل مستخدم بملف منفصل (CSV)</button>
+                    <button id="exportAllUsersSeparateCsvButton" style="margin-top:10px;">تصدير بيانات كل مدخل بملف منفصل (CSV)</button>
                 </div>
-                <div id="sacrificesTableContainer"><p id="loadingMessage">جاري تحميل البيانات...</p>
+                <div id="sacrificesTableContainer">
+                    <p id="loadingMessage">جاري تحميل البيانات...</p> <!-- This is adminLoadingMessage in ui.js -->
                     <table id="sacrificesTable" border="1">
                         <thead>
-                            <tr><th>م.</th><th>اسم المتبرع</th><th>الأضحية عن</th><th>يريد الحضور</th><th>رقم الهاتف</th><th>يريد جزءًا</th><th>تفاصيل الجزء</th><th>العنوان</th><th>تم الدفع</th><th>رقم الدفتر</th><th>رقم السند</th><th>لمن المساعدة</th><th>أحضرت بواسطة آخر؟</th><th>اسم الوسيط</th><th>تاريخ التسجيل</th><th>الحالة</th><th>إجراءات</th></tr>
+                            <tr>
+                                <th>م.</th><th>اسم المتبرع</th><th>الأضحية عن</th><th>حضور؟</th><th>رقم الهاتف</th>
+                                <th>جزء؟</th><th>تفاصيل الجزء</th><th>العنوان</th><th>مدفوع؟</th><th>ر.الدفتر</th>
+                                <th>ر.السند</th><th>المساعدة لـ</th><th>بوسيط؟</th><th>اسم الوسيط</th>
+                                <th>ت.التسجيل</th><th>الحالة</th><th>إجراءات</th>
+                            </tr>
                         </thead>
                         <tbody id="sacrificesTableBody"></tbody>
                     </table>
@@ -118,5 +215,8 @@
     </div>
 
     <script type="module" src="main.js"></script>
+    <!-- Import auth.js if it's not already imported within main.js, but module type in main should handle it -->
+    <!-- <script type="module" src="auth.js"></script> --> 
+    <!-- <script type="module" src="ui.js"></script> --> <!-- ui.js is imported by main.js -->
 </body>
 </html>
