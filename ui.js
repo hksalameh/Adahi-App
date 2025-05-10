@@ -231,7 +231,7 @@ export function formatFirestoreTimestamp(timestamp) {
 }
 
 export function setupConditionalFieldListeners() {
-    // console.log("--- setupConditionalFieldListeners called from ui.js ---");
+     console.log("--- setupConditionalFieldListeners called from ui.js ---");
     const { wantsPortionYesRadio, wantsPortionNoRadio, 
             paymentDoneYesRadio, paymentDoneNoRadio,
             broughtByOtherYesRadio, broughtByOtherNoRadio } = getFormElements(); // الحصول على العناصر من الكاش
@@ -240,26 +240,26 @@ export function setupConditionalFieldListeners() {
         [wantsPortionYesRadio, wantsPortionNoRadio].forEach(radio => {
             if (radio) {
                 radio.addEventListener('change', () => {
-                    // console.log(`EVENT: ${radio.id} CHANGED. Checked: ${radio.checked}`);
+                    console.log(`EVENT: ${radio.id} CHANGED. Checked: ${radio.checked}`);
                     updateWantsPortionVisibility();
                 });
             }
         });
     } else {
-        // console.warn("wantsPortion radio buttons not fully found for listener setup.");
+         console.warn("wantsPortion radio buttons not fully found for listener setup.");
     }
 
     if (paymentDoneYesRadio && paymentDoneNoRadio) {
         [paymentDoneYesRadio, paymentDoneNoRadio].forEach(radio => {
             if (radio) {
                 radio.addEventListener('change', () => {
-                    // console.log(`EVENT: ${radio.id} CHANGED. Checked: ${radio.checked}`);
+                     console.log(`EVENT: ${radio.id} CHANGED. Checked: ${radio.checked}`);
                     updatePaymentDetailsVisibility();
                 });
             }
         });
     } else {
-        // console.warn("paymentDone radio buttons not fully found for listener setup.");
+         console.warn("paymentDone radio buttons not fully found for listener setup.");
     }
 
     if (broughtByOtherYesRadio && broughtByOtherNoRadio) {
@@ -272,10 +272,10 @@ export function setupConditionalFieldListeners() {
             }
         });
     } else {
-        // console.warn("broughtByOther radio buttons not fully found for listener setup.");
+         console.warn("broughtByOther radio buttons not fully found for listener setup.");
     }
     
     // التحديث الأولي للرؤية بعد ربط المستمعين مباشرة
-    // console.log("Initial call to updateAllConditionalFieldsVisibility from setupConditionalFieldListeners in ui.js");
+     console.log("Initial call to updateAllConditionalFieldsVisibility from setupConditionalFieldListeners in ui.js");
     updateAllConditionalFieldsVisibility(); 
 }
