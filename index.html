@@ -61,9 +61,9 @@
         measurementId: "G-1T2TGPK72K"
       };
 
-      console.log("Firebase config object:", firebaseConfig);
+      // console.log("Firebase config object:", firebaseConfig); // Kept for basic check
       const app = initializeApp(firebaseConfig);
-      console.log("Firebase app initialized:", app.name);
+      // console.log("Firebase app initialized:", app.name); // Kept for basic check
 
       const db = getFirestore(app);
       const auth = getAuth(app);
@@ -102,6 +102,7 @@
               statusMessage.className = 'error';
               return;
           }
+          console.log("[Form Submit] Current user UID for saving data:", currentUser.uid); // DEBUG
           try {
               const donorName = document.getElementById('donorName').value;
               const sacrificeFor = document.getElementById('sacrificeFor').value;
@@ -115,7 +116,7 @@
               let receiptNumber = paymentDone === 'yes' ? document.getElementById('receiptNumber').value : '';
               const assistanceFor = document.getElementById('assistanceFor').value;
               const adahiData = {
-                  userId: currentUser.uid,
+                  userId: currentUser.uid, // This is crucial
                   donorName, sacrificeFor,
                   wantsToAttend: wantsToAttend === 'yes', phoneNumber,
                   wantsPortion: wantsPortion === 'yes', portionDetails, address,
@@ -123,6 +124,7 @@
                   assistanceFor, status: 'pending_approval', createdAt: serverTimestamp()
               };
               const docRef = await addDoc(collection(db, "sacrifices"), adahiData);
+              console.log("[Form Submit] Document written with ID: ", docRef.id, "and Data:", adahiData); // DEBUG
               statusMessage.textContent = 'تم حفظ البيانات بنجاح! رقم المرجع: ' + docRef.id;
               statusMessage.className = 'success';
               adahiForm.reset();
@@ -133,7 +135,7 @@
               document.getElementById('wantsPortionNo').checked = true;
               document.getElementById('paymentDoneNo').checked = true;
           } catch (e) {
-              console.error("Error adding document: ", e);
+              console.error("[Form Submit] Error adding document: ", e);
               statusMessage.textContent = 'حدث خطأ أثناء حفظ البيانات: ' + e.message;
               statusMessage.className = 'error';
           }
@@ -177,15 +179,87 @@
       }
       async function updateSacrificeStatus(docId, newStatus) { console.log(`Attempting to update docId: ${docId} to new status: ${newStatus}`); const sacrificeRef = doc(db, "sacrifices", docId); try { await updateDoc(sacrificeRef, { status: newStatus }); console.log(`Document ${docId} status successfully updated to ${newStatus} in Firestore.`); } catch (error) { console.error(`Error updating document ${docId} status to ${newStatus}: `, error); alert('حدث خطأ أثناء تحديث الحالة: ' + error.message); } }
       async function deleteSacrifice(docId, donorNameToConfirm) { if (confirm(`هل أنت متأكد أنك تريد حذف سجل المتبرع: ${donorNameToConfirm}؟ هذا الإجراء لا يمكن التراجع عنه.`)) { const sacrificeRef = doc(db, "sacrifices", docId); try { await deleteDoc(sacrificeRef); statusMessage.textContent = `تم حذف سجل "${donorNameToConfirm}" بنجاح.`; statusMessage.className = 'success'; setTimeout(() => { statusMessage.textContent = ''; statusMessage.className = ''; }, 3000); } catch (error) { console.error("Error deleting document: ", error); alert('حدث خطأ أثناء حذف السجل: ' + error.message); statusMessage.textContent = 'حدث خطأ أثناء حذف السجل.'; statusMessage.className = 'error'; } } }
-      function fetchAndRenderSacrificesForAdmin(statusFilter = null) { loadingMessage.textContent = 'جاري تحميل البيانات...'; loadingMessage.style.display = 'block'; sacrificesTableBody.innerHTML = ''; let q; if (statusFilter) { q = query(collection(db, "sacrifices"), where("status", "==", statusFilter), orderBy("createdAt", "desc")); } else { q = query(collection(db, "sacrifices"), orderBy("createdAt", "desc")); } console.log("Admin query being executed:", q); onSnapshot(q, (querySnapshot) => { console.log("Admin data received, number of docs:", querySnapshot.size); renderSacrificesForAdmin(querySnapshot); }, (error) => {  console.error("Error fetching admin documents: ", error);loadingMessage.textContent = 'حدث خطأ أثناء جلب البيانات.';sacrificesTableBody.innerHTML = `<tr><td colspan="15">خطأ في تحميل البيانات.</td></tr>`; });}
+      
+      function fetchAndRenderSacrificesForAdmin(statusFilter = null) {
+          loadingMessage.textContent = 'جاري تحميل البيانات...'; loadingMessage.style.display = 'block'; sacrificesTableBody.innerHTML = '';
+          let q;
+          if (statusFilter) { q = query(collection(db, "sacrifices"), where("status", "==", statusFilter), orderBy("createdAt", "desc"));
+          } else { q = query(collection(db, "sacrifices"), orderBy("createdAt", "desc")); }
+          // console.log("Admin query being executed:", q); // Kept for admin check
+          onSnapshot(q, (querySnapshot) => {
+              // console.log("Admin data received, number of docs:", querySnapshot.size); // Kept for admin check
+              renderSacrificesForAdmin(querySnapshot);
+          }, (error) => {
+              console.error("Error fetching admin documents: ", error);loadingMessage.textContent = 'حدث خطأ أثناء جلب البيانات.';sacrificesTableBody.innerHTML = `<tr><td colspan="15">خطأ في تحميل البيانات.</td></tr>`;
+          });
+      }
       document.getElementById('filterPending').addEventListener('click', () => fetchAndRenderSacrificesForAdmin('pending_approval'));document.getElementById('filterApproved').addEventListener('click', () => fetchAndRenderSacrificesForAdmin('approved'));document.getElementById('filterRejected').addEventListener('click', () => fetchAndRenderSacrificesForAdmin('rejected'));document.getElementById('filterAll').addEventListener('click', () => fetchAndRenderSacrificesForAdmin(null));
 
       const userSacrificesTableBody = document.getElementById('userSacrificesTableBody');
       const userLoadingMessage = document.getElementById('userLoadingMessage');
-      function renderSacrificesForUser(docs) { userSacrificesTableBody.innerHTML = ''; if (docs.empty) { userLoadingMessage.textContent = 'ليس لديك أي تسجيلات حالية.'; userLoadingMessage.style.display = 'block'; userSacrificesTableBody.innerHTML = '<tr><td colspan="5">لا توجد تسجيلات.</td></tr>'; return; } userLoadingMessage.style.display = 'none'; let counter = 1; docs.forEach((docSnapshot) => { const data = docSnapshot.data(); const row = userSacrificesTableBody.insertRow(); row.insertCell().textContent = counter++; row.insertCell().textContent = data.donorName || ''; row.insertCell().textContent = data.sacrificeFor || ''; row.insertCell().textContent = formatFirestoreTimestamp(data.createdAt); row.insertCell().textContent = data.status === 'pending_approval' ? 'قيد المراجعة' : data.status === 'approved' ? 'موافق عليه' : data.status === 'rejected' ? 'مرفوض' : data.status; }); }
-      function fetchAndRenderSacrificesForUser(userId) { userLoadingMessage.textContent = 'جاري تحميل تسجيلاتك...'; userLoadingMessage.style.display = 'block'; userSacrificesTableBody.innerHTML = ''; const q = query(collection(db, "sacrifices"), where("userId", "==", userId), orderBy("createdAt", "desc")); onSnapshot(q, (querySnapshot) => {renderSacrificesForUser(querySnapshot);}, (error) => {console.error("Error fetching user documents: ", error);userLoadingMessage.textContent = 'حدث خطأ أثناء جلب تسجيلاتك.'; userSacrificesTableBody.innerHTML = `<tr><td colspan="5">خطأ في تحميل البيانات.</td></tr>`;});}
 
-      onAuthStateChanged(auth, (user) => {if (user) {authStatus.textContent = `مرحباً بك، ${user.email}`; authStatus.className = 'success';loginSection.style.display = 'none'; logoutButton.style.display = 'inline-block'; hrAfterLogout.style.display = 'block';dataEntrySection.style.display = 'block'; if (user.uid === ADMIN_UID) {adminViewSection.style.display = 'block'; userDataViewSection.style.display = 'none'; fetchAndRenderSacrificesForAdmin(null); } else {adminViewSection.style.display = 'none';userDataViewSection.style.display = 'block'; fetchAndRenderSacrificesForUser(user.uid); }} else {authStatus.textContent = 'يرجى تسجيل الدخول للوصول.';authStatus.className = '';loginSection.style.display = 'block'; dataEntrySection.style.display = 'none'; adminViewSection.style.display = 'none'; userDataViewSection.style.display = 'none'; logoutButton.style.display = 'none';hrAfterLogout.style.display = 'none';if (sacrificesTableBody) sacrificesTableBody.innerHTML = ''; if (userSacrificesTableBody) userSacrificesTableBody.innerHTML = ''; if (loadingMessage) loadingMessage.textContent = 'يرجى تسجيل الدخول لعرض البيانات.';if (userLoadingMessage) userLoadingMessage.textContent = 'يرجى تسجيل الدخول لعرض تسجيلاتك.';}});
+      function renderSacrificesForUser(docs) {
+          userSacrificesTableBody.innerHTML = '';
+          if (docs.empty) {
+              console.log("[Render User] No documents to render for user."); // DEBUG
+              userLoadingMessage.textContent = 'ليس لديك أي تسجيلات حالية.';
+              userLoadingMessage.style.display = 'block';
+              userSacrificesTableBody.innerHTML = '<tr><td colspan="5">لا توجد تسجيلات.</td></tr>';
+              return;
+          }
+          userLoadingMessage.style.display = 'none';
+          let counter = 1;
+          docs.forEach((docSnapshot) => {
+              const data = docSnapshot.data();
+              console.log("[Render User] Rendering doc:", docSnapshot.id, data); // DEBUG
+              const row = userSacrificesTableBody.insertRow();
+              row.insertCell().textContent = counter++;
+              row.insertCell().textContent = data.donorName || '';
+              row.insertCell().textContent = data.sacrificeFor || '';
+              row.insertCell().textContent = formatFirestoreTimestamp(data.createdAt);
+              row.insertCell().textContent = data.status === 'pending_approval' ? 'قيد المراجعة' : data.status === 'approved' ? 'موافق عليه' : data.status === 'rejected' ? 'مرفوض' : data.status;
+          });
+      }
+
+      function fetchAndRenderSacrificesForUser(userId) {
+          console.log("[Fetch User] Attempting to fetch sacrifices for userId:", userId); // DEBUG
+          userLoadingMessage.textContent = 'جاري تحميل تسجيلاتك...';
+          userLoadingMessage.style.display = 'block';
+          userSacrificesTableBody.innerHTML = '';
+          const q = query(collection(db, "sacrifices"), where("userId", "==", userId), orderBy("createdAt", "desc"));
+          console.log("[Fetch User] Query object for user:", q); // DEBUG
+
+          onSnapshot(q, (querySnapshot) => {
+              console.log(`[Fetch User] Data snapshot received for userId: ${userId}. Number of docs: ${querySnapshot.size}`); // DEBUG
+              querySnapshot.docChanges().forEach((change) => { // DEBUG: Log document changes
+                  console.log(`[Fetch User] Doc change: ${change.type}`, change.doc.id, change.doc.data());
+              });
+              renderSacrificesForUser(querySnapshot);
+          }, (error) => {
+              console.error(`[Fetch User] Error fetching user (userId: ${userId}) documents: `, error); // DEBUG
+              userLoadingMessage.textContent = 'حدث خطأ أثناء جلب تسجيلاتك.';
+              userSacrificesTableBody.innerHTML = `<tr><td colspan="5">خطأ في تحميل البيانات: ${error.message}</td></tr>`;
+          });
+      }
+
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+            console.log("[Auth State] User logged in:", user.uid, user.email); // DEBUG
+            authStatus.textContent = `مرحباً بك، ${user.email}`; authStatus.className = 'success';loginSection.style.display = 'none'; logoutButton.style.display = 'inline-block'; hrAfterLogout.style.display = 'block';dataEntrySection.style.display = 'block';
+            if (user.uid === ADMIN_UID) {
+                console.log("[Auth State] User is ADMIN."); // DEBUG
+                adminViewSection.style.display = 'block'; userDataViewSection.style.display = 'none';
+                fetchAndRenderSacrificesForAdmin(null);
+            } else {
+                console.log("[Auth State] User is NOT admin. Fetching user-specific data."); // DEBUG
+                adminViewSection.style.display = 'none';userDataViewSection.style.display = 'block';
+                fetchAndRenderSacrificesForUser(user.uid);
+            }
+        } else {
+            console.log("[Auth State] User logged out."); // DEBUG
+            authStatus.textContent = 'يرجى تسجيل الدخول للوصول.';authStatus.className = '';loginSection.style.display = 'block'; dataEntrySection.style.display = 'none'; adminViewSection.style.display = 'none'; userDataViewSection.style.display = 'none'; logoutButton.style.display = 'none';hrAfterLogout.style.display = 'none';if (sacrificesTableBody) sacrificesTableBody.innerHTML = ''; if (userSacrificesTableBody) userSacrificesTableBody.innerHTML = ''; if (loadingMessage) loadingMessage.textContent = 'يرجى تسجيل الدخول لعرض البيانات.';if (userLoadingMessage) userLoadingMessage.textContent = 'يرجى تسجيل الدخول لعرض تسجيلاتك.';
+        }
+      });
 
       if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
@@ -194,43 +268,41 @@
           authStatus.className = '';
           const usernameOrEmail = document.getElementById('usernameInput').value;
           const password = document.getElementById('passwordInput').value;
-          console.log("Attempting login with input:", usernameOrEmail);
+          // console.log("Attempting login with input:", usernameOrEmail); // Kept
           try {
             const userCredential = await signInWithEmailAndPassword(auth, usernameOrEmail, password);
-            console.log("Direct email sign-in successful for:", userCredential.user.email);
+            // console.log("Direct email sign-in successful for:", userCredential.user.email); // Kept
             return;
           } catch (emailSignInError) {
-            console.log("Direct email/password sign-in failed. Error code:", emailSignInError.code);
-            // Updated error code check for Firebase v9+
+            // console.log("Direct email/password sign-in failed. Error code:", emailSignInError.code); // Kept
             if (emailSignInError.code === 'auth/invalid-email' || emailSignInError.code === 'auth/invalid-credential') {
-              console.log("Attempting username lookup in 'user_credentials_map' for:", usernameOrEmail);
+              // console.log("Attempting username lookup in 'user_credentials_map' for:", usernameOrEmail); // Kept
               try {
                 const usersMapRef = collection(db, "user_credentials_map");
                 const q = query(usersMapRef, where("username", "==", usernameOrEmail));
                 const querySnapshot = await getDocs(q);
                 if (querySnapshot.empty) {
-                  authStatus.textContent = 'رقم/اسم المستخدم أو كلمة المرور غير صحيحة.'; // Simplified message
+                  authStatus.textContent = 'رقم/اسم المستخدم أو كلمة المرور غير صحيحة.';
                   authStatus.className = 'error';
-                  console.log("Username not found in map:", usernameOrEmail);
+                  // console.log("Username not found in map:", usernameOrEmail); // Kept
                   return;
                 }
                 let foundUserEmail = null;
                 querySnapshot.forEach((doc) => {
                   foundUserEmail = doc.data().email;
-                  console.log("Found match in map. Username:", doc.data().username, "Mapped Email:", foundUserEmail);
+                  // console.log("Found match in map. Username:", doc.data().username, "Mapped Email:", foundUserEmail); // Kept
                 });
                 if (foundUserEmail) {
-                  console.log("Attempting sign-in with mapped email:", foundUserEmail);
+                  // console.log("Attempting sign-in with mapped email:", foundUserEmail); // Kept
                   await signInWithEmailAndPassword(auth, foundUserEmail, password);
-                  console.log("Sign-in successful with mapped email:", foundUserEmail);
+                  // console.log("Sign-in successful with mapped email:", foundUserEmail); // Kept
                 } else {
-                  authStatus.textContent = 'خطأ في بيانات المستخدم.'; // Simplified message
+                  authStatus.textContent = 'خطأ في بيانات المستخدم.';
                   authStatus.className = 'error';
-                  console.log("Error: foundUserEmail is null after map lookup, though querySnapshot was not empty.");
+                  // console.log("Error: foundUserEmail is null after map lookup, though querySnapshot was not empty."); // Kept
                 }
               } catch (lookupError) {
-                console.error("Error during username lookup or secondary sign-in:", lookupError);
-                // Check if secondary sign-in also failed due to invalid credentials
+                // console.error("Error during username lookup or secondary sign-in:", lookupError); // Kept
                 if (lookupError.code === 'auth/invalid-credential') {
                     authStatus.textContent = 'كلمة المرور غير صحيحة لاسم المستخدم المقدم.';
                 } else {
@@ -239,7 +311,7 @@
                 authStatus.className = 'error';
               }
             } else {
-              console.error("Unexpected error during direct email sign-in:", emailSignInError);
+              // console.error("Unexpected error during direct email sign-in:", emailSignInError); // Kept
               authStatus.textContent = `خطأ في تسجيل الدخول: ${emailSignInError.message}`;
               authStatus.className = 'error';
             }
