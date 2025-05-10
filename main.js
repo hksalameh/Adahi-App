@@ -13,12 +13,58 @@ const auth = authModule.initializeAuth();
 let unsubscribeAdminSacrifices = null;
 let unsubscribeUserSacrifices = null;
 let currentEditingDocId = null;
-
 let ui = {}; // سيتم تعبئته في DOMContentLoaded
+let allAdminSacrificesCache = []; // لتخزين بيانات المسؤول لحساب المجاميع
 
 function setCurrentEditingDocId(id) {
     currentEditingDocId = id;
 }
+
+// --- دالة لحساب وعرض مجاميع الأضاحي ---
+function updateSacrificesSummary(docsSnapshot) {
+    if (!ui.adminViewElements || 
+        !ui.adminViewElements.summaryGazaEl ||
+        !ui.adminViewElements.summarySolidarityEl ||
+        !ui.adminViewElements.summaryRamthaEl ||
+        !ui.adminViewElements.summaryHimselfEl ||
+        !ui.adminViewElements.summaryTotalEl) {
+        return;
+    }
+
+    let gazaCount = 0;
+    let solidarityCount = 0;
+    let ramthaCount = 0;
+    let himselfCount = 0;
+    let totalCount = 0;
+
+    allAdminSacrificesCache = []; // مسح الكاش قبل إعادة التعبئة
+    docsSnapshot.forEach(doc => {
+        const data = doc.data();
+        allAdminSacrificesCache.push(data); // ملء الكاش
+        totalCount++;
+        switch (data.assistanceFor) {
+            case 'gaza_people':
+                gazaCount++;
+                break;
+            case 'solidarity_fund':
+                solidarityCount++;
+                break;
+            case 'inside_ramtha':
+                ramthaCount++;
+                break;
+            case 'for_himself':
+                himselfCount++;
+                break;
+        }
+    });
+
+    ui.adminViewElements.summaryGazaEl.textContent = gazaCount;
+    ui.adminViewElements.summarySolidarityEl.textContent = solidarityCount;
+    ui.adminViewElements.summaryRamthaEl.textContent = ramthaCount;
+    ui.adminViewElements.summaryHimselfEl.textContent = himselfCount;
+    ui.adminViewElements.summaryTotalEl.textContent = totalCount;
+}
+
 
 // --- دوال العرض والتحديث للجداول ---
 function renderCellValue(value, isBooleanNoMeansEmpty = false, conditionalEmptyValue = '') {
@@ -40,6 +86,7 @@ function renderSacrificesForAdminUI(docsSnapshot) {
             ui.adminViewElements.adminLoadingMessage.style.display = 'block';
         }
         ui.adminViewElements.sacrificesTableBody.innerHTML = '<tr><td colspan="18">لا توجد بيانات.</td></tr>'; 
+        updateSacrificesSummary(docsSnapshot); // تحديث المجاميع حتى لو كانت فارغة (ستكون أصفار)
         return;
     }
     if (ui.adminViewElements.adminLoadingMessage) ui.adminViewElements.adminLoadingMessage.style.display = 'none';
@@ -62,6 +109,7 @@ function renderSacrificesForAdminUI(docsSnapshot) {
         if (data.assistanceFor === 'inside_ramtha') assistanceForText = 'داخل الرمثا';
         else if (data.assistanceFor === 'gaza_people') assistanceForText = 'لأهل غزة';
         else if (data.assistanceFor === 'for_himself') assistanceForText = 'لنفسه';
+        else if (data.assistanceFor === 'solidarity_fund') assistanceForText = 'صندوق التضامن';
         row.insertCell().textContent = assistanceForText;
         row.insertCell().textContent = renderCellValue(data.enteredBy, false, 'غير معروف'); 
         row.insertCell().textContent = renderCellValue(data.broughtByOther, true); 
@@ -120,6 +168,7 @@ function renderSacrificesForAdminUI(docsSnapshot) {
         };
         actionsCell.appendChild(deleteButton);
     });
+    updateSacrificesSummary(docsSnapshot); // تحديث المجاميع بعد عرض البيانات
 }
 
 function renderSacrificesForUserUI(docsSnapshot) {
@@ -169,13 +218,7 @@ async function fetchAndRenderSacrificesForAdmin(filterStatus = 'all') {
         q = query(sacrificesCol, where("status", "==", filterStatus), orderBy("createdAt", "desc"));
     }
     unsubscribeAdminSacrifices = onSnapshot(q, (querySnapshot) => {
-        renderSacrificesForAdminUI(querySnapshot);
-        if (ui.adminViewElements && ui.adminViewElements.adminLoadingMessage && !querySnapshot.empty) {
-            ui.adminViewElements.adminLoadingMessage.style.display = 'none';
-        } else if (querySnapshot.empty && ui.adminViewElements && ui.adminViewElements.adminLoadingMessage) {
-            ui.adminViewElements.adminLoadingMessage.textContent = 'لا توجد بيانات تطابق الفلتر الحالي.';
-            ui.adminViewElements.adminLoadingMessage.style.display = 'block';
-        }
+        renderSacrificesForAdminUI(querySnapshot); // هذه الدالة ستقوم بتحديث المجاميع أيضًا
     }, (error) => {
         console.error("Error fetching admin sacrifices with onSnapshot: ", error);
         if (ui.adminViewElements && ui.adminViewElements.adminLoadingMessage) ui.adminViewElements.adminLoadingMessage.textContent = 'خطأ في تحميل بيانات المسؤول: ' + error.message;
@@ -207,7 +250,6 @@ async function fetchAndRenderSacrificesForUserUI(userId) {
     });
 }
 
-// --- كل المنطق الذي يعتمد على عناصر UI يتم نقله إلى DOMContentLoaded ---
 document.addEventListener('DOMContentLoaded', () => {
     ui.loginElements = uiGetters.getLoginElements();
     ui.registrationElements = uiGetters.getRegistrationElements();
@@ -217,9 +259,8 @@ document.addEventListener('DOMContentLoaded', () => {
     ui.adminViewElements = uiGetters.getAdminViewElements();
     ui.userDataViewElements = uiGetters.getUserDataViewElements();
     
-    // *** تمرير عناصر النموذج إلى ui.js لتخزينها في الكاش ***
     if (ui.dataEntryFormElements) {
-        uiGetters.cacheFormElements(ui.dataEntryFormElements); // <<<--- السطر الجديد/المؤكد
+        uiGetters.cacheFormElements(ui.dataEntryFormElements);
     }
     
     uiGetters.setupConditionalFieldListeners();
@@ -229,7 +270,6 @@ document.addEventListener('DOMContentLoaded', () => {
         ui.commonUIElements.authStatusEl.className = '';
     }
 
-    // Auth form event listeners
     if (ui.loginElements.loginForm && ui.loginElements.loginEmailInput && ui.loginElements.loginPasswordInput && ui.loginElements.rememberMeCheckbox) {
         ui.loginElements.loginForm.addEventListener('submit', async (event) => {
             event.preventDefault(); 
@@ -446,34 +486,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (ui.adminViewElements.exportAllToExcelButton) {
         ui.adminViewElements.exportAllToExcelButton.addEventListener('click', async () => {
-             if (ui.commonUIElements.authStatusEl) {ui.commonUIElements.authStatusEl.textContent = "جاري تجهيز كل البيانات للتصدير (Excel)..."; ui.commonUIElements.authStatusEl.className = '';}
+            if (ui.commonUIElements.authStatusEl) {ui.commonUIElements.authStatusEl.textContent = "جاري تجهيز كل البيانات للتصدير (Excel)..."; ui.commonUIElements.authStatusEl.className = '';}
             try {
-                const q_excel = query(collection(db, "sacrifices"), orderBy("createdAt", "desc"));
-                const querySnapshot_excel = await getDocs(q_excel);
-                if (querySnapshot_excel.empty) { 
-                    if (ui.commonUIElements.authStatusEl) {ui.commonUIElements.authStatusEl.textContent = "لا توجد بيانات للتصدير."; ui.commonUIElements.authStatusEl.className = 'error';}
-                    return; 
+                // استخدام allAdminSacrificesCache بدلاً من جلب البيانات مرة أخرى
+                if (allAdminSacrificesCache.length === 0) {
+                     const q_excel = query(collection(db, "sacrifices"), orderBy("createdAt", "desc"));
+                     const querySnapshot_excel = await getDocs(q_excel);
+                     if (querySnapshot_excel.empty) { 
+                         if (ui.commonUIElements.authStatusEl) {ui.commonUIElements.authStatusEl.textContent = "لا توجد بيانات للتصدير."; ui.commonUIElements.authStatusEl.className = 'error';}
+                         return; 
+                     }
+                     querySnapshot_excel.forEach(doc => allAdminSacrificesCache.push(doc.data()));
                 }
-                const allData_excel = [];
-                querySnapshot_excel.forEach(doc => {
-                    const data_excel = doc.data();
-                    allData_excel.push({ 
-                        donorName: data_excel.donorName, 
-                        sacrificeFor: data_excel.sacrificeFor,
-                        wantsToAttend: data_excel.wantsToAttend, 
-                        phoneNumber: data_excel.phoneNumber, 
-                        portionDetails: data_excel.portionDetails, 
-                        address: data_excel.address, 
-                        paymentDone: data_excel.paymentDone,
-                        receiptBookNumber: data_excel.receiptBookNumber, 
-                        receiptNumber: data_excel.receiptNumber,
-                        assistanceFor: data_excel.assistanceFor, 
-                        broughtByOther: data_excel.broughtByOther,
-                        broughtByOtherName: data_excel.broughtByOtherName,
-                        createdAt: data_excel.createdAt, 
-                        enteredBy: data_excel.enteredBy || ''
-                    });
-                });
+
+                if (allAdminSacrificesCache.length === 0) {
+                    if (ui.commonUIElements.authStatusEl) {ui.commonUIElements.authStatusEl.textContent = "لا توجد بيانات للتصدير."; ui.commonUIElements.authStatusEl.className = 'error';}
+                    return;
+                }
+
+                const dataToExport = allAdminSacrificesCache.map(data => ({
+                    donorName: data.donorName, 
+                    sacrificeFor: data.sacrificeFor,
+                    wantsToAttend: data.wantsToAttend, 
+                    phoneNumber: data.phoneNumber, 
+                    portionDetails: data.portionDetails, 
+                    address: data.address, 
+                    paymentDone: data.paymentDone,
+                    receiptBookNumber: data.receiptBookNumber, 
+                    receiptNumber: data.receiptNumber,
+                    assistanceFor: data.assistanceFor, 
+                    broughtByOther: data.broughtByOther,
+                    broughtByOtherName: data.broughtByOtherName,
+                    createdAt: data.createdAt, 
+                    enteredBy: data.enteredBy || ''
+                }));
+
                 const headerKeys_excel = [
                     "donorName", "sacrificeFor", "wantsToAttend", "phoneNumber", 
                     "portionDetails", "address", "paymentDone", "receiptBookNumber", "receiptNumber", 
@@ -485,7 +532,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     "المساعدة لـ", "بوسيط؟", "اسم الوسيط", "ت.التسجيل", "أدخل بواسطة"
                 ];
                 
-                exportDataToExcel(allData_excel, headerKeys_excel, displayHeaders_excel, 'كل_بيانات_الاضاحي.xlsx');
+                exportDataToExcel(dataToExport, headerKeys_excel, displayHeaders_excel, 'كل_بيانات_الاضاحي.xlsx');
                 if (ui.commonUIElements.authStatusEl) {ui.commonUIElements.authStatusEl.textContent = "تم تصدير كل البيانات بنجاح (Excel)."; ui.commonUIElements.authStatusEl.className = 'success';}
             } catch (error) { 
                 console.error("Error exporting all data to Excel: ", error); 
@@ -498,7 +545,98 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (ui.adminViewElements.exportAllUsersSeparateExcelButton) {
         ui.adminViewElements.exportAllUsersSeparateExcelButton.addEventListener('click', async () => {
-            // ... (منطق تصدير المستخدمين المنفصل كما هو من الرد السابق، مع التأكد من استخدام ui.commonUIElements.authStatusEl)
+            if (ui.commonUIElements.authStatusEl) {ui.commonUIElements.authStatusEl.textContent = "جاري تجهيز بيانات كل مدخل (Excel)..."; ui.commonUIElements.authStatusEl.className = '';}
+            try {
+                // استخدام allAdminSacrificesCache بدلاً من جلب البيانات مرة أخرى
+                if (allAdminSacrificesCache.length === 0) {
+                    const q_excel_users = query(collection(db, "sacrifices"), orderBy("createdAt", "desc"));
+                    const querySnapshot_excel_users = await getDocs(q_excel_users);
+                    if (querySnapshot_excel_users.empty) { 
+                        if (ui.commonUIElements.authStatusEl) {ui.commonUIElements.authStatusEl.textContent = "لا توجد بيانات لتصديرها."; ui.commonUIElements.authStatusEl.className = 'error';}
+                        return; 
+                    }
+                    querySnapshot_excel_users.forEach(doc => allAdminSacrificesCache.push(doc.data()));
+                }
+                 if (allAdminSacrificesCache.length === 0) {
+                    if (ui.commonUIElements.authStatusEl) {ui.commonUIElements.authStatusEl.textContent = "لا توجد بيانات لتصديرها."; ui.commonUIElements.authStatusEl.className = 'error';}
+                    return;
+                }
+                
+                const dataByUser = {};
+                allAdminSacrificesCache.forEach(data => {
+                    const userId = data.userId;
+                    const userNameForGrouping = data.enteredBy || userId || 'مستخدم_غير_معروف';
+                    const groupKey = userId || 'entries_without_userid';
+                    
+                    if (!dataByUser[groupKey]) { 
+                        dataByUser[groupKey] = { name: userNameForGrouping, entries: [] };
+                    }
+                    if (data.enteredBy && data.enteredBy !== userId && dataByUser[groupKey].name === userId) {
+                        dataByUser[groupKey].name = data.enteredBy;
+                    }
+
+                    dataByUser[groupKey].entries.push({ 
+                        donorName: data.donorName, 
+                        sacrificeFor: data.sacrificeFor,
+                        wantsToAttend: data.wantsToAttend, 
+                        phoneNumber: data.phoneNumber, 
+                        portionDetails: data.portionDetails, 
+                        address: data.address, 
+                        paymentDone: data.paymentDone,
+                        receiptBookNumber: data.receiptBookNumber, 
+                        receiptNumber: data.receiptNumber,
+                        assistanceFor: data.assistanceFor, 
+                        broughtByOther: data.broughtByOther,
+                        broughtByOtherName: data.broughtByOtherName,
+                        createdAt: data.createdAt,
+                        enteredBy: data.enteredBy || ''
+                    });
+                });
+
+                if (Object.keys(dataByUser).length === 0) { 
+                    if (ui.commonUIElements.authStatusEl) {ui.commonUIElements.authStatusEl.textContent = "لم يتم العثور على بيانات مجمعة حسب المدخلين."; ui.commonUIElements.authStatusEl.className = 'error';}
+                    return; 
+                }
+                
+                const headerKeys_excel_users = [
+                    "donorName", "sacrificeFor", "wantsToAttend", "phoneNumber",
+                    "portionDetails", "address", "paymentDone", "receiptBookNumber", "receiptNumber",
+                    "assistanceFor", "broughtByOther", "broughtByOtherName", "createdAt", "enteredBy"
+                ];
+                const displayHeaders_excel_users = [
+                    "المتبرع", "الأضحية عن", "حضور؟", "هاتف",
+                    "تفاصيل الجزء", "العنوان", "مدفوع؟", "ر.الدفتر", "ر.السند",
+                    "المساعدة لـ", "بوسيط؟", "اسم الوسيط", "ت.التسجيل", "أدخل بواسطة"
+                ];
+                            
+                let exportedCount = 0;
+                const totalUserGroups = Object.keys(dataByUser).length;
+                if (ui.commonUIElements.authStatusEl) {ui.commonUIElements.authStatusEl.textContent = `بدء تصدير ${totalUserGroups} ملف للمدخلين (Excel)...`;}
+
+                for (const groupKey in dataByUser) {
+                    if (dataByUser.hasOwnProperty(groupKey)) {
+                        const fileNamePart = String(dataByUser[groupKey].name).replace(/[^\p{L}\p{N}_-]/gu, '_');
+                        const userDataEntries = dataByUser[groupKey].entries;
+                        if (userDataEntries.length > 0) {
+                            exportDataToExcel(userDataEntries, headerKeys_excel_users, displayHeaders_excel_users, `بيانات_مدخل_${fileNamePart}.xlsx`);
+                            await new Promise(resolve => setTimeout(resolve, 300)); 
+                            exportedCount++;
+                            if (ui.commonUIElements.authStatusEl) {ui.commonUIElements.authStatusEl.textContent = `تم تصدير ${exportedCount} من ${totalUserGroups} ملف (Excel)...`;}
+                        }
+                    }
+                }
+                if (ui.commonUIElements.authStatusEl) {ui.commonUIElements.authStatusEl.textContent = `تم تصدير بيانات ${exportedCount} مدخل بنجاح في ملفات Excel منفصلة.`; ui.commonUIElements.authStatusEl.className = 'success';}
+            } catch (error) {
+                console.error("Error exporting all users separate data to Excel: ", error);
+                let errMessage = "خطأ أثناء تصدير بيانات المدخلين (Excel): " + error.message;
+                if (error.code === 'failed-precondition' && error.message.includes('index')) {
+                     errMessage = "خطأ: يتطلب هذا التصدير فهرسًا مركبًا في Firebase. يرجى مراجعة إعدادات الفهرسة.";
+                }
+                if (ui.commonUIElements.authStatusEl) {
+                    ui.commonUIElements.authStatusEl.textContent = errMessage;
+                    ui.commonUIElements.authStatusEl.className = 'error';
+                }
+            }
         });
     } else {
         console.error("ui.adminViewElements.exportAllUsersSeparateExcelButton not found. (DOMContentLoaded)");
@@ -515,11 +653,21 @@ function handleAuthStateChange(user) {
         ui.loginElements.loginSection, ui.registrationElements.registrationSection, 
         ui.toggleLinkElements.formToggleLinksDiv, ui.dataEntryFormElements.dataEntrySection, 
         ui.adminViewElements.adminViewSection, ui.userDataViewElements.userDataViewSection,
-        ui.commonUIElements.logoutButton, ui.commonUIElements.hrAfterLogout
+        // زر تسجيل الخروج و hrAfterLogout يتم التحكم بهما بشكل منفصل أدناه
     ];
+
     allMainSections.forEach(el => { 
         if (el) el.classList.add('hidden-field'); 
     });
+    
+    // إخفاء زر تسجيل الخروج والفاصل بشكل افتراضي
+    if (ui.commonUIElements.logoutButton) ui.commonUIElements.logoutButton.classList.add('hidden-field');
+    if (ui.commonUIElements.hrAfterLogout) ui.commonUIElements.hrAfterLogout.classList.add('hidden-field');
+    // إخفاء قسم المجاميع والفاصل بشكل افتراضي
+    if (ui.adminViewElements.sacrificesSummaryDiv) ui.adminViewElements.sacrificesSummaryDiv.classList.add('hidden-field');
+    if (ui.adminViewElements.hrAfterSummary) ui.adminViewElements.hrAfterSummary.classList.add('hidden-field');
+
+
     const exportAllBtn = ui.adminViewElements.exportAllToExcelButton; 
     const exportUsersSepBtn = ui.adminViewElements.exportAllUsersSeparateExcelButton;
     if(exportAllBtn) exportAllBtn.classList.add('hidden-field');
@@ -533,8 +681,11 @@ function handleAuthStateChange(user) {
         if (ui.commonUIElements.logoutButton) ui.commonUIElements.logoutButton.classList.remove('hidden-field');
         if (ui.commonUIElements.hrAfterLogout) ui.commonUIElements.hrAfterLogout.classList.remove('hidden-field');
         if (ui.dataEntryFormElements.dataEntrySection) ui.dataEntryFormElements.dataEntrySection.classList.remove('hidden-field');
+
         if (user.uid === ADMIN_UID) {
             if (ui.adminViewElements.adminViewSection) ui.adminViewElements.adminViewSection.classList.remove('hidden-field');
+            if (ui.adminViewElements.sacrificesSummaryDiv) ui.adminViewElements.sacrificesSummaryDiv.classList.remove('hidden-field');
+            if (ui.adminViewElements.hrAfterSummary) ui.adminViewElements.hrAfterSummary.classList.remove('hidden-field');
             fetchAndRenderSacrificesForAdmin(); 
             if(exportAllBtn) exportAllBtn.classList.remove('hidden-field');
             if(exportUsersSepBtn) exportUsersSepBtn.classList.remove('hidden-field');
@@ -571,6 +722,8 @@ function handleAuthStateChange(user) {
         if (unsubscribeAdminSacrifices) { unsubscribeAdminSacrifices(); unsubscribeAdminSacrifices = null; }
         if (unsubscribeUserSacrifices) { unsubscribeUserSacrifices(); unsubscribeUserSacrifices = null; }
         currentEditingDocId = null;
+        allAdminSacrificesCache = []; // مسح كاش المجاميع عند تسجيل الخروج
+        updateSacrificesSummary({ empty: true, forEach: () => {} }); // تحديث المجاميع لتكون أصفار
     }
 }
 
@@ -579,7 +732,7 @@ authModule.onAuthStateChanged(handleAuthStateChange);
 function exportDataToExcel(dataArray, headerKeys, displayHeaders, filename) {
     if (typeof XLSX === 'undefined') {
         console.error("SheetJS (XLSX) library is not loaded!");
-        if (ui.commonUIElements.authStatusEl) { 
+        if (ui.commonUIElements && ui.commonUIElements.authStatusEl) { 
             ui.commonUIElements.authStatusEl.textContent = "خطأ: مكتبة تصدير Excel غير محملة.";
             ui.commonUIElements.authStatusEl.className = 'error';
         }
