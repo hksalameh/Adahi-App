@@ -4,20 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تسجيل الأضاحي</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon"> <!-- <<<--- السطر الجديد للـ Favicon -->
     <!-- SheetJS (js-xlsx) for Excel Export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;700&display=swap');
         body { font-family: 'Noto Kufi Arabic', 'Tajawal', sans-serif; margin: 0; padding: 0; background-color: #f0f2f5; color: #2c3e50; line-height: 1.7; font-size: 16px; }
         .page-container { padding: 20px; }
-        .container { max-width: 1000px; /* Increased width slightly for more columns */ margin: 25px auto; background-color: #ffffff; padding: 30px 35px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.07); }
+        .container { max-width: 1000px; margin: 25px auto; background-color: #ffffff; padding: 30px 35px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.07); }
         h1 { color: #2c3e50; text-align: center; margin-bottom: 35px; font-size: 2.5em; font-weight: 700; }
         h2 { color: #34495e; text-align: center; margin-top: 35px; margin-bottom: 30px; border-bottom: 2px solid #eaecee; padding-bottom: 12px; font-size: 2em; font-weight: 700; }
         
         .auth-form-section form label, #dataEntrySection form label { font-size: 1.1em; color: #34495e; margin-bottom: 8px; font-weight: 500; display: block; text-align: right; }
         .auth-form-section .remember-me-group { margin-bottom: 15px; text-align: right; display:flex; align-items:center; }
-        .auth-form-section .remember-me-label { font-size: 1em; font-weight: normal; margin-right: 5px; margin-bottom:0; /* Align with checkbox */ }
-        .auth-form-section input[type="checkbox"]#rememberMe { vertical-align: middle; margin-left: 5px; transform: scale(1.1); width: auto; /* Override default width */ }
+        .auth-form-section .remember-me-label { font-size: 1em; font-weight: normal; margin-right: 5px; margin-bottom:0; }
+        .auth-form-section input[type="checkbox"]#rememberMe { vertical-align: middle; margin-left: 5px; transform: scale(1.1); width: auto; }
         
         .auth-form-section form input[type="text"], 
         .auth-form-section form input[type="email"], 
@@ -69,15 +70,15 @@
         #sacrificesTableBody button.edit { background-color: #5dade2; }
         #sacrificesTableBody button.edit:hover { background-color: #3498db; }
 
-        .hidden-field { display: none !important; } /* Added !important for initial hide if JS is slow */
+        .hidden-field { display: none !important; }
         .admin-section, .user-section, .user-data-section { display: none; } 
         hr { margin: 40px 0; border: 0; border-top: 1px solid #bdc3c7; } 
         #authStatus, #statusMessage { margin-top: 20px; padding: 14px; border-radius: 6px; font-weight: 500; font-size: 1.1em; text-align: center; } 
         .success { background-color: #d0f0c0; color: #228B22; border: 1px solid #a0d0a0; } 
         .error { background-color: #fddfdf; color: #D8000C; border: 1px solid #fccfcf; } 
         
-        table { width:100%; margin-top: 25px; border-collapse: separate; border-spacing: 0; box-shadow: 0 3px 8px rgba(0,0,0,0.06); border-radius: 8px; overflow-x: auto; /* Allow horizontal scroll on small screens */ font-size: 0.9em; /* Adjusted table font size */ } 
-        th, td { border-bottom: 1px solid #d3d9e0; padding: 8px 10px; /* Adjusted padding */ text-align: right; vertical-align: middle; white-space: nowrap; /* Prevent text wrapping in cells */ } 
+        table { width:100%; margin-top: 25px; border-collapse: separate; border-spacing: 0; box-shadow: 0 3px 8px rgba(0,0,0,0.06); border-radius: 8px; overflow-x: auto; font-size: 0.9em; } 
+        th, td { border-bottom: 1px solid #d3d9e0; padding: 8px 10px; text-align: right; vertical-align: middle; white-space: nowrap; } 
         td { border-left: 1px solid #d3d9e0; } td:first-child { border-left: none; } 
         th { background-color: #eaf0f7; font-weight: 700; color: #2c3e50; border-top: 1px solid #d3d9e0;} 
         tbody tr:last-child td { border-bottom: none; } 
@@ -198,7 +199,7 @@
                     <button id="exportAllUsersSeparateExcelButton" style="margin-top:10px;">تصدير بيانات كل مدخل بملف منفصل (Excel)</button>
                 </div>
                 <div id="sacrificesTableContainer">
-                    <p id="adminLoadingMessage">جاري تحميل البيانات...</p> <!-- Changed ID from loadingMessage to adminLoadingMessage -->
+                    <p id="adminLoadingMessage">جاري تحميل البيانات...</p> 
                     <table id="sacrificesTable" border="1">
                         <thead>
                             <tr>
@@ -214,7 +215,7 @@
                                 <th>ر.الدفتر</th>
                                 <th>ر.السند</th>
                                 <th>المساعدة لـ</th>
-                                <th>أدخل بواسطة</th>      <!-- *** العمود الجديد مضاف هنا *** -->
+                                <th>أدخل بواسطة</th>
                                 <th>بوسيط؟</th>
                                 <th>اسم الوسيط</th>
                                 <th>ت.التسجيل</th>
