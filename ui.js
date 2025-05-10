@@ -1,6 +1,7 @@
 // ui.js
 
-// --- دوال للحصول على عناصر الواجهة ---
+// --- دوال للحصول على عناصر الواجهة (سيتم استدعاؤها من main.js داخل DOMContentLoaded) ---
+
 export function getLoginElements() {
     return {
         loginSection: document.getElementById('loginSection'),
@@ -94,17 +95,28 @@ export function getUserDataViewElements() {
     };
 }
 
-// --- دوال مساعدة للواجهة ---
+
+// --- دوال مساعدة للواجهة (تعتمد على أن العناصر ستكون متاحة عند استدعائها) ---
 let formElementsCache = null; 
 function getFormElements() {
+    // هذه الدالة يجب أن تُستدعى فقط بعد أن يتم تعبئة formElementsCache
+    // بواسطة استدعاء getDataEntryFormElements() من main.js وتخزينها.
+    // للتأكد، سنقوم بالحصول عليها مباشرة إذا كانت فارغة، ولكن هذا لا ينبغي أن يحدث.
     if (!formElementsCache) {
-        formElementsCache = getDataEntryFormElements();
+        // console.warn("[UI_LOG] formElementsCache was null in getFormElements. Fetching directly. This should ideally be pre-filled by main.js.");
+        formElementsCache = getDataEntryFormElements(); // الحصول عليها مباشرة كإجراء احتياطي
     }
     return formElementsCache;
 }
 
+// دالة لتعيين الكاش من main.js
+export function cacheFormElements(elements) {
+    formElementsCache = elements;
+}
+
+
 function updateWantsPortionVisibility() {
-    const elements = getFormElements();
+    const elements = getFormElements(); // استخدام الكاش
     if (elements.wantsPortionYesRadio && elements.portionDetailsDiv && elements.addressFieldDiv) {
         const show = elements.wantsPortionYesRadio.checked;
         elements.portionDetailsDiv.style.display = show ? 'block' : 'none';
@@ -134,6 +146,7 @@ function updateAllConditionalFieldsVisibility() {
     updateBroughtByOtherVisibility();
 }
 
+
 export function resetAdahiFormToEntryMode(setCurrentEditingDocIdCallback) {
     const elements = getFormElements();
     if (elements.adahiForm) { 
@@ -147,7 +160,6 @@ export function resetAdahiFormToEntryMode(setCurrentEditingDocIdCallback) {
         if (elements.broughtByOtherNameInput) elements.broughtByOtherNameInput.value = '';
         if (elements.assistanceForSelect) elements.assistanceForSelect.value = 'inside_ramtha';
 
-        // تأكد من أن أزرار "لا" هي المحددة بعد إعادة التعيين
         if (elements.wantsToAttendNoRadio) elements.wantsToAttendNoRadio.checked = true;
         if (elements.wantsPortionNoRadio) elements.wantsPortionNoRadio.checked = true;
         if (elements.paymentDoneNoRadio) elements.paymentDoneNoRadio.checked = true;   
@@ -156,7 +168,7 @@ export function resetAdahiFormToEntryMode(setCurrentEditingDocIdCallback) {
     if (setCurrentEditingDocIdCallback) setCurrentEditingDocIdCallback(null);
     if (elements.adahiFormSubmitButton) elements.adahiFormSubmitButton.textContent = 'تسجيل البيانات';
     
-    updateAllConditionalFieldsVisibility(); // تحديث الرؤية بعد إعادة التعيين
+    updateAllConditionalFieldsVisibility();
 
     if (elements.statusMessageEl) { elements.statusMessageEl.textContent = ''; elements.statusMessageEl.className = '';}
 }
@@ -213,7 +225,7 @@ export function formatFirestoreTimestamp(timestamp) {
 }
 
 export function setupConditionalFieldListeners() {
-    const elements = getFormElements(); 
+    const elements = getFormElements(); // الحصول على العناصر من الكاش (يجب أن يكون قد تم تعبئته بواسطة main.js)
 
     if (elements.wantsPortionYesRadio && elements.wantsPortionNoRadio) {
         [elements.wantsPortionYesRadio, elements.wantsPortionNoRadio].forEach(radio => {
