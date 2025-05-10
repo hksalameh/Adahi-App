@@ -192,7 +192,7 @@
 
       const userSacrificesTableBody = document.getElementById('userSacrificesTableBody');
       const userLoadingMessage = document.getElementById('userLoadingMessage');
-      let unsubscribeUserSacrifices = null; // <<<<<<<<<<<<<<<<<<<< NEW: Variable to hold unsubscribe function
+      let unsubscribeUserSacrifices = null;
 
       function renderSacrificesForUser(docs) {
           userSacrificesTableBody.innerHTML = '';
@@ -223,7 +223,6 @@
           userLoadingMessage.style.display = 'block';
           userSacrificesTableBody.innerHTML = '';
 
-          // <<<<<<<<<<<<<<<<<<<< NEW: Unsubscribe from previous listener if it exists
           if (unsubscribeUserSacrifices) {
               console.log("[Fetch User] Unsubscribing from previous user sacrifices listener.");
               unsubscribeUserSacrifices();
@@ -233,7 +232,6 @@
           const q = query(collection(db, "sacrifices"), where("userId", "==", userId), orderBy("createdAt", "desc"));
           console.log("[Fetch User] Query object for user:", q);
 
-          // <<<<<<<<<<<<<<<<<<<< NEW: Store the new unsubscribe function
           unsubscribeUserSacrifices = onSnapshot(q, (querySnapshot) => {
               console.log(`[Fetch User] Data snapshot received for userId: ${userId}. Number of docs: ${querySnapshot.size}`);
               querySnapshot.docChanges().forEach((change) => {
@@ -244,7 +242,7 @@
               console.error(`[Fetch User] Error fetching user (userId: ${userId}) documents: `, error);
               userLoadingMessage.textContent = 'حدث خطأ أثناء جلب تسجيلاتك.';
               userSacrificesTableBody.innerHTML = `<tr><td colspan="5">خطأ في تحميل البيانات: ${error.message}</td></tr>`;
-              if (unsubscribeUserSacrifices) { // Clean up on error too
+              if (unsubscribeUserSacrifices) {
                   unsubscribeUserSacrifices();
                   unsubscribeUserSacrifices = null;
               }
@@ -257,7 +255,6 @@
             authStatus.textContent = `مرحباً بك، ${user.email}`; authStatus.className = 'success';loginSection.style.display = 'none'; logoutButton.style.display = 'inline-block'; hrAfterLogout.style.display = 'block';dataEntrySection.style.display = 'block';
             if (user.uid === ADMIN_UID) {
                 console.log("[Auth State Change] User is ADMIN.");
-                // <<<<<<<<<<<<<<<<<<<< NEW: Unsubscribe user listener if admin logs in
                 if (unsubscribeUserSacrifices) {
                     console.log("[Auth State Change] Admin logged in, unsubscribing user listener if active.");
                     unsubscribeUserSacrifices();
@@ -272,7 +269,6 @@
             }
         } else {
             console.log("[Auth State Change] User logged out. Unsubscribing user listener if active.");
-            // <<<<<<<<<<<<<<<<<<<< NEW: Unsubscribe on logout
             if (unsubscribeUserSacrifices) {
                 unsubscribeUserSacrifices();
                 unsubscribeUserSacrifices = null;
@@ -288,11 +284,19 @@
           authStatus.className = '';
           const usernameOrEmail = document.getElementById('usernameInput').value;
           const password = document.getElementById('passwordInput').value;
+          console.log("[Login Form] Attempting login with input:", usernameOrEmail);
+          console.log("[Login Form] Password being used (should not be empty):", password ? "Exists" : "EMPTY OR NULL");
+
+
           try {
+            console.log("[Login Form] Attempting direct sign-in with email/username:", usernameOrEmail, "and password:", password ? "Exists" : "EMPTY"); // DEBUG
             const userCredential = await signInWithEmailAndPassword(auth, usernameOrEmail, password);
+            console.log("[Login Form] Direct email sign-in successful for:", userCredential.user.email);
             return;
           } catch (emailSignInError) {
+            console.log("[Login Form] Direct email/password sign-in failed. Error code:", emailSignInError.code, "Message:", emailSignInError.message);
             if (emailSignInError.code === 'auth/invalid-email' || emailSignInError.code === 'auth/invalid-credential') {
+              console.log("[Login Form] Attempting username lookup in 'user_credentials_map' for:", usernameOrEmail);
               try {
                 const usersMapRef = collection(db, "user_credentials_map");
                 const q = query(usersMapRef, where("username", "==", usernameOrEmail));
@@ -300,28 +304,45 @@
                 if (querySnapshot.empty) {
                   authStatus.textContent = 'رقم/اسم المستخدم أو كلمة المرور غير صحيحة.';
                   authStatus.className = 'error';
+                  console.log("[Login Form] Username not found in map:", usernameOrEmail);
                   return;
                 }
                 let foundUserEmail = null;
                 querySnapshot.forEach((doc) => {
                   foundUserEmail = doc.data().email;
+                  console.log("[Login Form] Found match in map. Username:", doc.data().username, "Mapped Email:", foundUserEmail);
                 });
+
                 if (foundUserEmail) {
+                  console.log("[Login Form] Attempting sign-in with mapped email:", foundUserEmail, "and password:", password ? "Exists" : "EMPTY"); // DEBUG
+                  if (!foundUserEmail || typeof foundUserEmail !== 'string' || !foundUserEmail.includes('@')) {
+                      console.error("[Login Form] Mapped email is invalid or not a string:", foundUserEmail);
+                      authStatus.textContent = 'خطأ في بيانات المستخدم (البريد الإلكتروني المرتبط غير صالح).';
+                      authStatus.className = 'error';
+                      return;
+                  }
                   await signInWithEmailAndPassword(auth, foundUserEmail, password);
+                  console.log("[Login Form] Sign-in successful with mapped email:", foundUserEmail);
                 } else {
-                  authStatus.textContent = 'خطأ في بيانات المستخدم.';
+                  authStatus.textContent = 'خطأ في بيانات المستخدم (لم يتم العثور على بريد مطابق بعد البحث).';
                   authStatus.className = 'error';
+                  console.log("[Login Form] Error: foundUserEmail is null after map lookup, though querySnapshot was not empty.");
                 }
               } catch (lookupError) {
+                console.error("[Login Form] Error during username lookup or secondary sign-in:", lookupError.code, lookupError.message);
                 if (lookupError.code === 'auth/invalid-credential') {
                     authStatus.textContent = 'كلمة المرور غير صحيحة لاسم المستخدم المقدم.';
-                } else {
+                } else if (lookupError.code === 'auth/invalid-email') {
+                    authStatus.textContent = 'البريد الإلكتروني المرتبط باسم المستخدم غير صالح.';
+                }
+                 else {
                     authStatus.textContent = 'خطأ في البحث عن المستخدم أو كلمة المرور.';
                 }
                 authStatus.className = 'error';
               }
             } else {
-              authStatus.textContent = `خطأ في تسجيل الدخول: ${emailSignInError.message}`;
+              console.error("[Login Form] Unexpected error during direct email sign-in:", emailSignInError);
+              authStatus.textContent = `خطأ في تسجيل الدخول: ${emailSignInError.message}`; // Display Firebase's actual error message
               authStatus.className = 'error';
             }
           }
@@ -331,8 +352,6 @@
       if (logoutButton) {
         logoutButton.addEventListener('click', () => {
             signOut(auth).then(() => {
-                // No need to explicitly unsubscribe here, onAuthStateChanged will handle it
-                // but good to be aware.
             }).catch((error) => {
                 console.error("Error signing out:", error);
                 authStatus.textContent = `خطأ في الخروج: ${error.message}`;
