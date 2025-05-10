@@ -3,22 +3,33 @@
 // --- عناصر تسجيل الدخول ---
 export const loginSection = document.getElementById('loginSection');
 export const loginForm = document.getElementById('loginForm');
-// هام: main.js يستخدم loginEmailInput, لذا نوجهه إلى usernameInput من HTML
-export const loginEmailInput = document.getElementById('usernameInput'); 
+export const loginEmailInput = document.getElementById('usernameInput'); // HTML ID is usernameInput, type is email
 export const loginPasswordInput = document.getElementById('passwordInput');
 export const logoutButton = document.getElementById('logoutButton');
-export const hrAfterLogout = document.getElementById('hrAfterLogout'); // الفاصل بعد زر الخروج
+export const hrAfterLogout = document.getElementById('hrAfterLogout');
+
+// --- عناصر التسجيل ---
+export const registrationSection = document.getElementById('registrationSection');
+export const registrationForm = document.getElementById('registrationForm');
+export const regDisplayNameInput = document.getElementById('regDisplayNameInput');
+export const regEmailInput = document.getElementById('regEmailInput');
+export const regPasswordInput = document.getElementById('regPasswordInput');
+export const regConfirmPasswordInput = document.getElementById('regConfirmPasswordInput');
+
+// --- روابط التبديل بين النماذج ---
+export const formToggleLinksDiv = document.getElementById('formToggleLinks');
+export const switchToRegisterLink = document.getElementById('switchToRegisterLink');
+export const switchToLoginLink = document.getElementById('switchToLoginLink');
 
 // --- رسائل الحالة ---
-// authStatus مخصص لرسائل حالة المصادقة العامة (تسجيل دخول/خروج)
-export const authStatusEl = document.getElementById('authStatus'); 
-// statusMessage مخصص لرسائل العمليات (حفظ، خطأ، إلخ) داخل النماذج أو الجداول
-export const statusMessageEl = document.getElementById('statusMessage'); 
+export const authStatusEl = document.getElementById('authStatus'); // For global auth messages
+export const statusMessageEl = document.getElementById('statusMessage'); // For adahiForm operation messages
 
 // --- أقسام المحتوى الرئيسية ---
-export const dataEntrySection = document.getElementById('dataEntrySection'); // يحتوي على نموذج إضافة الأضاحي
-export const userDataViewSection = document.getElementById('userDataViewSection'); // يحتوي على جدول بيانات المستخدم
-export const adminViewSection = document.getElementById('adminViewSection'); // قسم المسؤول
+// dataEntrySection is the container for adahiForm
+export const dataEntrySection = document.getElementById('dataEntrySection'); 
+export const adminViewSection = document.getElementById('adminViewSection');
+export const userDataViewSection = document.getElementById('userDataViewSection');
 
 // --- نموذج إضافة/تعديل الأضاحي (داخل dataEntrySection) ---
 export const adahiForm = document.getElementById('adahiForm');
@@ -47,16 +58,15 @@ export const adahiFormSubmitButton = adahiForm ? adahiForm.querySelector('button
 
 
 // --- عناصر واجهة المستخدم للمسؤول (داخل adminViewSection) ---
-export const adminActionsDiv = document.getElementById('adminActions'); // حاوية أزرار الفلترة والتصدير
+export const adminActionsDiv = document.getElementById('adminActions');
 export const filterPendingButton = document.getElementById('filterPending');
 export const filterEnteredButton = document.getElementById('filterEntered');
 export const filterAllButton = document.getElementById('filterAll');
-// أزرار التصدير يتم الحصول عليها مباشرة في main.js حاليًا، لكن يمكن إضافتها هنا إذا أردت
-// export const exportAllToCsvButton = document.getElementById('exportAllToCsvButton');
-// export const exportAllUsersSeparateCsvButton = document.getElementById('exportAllUsersSeparateCsvButton');
+// export const exportAllToCsvButton = document.getElementById('exportAllToCsvButton'); // Accessed via adminActionsDiv in main.js
+// export const exportAllUsersSeparateCsvButton = document.getElementById('exportAllUsersSeparateCsvButton'); // Accessed via adminActionsDiv in main.js
 
 export const sacrificesTableContainer = document.getElementById('sacrificesTableContainer');
-export const adminLoadingMessage = document.getElementById('loadingMessage'); // ID في HTML هو loadingMessage
+export const adminLoadingMessage = document.getElementById('loadingMessage'); // ID in HTML is loadingMessage
 export const sacrificesTable = document.getElementById('sacrificesTable');
 export const sacrificesTableBody = document.getElementById('sacrificesTableBody');
 
@@ -66,25 +76,38 @@ export const userSacrificesTable = document.getElementById('userSacrificesTable'
 export const userSacrificesTableBody = document.getElementById('userSacrificesTableBody');
 
 
-// --- دوال مساعدة للواجهة (يمكن نقلها من main.js أو إعادة كتابتها هنا إذا كانت متعلقة بالـ DOM فقط) ---
+// --- دوال مساعدة للواجهة ---
 
-// دالة لإعادة تعيين نموذج إضافة الأضاحي إلى وضع الإدخال
 export function resetAdahiFormToEntryMode(setCurrentEditingDocIdCallback) {
-    if (adahiForm) adahiForm.reset();
-    if (setCurrentEditingDocIdCallback) setCurrentEditingDocIdCallback(null);
-    if (adahiFormSubmitButton) adahiFormSubmitButton.textContent = 'تسجيل البيانات';
+    if (adahiForm) {
+        adahiForm.reset(); // This should reset all form fields to their default values in HTML
+    }
+    if (setCurrentEditingDocIdCallback) {
+        setCurrentEditingDocIdCallback(null);
+    }
+    if (adahiFormSubmitButton) {
+        adahiFormSubmitButton.textContent = 'تسجيل البيانات';
+    }
     
-    // إخفاء الحقول التي تظهر شرطيًا بشكل افتراضي
-    if (portionDetailsDiv) portionDetailsDiv.style.display = 'none';
-    if (addressFieldDiv) addressFieldDiv.style.display = 'none';
-    if (paymentDetailsDiv) paymentDetailsDiv.style.display = 'none';
-    if (broughtByOtherNameDiv) broughtByOtherNameDiv.style.display = 'none';
-
-    // التأكد من أن الاختيارات الافتراضية للراديو هي المحددة
+    // Ensure conditional fields are hidden by default after reset
+    // The 'reset()' method on a form should revert radio buttons to their 'checked' attribute in HTML.
+    // If 'checked' is on "No", then these should hide. If not, we might need to manually hide.
+    if (portionDetailsDiv) portionDetailsDiv.style.display = wantsPortionNoRadio.checked ? 'none' : 'block';
+    if (addressFieldDiv) addressFieldDiv.style.display = wantsPortionNoRadio.checked ? 'none' : 'block';
+    if (paymentDetailsDiv) paymentDetailsDiv.style.display = paymentDoneNoRadio.checked ? 'none' : 'block';
+    if (broughtByOtherNameDiv) broughtByOtherNameDiv.style.display = broughtByOtherNoRadio.checked ? 'none' : 'block';
+    
+    // Explicitly set radios to default if reset() isn't sufficient or for clarity
     if (wantsToAttendNoRadio) wantsToAttendNoRadio.checked = true;
     if (wantsPortionNoRadio) wantsPortionNoRadio.checked = true;
     if (paymentDoneNoRadio) paymentDoneNoRadio.checked = true;
     if (broughtByOtherNoRadio) broughtByOtherNoRadio.checked = true;
+
+    // Trigger change events to ensure conditional field visibility is updated
+    if (wantsPortionNoRadio) wantsPortionNoRadio.dispatchEvent(new Event('change'));
+    if (paymentDoneNoRadio) paymentDoneNoRadio.dispatchEvent(new Event('change'));
+    if (broughtByOtherNoRadio) broughtByOtherNoRadio.dispatchEvent(new Event('change'));
+
 
     if (statusMessageEl) {
         statusMessageEl.textContent = '';
@@ -92,85 +115,108 @@ export function resetAdahiFormToEntryMode(setCurrentEditingDocIdCallback) {
     }
 }
 
-// دالة لملء نموذج الأضاحي للتحرير
 export function populateAdahiFormForEdit(docId, data, setCurrentEditingDocIdCallback) {
     if (!adahiForm) return;
 
     if (donorNameInput) donorNameInput.value = data.donorName || '';
     if (sacrificeForInput) sacrificeForInput.value = data.sacrificeFor || '';
+    
     if (wantsToAttendYesRadio) wantsToAttendYesRadio.checked = data.wantsToAttend === true;
-    if (wantsToAttendNoRadio) wantsToAttendNoRadio.checked = data.wantsToAttend === false || data.wantsToAttend === undefined;
+    if (wantsToAttendNoRadio) wantsToAttendNoRadio.checked = data.wantsToAttend === false || typeof data.wantsToAttend === 'undefined';
+    
     if (phoneNumberInput) phoneNumberInput.value = data.phoneNumber || '';
+    
     if (wantsPortionYesRadio) wantsPortionYesRadio.checked = data.wantsPortion === true;
-    if (wantsPortionNoRadio) wantsPortionNoRadio.checked = data.wantsPortion === false || data.wantsPortion === undefined;
+    if (wantsPortionNoRadio) wantsPortionNoRadio.checked = data.wantsPortion === false || typeof data.wantsPortion === 'undefined';
+    
     if (portionDetailsInput) portionDetailsInput.value = data.portionDetails || '';
     if (addressInput) addressInput.value = data.address || '';
+    
     if (paymentDoneYesRadio) paymentDoneYesRadio.checked = data.paymentDone === true;
-    if (paymentDoneNoRadio) paymentDoneNoRadio.checked = data.paymentDone === false || data.paymentDone === undefined;
+    if (paymentDoneNoRadio) paymentDoneNoRadio.checked = data.paymentDone === false || typeof data.paymentDone === 'undefined';
+    
     if (receiptBookNumberInput) receiptBookNumberInput.value = data.receiptBookNumber || '';
     if (receiptNumberInput) receiptNumberInput.value = data.receiptNumber || '';
     if (assistanceForSelect) assistanceForSelect.value = data.assistanceFor || 'inside_ramtha';
+    
     if (broughtByOtherYesRadio) broughtByOtherYesRadio.checked = data.broughtByOther === true;
-    if (broughtByOtherNoRadio) broughtByOtherNoRadio.checked = data.broughtByOther === false || data.broughtByOther === undefined;
+    if (broughtByOtherNoRadio) broughtByOtherNoRadio.checked = data.broughtByOther === false || typeof data.broughtByOther === 'undefined';
     if (broughtByOtherNameInput) broughtByOtherNameInput.value = data.broughtByOtherName || '';
 
-    // إظهار/إخفاء الحقول الشرطية بناءً على البيانات
-    if (portionDetailsDiv) portionDetailsDiv.style.display = wantsPortionYesRadio.checked ? 'block' : 'none';
-    if (addressFieldDiv) addressFieldDiv.style.display = wantsPortionYesRadio.checked ? 'block' : 'none';
-    if (paymentDetailsDiv) paymentDetailsDiv.style.display = paymentDoneYesRadio.checked ? 'block' : 'none';
-    if (broughtByOtherNameDiv) broughtByOtherNameDiv.style.display = broughtByOtherYesRadio.checked ? 'block' : 'none';
+    // Manually trigger change events for radio buttons to update dependent field visibility
+    if (wantsPortionYesRadio) wantsPortionYesRadio.dispatchEvent(new Event('change'));
+    if (wantsPortionNoRadio && !wantsPortionYesRadio.checked) wantsPortionNoRadio.dispatchEvent(new Event('change'));
+    
+    if (paymentDoneYesRadio) paymentDoneYesRadio.dispatchEvent(new Event('change'));
+    if (paymentDoneNoRadio && !paymentDoneYesRadio.checked) paymentDoneNoRadio.dispatchEvent(new Event('change'));
+
+    if (broughtByOtherYesRadio) broughtByOtherYesRadio.dispatchEvent(new Event('change'));
+    if (broughtByOtherNoRadio && !broughtByOtherYesRadio.checked) broughtByOtherNoRadio.dispatchEvent(new Event('change'));
+
 
     if (setCurrentEditingDocIdCallback) setCurrentEditingDocIdCallback(docId);
     if (adahiFormSubmitButton) adahiFormSubmitButton.textContent = 'تحديث البيانات';
+    
     if (statusMessageEl) {
-        statusMessageEl.textContent = `وضع التعديل للسجل: ${docId}`;
-        statusMessageEl.className = '';
+        statusMessageEl.textContent = `وضع التعديل للسجل (رقم المرجع: ${docId}). قم بالتعديل ثم اضغط "تحديث البيانات".`;
+        statusMessageEl.className = ''; // Neutral style
     }
-    window.scrollTo({ top: adahiForm.offsetTop - 20, behavior: 'smooth' }); // للانتقال إلى النموذج
+    // Scroll to the form for better UX
+    if (adahiForm.scrollIntoView) {
+        adahiForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else { // Fallback for older browsers
+        window.scrollTo(0, adahiForm.offsetTop - 20);
+    }
 }
 
-// دالة تنسيق الوقت (إذا لم تكن موجودة في main.js بالفعل)
 export function formatFirestoreTimestamp(timestamp) {
-    if (!timestamp || !timestamp.seconds) return 'غير متوفر';
+    if (!timestamp || typeof timestamp.seconds !== 'number') return 'غير متوفر';
     const date = new Date(timestamp.seconds * 1000 + (timestamp.nanoseconds || 0) / 1000000);
-    return date.toLocaleString('ar-EG', {
-        year: 'numeric', month: 'short', day: 'numeric',
-        hour: '2-digit', minute: '2-digit', hour12: true
-    });
-}
-
-// مستمعو الأحداث لإظهار/إخفاء الحقول الشرطية في نموذج الإضافة
-// يجب التأكد من أن هذه العناصر موجودة قبل إضافة المستمعين
-if (wantsPortionYesRadio && wantsPortionNoRadio && portionDetailsDiv && addressFieldDiv) {
-    [wantsPortionYesRadio, wantsPortionNoRadio].forEach(radio => {
-        radio.addEventListener('change', () => {
-            const displayValue = wantsPortionYesRadio.checked ? 'block' : 'none';
-            portionDetailsDiv.style.display = displayValue;
-            addressFieldDiv.style.display = displayValue;
+    try {
+        return date.toLocaleString('ar-SA', { // Using ar-SA for a common Arabic locale, adjust if needed
+            year: 'numeric', month: 'short', day: 'numeric',
+            hour: '2-digit', minute: '2-digit', hour12: true
         });
-    });
+    } catch (e) { // Fallback for environments that might not support ar-SA well
+        console.warn("toLocaleString with ar-SA failed, using default.", e);
+        return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+    }
 }
 
-if (paymentDoneYesRadio && paymentDoneNoRadio && paymentDetailsDiv) {
-    [paymentDoneYesRadio, paymentDoneNoRadio].forEach(radio => {
-        radio.addEventListener('change', () => {
-            paymentDetailsDiv.style.display = paymentDoneYesRadio.checked ? 'block' : 'none';
+// Event listeners for conditional field visibility in adahiForm
+function setupConditionalField(radioYes, radioNo, conditionalDiv) {
+    if (radioYes && radioNo && conditionalDiv) {
+        [radioYes, radioNo].forEach(radio => {
+            radio.addEventListener('change', () => {
+                conditionalDiv.style.display = radioYes.checked ? 'block' : 'none';
+            });
         });
-    });
+        // Initial state based on default checked radio
+        conditionalDiv.style.display = radioYes.checked ? 'block' : 'none';
+    } else {
+        // console.warn("Missing elements for conditional field setup:", 
+        //     {radioYes, radioNo, conditionalDiv}
+        // );
+    }
 }
 
-if (broughtByOtherYesRadio && broughtByOtherNoRadio && broughtByOtherNameDiv) {
-    [broughtByOtherYesRadio, broughtByOtherNoRadio].forEach(radio => {
-        radio.addEventListener('change', () => {
-            broughtByOtherNameDiv.style.display = broughtByOtherYesRadio.checked ? 'block' : 'none';
-        });
-    });
-}
+setupConditionalField(wantsPortionYesRadio, wantsPortionNoRadio, portionDetailsDiv);
+setupConditionalField(wantsPortionYesRadio, wantsPortionNoRadio, addressFieldDiv); // Address also depends on wantsPortionYes
+setupConditionalField(paymentDoneYesRadio, paymentDoneNoRadio, paymentDetailsDiv);
+setupConditionalField(broughtByOtherYesRadio, broughtByOtherNoRadio, broughtByOtherNameDiv);
 
-// التهيئة الأولية عند تحميل الصفحة لإخفاء الحقول الشرطية
+// Initial hide for all conditional divs, in case default checked is 'No' and JS runs after HTML parsing
 document.addEventListener('DOMContentLoaded', () => {
-    if (portionDetailsDiv) portionDetailsDiv.style.display = 'none';
-    if (addressFieldDiv) addressFieldDiv.style.display = 'none';
-    if (paymentDetailsDiv) paymentDetailsDiv.style.display = 'none';
-    if (broughtByOtherNameDiv) broughtByOtherNameDiv.style.display = 'none';
+    // The setupConditionalField function called above should handle initial state.
+    // This is a fallback or explicit setting if needed.
+    if (wantsPortionNoRadio && wantsPortionNoRadio.checked) {
+        if(portionDetailsDiv) portionDetailsDiv.style.display = 'none';
+        if(addressFieldDiv) addressFieldDiv.style.display = 'none';
+    }
+    if (paymentDoneNoRadio && paymentDoneNoRadio.checked) {
+        if(paymentDetailsDiv) paymentDetailsDiv.style.display = 'none';
+    }
+    if (broughtByOtherNoRadio && broughtByOtherNoRadio.checked) {
+        if(broughtByOtherNameDiv) broughtByOtherNameDiv.style.display = 'none';
+    }
 });
