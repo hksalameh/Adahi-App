@@ -3,9 +3,9 @@
 // --- عناصر تسجيل الدخول ---
 export const loginSection = document.getElementById('loginSection');
 export const loginForm = document.getElementById('loginForm');
-export const loginEmailInput = document.getElementById('loginEmail'); // Updated ID to match HTML
+export const loginEmailInput = document.getElementById('loginEmail'); 
 export const loginPasswordInput = document.getElementById('loginPassword');
-export const rememberMeCheckbox = document.getElementById('rememberMe'); // For "Remember me"
+export const rememberMeCheckbox = document.getElementById('rememberMe'); 
 export const logoutButton = document.getElementById('logoutButton');
 export const hrAfterLogout = document.getElementById('hrAfterLogout');
 
@@ -62,11 +62,11 @@ export const adminActionsDiv = document.getElementById('adminActions');
 export const filterPendingButton = document.getElementById('filterPending');
 export const filterEnteredButton = document.getElementById('filterEntered');
 export const filterAllButton = document.getElementById('filterAll');
-export const exportAllToExcelButton = document.getElementById('exportAllToExcelButton'); // For Excel export
-export const exportAllUsersSeparateExcelButton = document.getElementById('exportAllUsersSeparateExcelButton'); // For Excel export
+export const exportAllToExcelButton = document.getElementById('exportAllToExcelButton'); 
+export const exportAllUsersSeparateExcelButton = document.getElementById('exportAllUsersSeparateExcelButton'); 
 
 export const sacrificesTableContainer = document.getElementById('sacrificesTableContainer');
-export const adminLoadingMessage = document.getElementById('adminLoadingMessage'); // Updated ID
+export const adminLoadingMessage = document.getElementById('adminLoadingMessage'); 
 export const sacrificesTable = document.getElementById('sacrificesTable');
 export const sacrificesTableBody = document.getElementById('sacrificesTableBody');
 
@@ -78,9 +78,30 @@ export const userSacrificesTableBody = document.getElementById('userSacrificesTa
 
 // --- دوال مساعدة للواجهة ---
 
+// دالة مساعدة لتحديث رؤية الحقول الشرطية
+function updateConditionalFieldsVisibility() {
+    if (wantsPortionYesRadio && portionDetailsDiv && addressFieldDiv) {
+        const displayPortion = wantsPortionYesRadio.checked ? 'block' : 'none';
+        portionDetailsDiv.style.display = displayPortion;
+        addressFieldDiv.style.display = displayPortion;
+    }
+    if (paymentDoneYesRadio && paymentDetailsDiv) {
+        paymentDetailsDiv.style.display = paymentDoneYesRadio.checked ? 'block' : 'none';
+    }
+    if (broughtByOtherYesRadio && broughtByOtherNameDiv) {
+        broughtByOtherNameDiv.style.display = broughtByOtherYesRadio.checked ? 'block' : 'none';
+    }
+}
+
+
 export function resetAdahiFormToEntryMode(setCurrentEditingDocIdCallback) {
     if (adahiForm) {
         adahiForm.reset(); 
+        // بعد reset، تأكد من أن أزرار الراديو "لا" هي المحددة افتراضيًا إذا كان هذا هو السلوك المطلوب
+        if (wantsToAttendNoRadio) wantsToAttendNoRadio.checked = true;
+        if (wantsPortionNoRadio) wantsPortionNoRadio.checked = true;
+        if (paymentDoneNoRadio) paymentDoneNoRadio.checked = true;
+        if (broughtByOtherNoRadio) broughtByOtherNoRadio.checked = true;
     }
     if (setCurrentEditingDocIdCallback) {
         setCurrentEditingDocIdCallback(null);
@@ -89,15 +110,7 @@ export function resetAdahiFormToEntryMode(setCurrentEditingDocIdCallback) {
         adahiFormSubmitButton.textContent = 'تسجيل البيانات';
     }
     
-    if (wantsToAttendNoRadio) wantsToAttendNoRadio.checked = true;
-    if (wantsPortionNoRadio) wantsPortionNoRadio.checked = true;
-    if (paymentDoneNoRadio) paymentDoneNoRadio.checked = true;
-    if (broughtByOtherNoRadio) broughtByOtherNoRadio.checked = true;
-
-    if (wantsPortionNoRadio) wantsPortionNoRadio.dispatchEvent(new Event('change'));
-    if (paymentDoneNoRadio) paymentDoneNoRadio.dispatchEvent(new Event('change'));
-    if (broughtByOtherNoRadio) broughtByOtherNoRadio.dispatchEvent(new Event('change'));
-
+    updateConditionalFieldsVisibility(); // استدعاء الدالة لتحديث الرؤية
 
     if (statusMessageEl) {
         statusMessageEl.textContent = '';
@@ -133,15 +146,7 @@ export function populateAdahiFormForEdit(docId, data, setCurrentEditingDocIdCall
     if (broughtByOtherNoRadio) broughtByOtherNoRadio.checked = data.broughtByOther === false || typeof data.broughtByOther === 'undefined';
     if (broughtByOtherNameInput) broughtByOtherNameInput.value = data.broughtByOtherName || '';
 
-    if (wantsPortionYesRadio) wantsPortionYesRadio.dispatchEvent(new Event('change'));
-    if (wantsPortionNoRadio && !wantsPortionYesRadio.checked) wantsPortionNoRadio.dispatchEvent(new Event('change'));
-    
-    if (paymentDoneYesRadio) paymentDoneYesRadio.dispatchEvent(new Event('change'));
-    if (paymentDoneNoRadio && !paymentDoneYesRadio.checked) paymentDoneNoRadio.dispatchEvent(new Event('change'));
-
-    if (broughtByOtherYesRadio) broughtByOtherYesRadio.dispatchEvent(new Event('change'));
-    if (broughtByOtherNoRadio && !broughtByOtherYesRadio.checked) broughtByOtherNoRadio.dispatchEvent(new Event('change'));
-
+    updateConditionalFieldsVisibility(); // استدعاء الدالة لتحديث الرؤية
 
     if (setCurrentEditingDocIdCallback) setCurrentEditingDocIdCallback(docId);
     if (adahiFormSubmitButton) adahiFormSubmitButton.textContent = 'تحديث البيانات';
@@ -158,7 +163,7 @@ export function populateAdahiFormForEdit(docId, data, setCurrentEditingDocIdCall
 }
 
 export function formatFirestoreTimestamp(timestamp) {
-    if (!timestamp || typeof timestamp.seconds !== 'number') return ''; // Return empty string for consistency
+    if (!timestamp || typeof timestamp.seconds !== 'number') return ''; 
     const date = new Date(timestamp.seconds * 1000 + (timestamp.nanoseconds || 0) / 1000000);
     try {
         return date.toLocaleString('ar-SA', { 
@@ -171,45 +176,25 @@ export function formatFirestoreTimestamp(timestamp) {
     }
 }
 
-function setupConditionalField(radioYes, radioNo, conditionalDiv) {
-    if (radioYes && radioNo && conditionalDiv) {
-        [radioYes, radioNo].forEach(radio => {
-            radio.addEventListener('change', () => {
-                conditionalDiv.style.display = radioYes.checked ? 'block' : 'none';
-            });
-        });
-        conditionalDiv.style.display = radioYes.checked ? 'block' : 'none';
-    }
-}
-
-// Setup for portionDetailsDiv and addressFieldDiv which depend on the same radio buttons
+// مستمعو الأحداث لإظهار/إخفاء الحقول الشرطية في نموذج الإضافة
+// يتم استدعاؤها عند تغيير أي من أزرار الراديو ذات الصلة
 if (wantsPortionYesRadio && wantsPortionNoRadio) {
     [wantsPortionYesRadio, wantsPortionNoRadio].forEach(radio => {
-        radio.addEventListener('change', () => {
-            const displayValue = wantsPortionYesRadio.checked ? 'block' : 'none';
-            if (portionDetailsDiv) portionDetailsDiv.style.display = displayValue;
-            if (addressFieldDiv) addressFieldDiv.style.display = displayValue;
-        });
+        radio.addEventListener('change', updateConditionalFieldsVisibility);
     });
-    // Initial state
-    const initialDisplayValue = wantsPortionYesRadio.checked ? 'block' : 'none';
-    if (portionDetailsDiv) portionDetailsDiv.style.display = initialDisplayValue;
-    if (addressFieldDiv) addressFieldDiv.style.display = initialDisplayValue;
+}
+if (paymentDoneYesRadio && paymentDoneNoRadio) {
+    [paymentDoneYesRadio, paymentDoneNoRadio].forEach(radio => {
+        radio.addEventListener('change', updateConditionalFieldsVisibility);
+    });
+}
+if (broughtByOtherYesRadio && broughtByOtherNoRadio) {
+    [broughtByOtherYesRadio, broughtByOtherNoRadio].forEach(radio => {
+        radio.addEventListener('change', updateConditionalFieldsVisibility);
+    });
 }
 
-
-setupConditionalField(paymentDoneYesRadio, paymentDoneNoRadio, paymentDetailsDiv);
-setupConditionalField(broughtByOtherYesRadio, broughtByOtherNoRadio, broughtByOtherNameDiv);
-
+// التأكد من الحالة الأولية عند تحميل الصفحة
 document.addEventListener('DOMContentLoaded', () => {
-    const initialDisplayPortion = (wantsPortionNoRadio && wantsPortionNoRadio.checked) ? 'none' : 'block';
-    if (portionDetailsDiv) portionDetailsDiv.style.display = initialDisplayPortion;
-    if (addressFieldDiv) addressFieldDiv.style.display = initialDisplayPortion;
-    
-    if (paymentDetailsDiv && paymentDoneNoRadio && paymentDoneNoRadio.checked) {
-        paymentDetailsDiv.style.display = 'none';
-    }
-    if (broughtByOtherNameDiv && broughtByOtherNoRadio && broughtByOtherNoRadio.checked) {
-        broughtByOtherNameDiv.style.display = 'none';
-    }
+    updateConditionalFieldsVisibility();
 });
