@@ -217,6 +217,11 @@ document.addEventListener('DOMContentLoaded', () => {
     ui.adminViewElements = uiGetters.getAdminViewElements();
     ui.userDataViewElements = uiGetters.getUserDataViewElements();
     
+    // *** تمرير عناصر النموذج إلى ui.js لتخزينها في الكاش ***
+    if (ui.dataEntryFormElements) {
+        uiGetters.cacheFormElements(ui.dataEntryFormElements); // <<<--- السطر الجديد/المؤكد
+    }
+    
     uiGetters.setupConditionalFieldListeners();
 
     if (ui.commonUIElements.authStatusEl) {
@@ -224,6 +229,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ui.commonUIElements.authStatusEl.className = '';
     }
 
+    // Auth form event listeners
     if (ui.loginElements.loginForm && ui.loginElements.loginEmailInput && ui.loginElements.loginPasswordInput && ui.loginElements.rememberMeCheckbox) {
         ui.loginElements.loginForm.addEventListener('submit', async (event) => {
             event.preventDefault(); 
@@ -543,8 +549,10 @@ function handleAuthStateChange(user) {
         if (ui.toggleLinkElements.switchToLoginLink) ui.toggleLinkElements.switchToLoginLink.classList.add('hidden-field');
         if (ui.toggleLinkElements.switchToRegisterLink) ui.toggleLinkElements.switchToRegisterLink.classList.remove('hidden-field');
         if (ui.registrationElements.registrationSection) ui.registrationElements.registrationSection.classList.add('hidden-field');
-        if (ui.adminViewElements.sacrificesTableBody) ui.adminViewElements.sacrificesTableBody.innerHTML = '';
-        if (ui.userDataViewElements.userSacrificesTableBody) ui.userDataViewElements.userSacrificesTableBody.innerHTML = '';
+        
+        if (ui.adminViewElements && ui.adminViewElements.sacrificesTableBody) ui.adminViewElements.sacrificesTableBody.innerHTML = '';
+        if (ui.userDataViewElements && ui.userDataViewElements.userSacrificesTableBody) ui.userDataViewElements.userSacrificesTableBody.innerHTML = '';
+
         const initialAuthMsg = 'يرجى تسجيل الدخول أو إنشاء حساب جديد للمتابعة.';
          if (ui.commonUIElements.authStatusEl) {
             if (ui.commonUIElements.authStatusEl.textContent.includes('مرحباً بك') || 
@@ -556,7 +564,7 @@ function handleAuthStateChange(user) {
                  ui.commonUIElements.authStatusEl.className = '';
             }
         }
-        if (ui.dataEntryFormElements.statusMessageEl) { 
+        if (ui.dataEntryFormElements && ui.dataEntryFormElements.statusMessageEl) { 
             ui.dataEntryFormElements.statusMessageEl.textContent = '';
             ui.dataEntryFormElements.statusMessageEl.className = '';
         }
