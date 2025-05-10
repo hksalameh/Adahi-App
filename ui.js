@@ -2,89 +2,78 @@
 
 // --- عناصر الواجهة (يتم تصديرها هنا مباشرة) ---
 export const loginSection = document.getElementById('loginSection');
-export const loginForm = document.getElementById('loginForm');
-export const loginEmailInput = document.getElementById('loginEmail'); 
-export const loginPasswordInput = document.getElementById('loginPassword');
-export const rememberMeCheckbox = document.getElementById('rememberMe'); 
-export const logoutButton = document.getElementById('logoutButton');
-export const hrAfterLogout = document.getElementById('hrAfterLogout');
-export const registrationSection = document.getElementById('registrationSection');
-export const registrationForm = document.getElementById('registrationForm');
-export const regDisplayNameInput = document.getElementById('regDisplayNameInput');
-export const regEmailInput = document.getElementById('regEmailInput');
-export const regPasswordInput = document.getElementById('regPasswordInput');
-export const regConfirmPasswordInput = document.getElementById('regConfirmPasswordInput');
-export const formToggleLinksDiv = document.getElementById('formToggleLinks');
-export const switchToRegisterLink = document.getElementById('switchToRegisterLink');
-export const switchToLoginLink = document.getElementById('switchToLoginLink');
-export const authStatusEl = document.getElementById('authStatus'); 
-export const statusMessageEl = document.getElementById('statusMessage');
-export const dataEntrySection = document.getElementById('dataEntrySection'); 
-export const adminViewSection = document.getElementById('adminViewSection');
-export const userDataViewSection = document.getElementById('userDataViewSection');
-export const adahiForm = document.getElementById('adahiForm');
-export const donorNameInput = document.getElementById('donorName');
-export const sacrificeForInput = document.getElementById('sacrificeFor');
-export const wantsToAttendYesRadio = document.getElementById('wantsToAttendYes');
-export const wantsToAttendNoRadio = document.getElementById('wantsToAttendNo');
-export const phoneNumberInput = document.getElementById('phoneNumber');
-export const wantsPortionYesRadio = document.getElementById('wantsPortionYes');
-export const wantsPortionNoRadio = document.getElementById('wantsPortionNo');
-export const portionDetailsDiv = document.getElementById('portionDetailsDiv');
-export const portionDetailsInput = document.getElementById('portionDetails');
-export const addressFieldDiv = document.getElementById('addressFieldDiv');
-export const addressInput = document.getElementById('address');
-export const paymentDoneYesRadio = document.getElementById('paymentDoneYes');
-export const paymentDoneNoRadio = document.getElementById('paymentDoneNo');
-export const paymentDetailsDiv = document.getElementById('paymentDetailsDiv');
-export const receiptBookNumberInput = document.getElementById('receiptBookNumber');
-export const receiptNumberInput = document.getElementById('receiptNumber');
-export const assistanceForSelect = document.getElementById('assistanceFor');
-export const broughtByOtherYesRadio = document.getElementById('broughtByOtherYes');
-export const broughtByOtherNoRadio = document.getElementById('broughtByOtherNo');
-export const broughtByOtherNameDiv = document.getElementById('broughtByOtherNameDiv');
-export const broughtByOtherNameInput = document.getElementById('broughtByOtherName');
-export const adahiFormSubmitButton = adahiForm ? adahiForm.querySelector('button[type="submit"]') : null;
-export const adminActionsDiv = document.getElementById('adminActions');
-export const filterPendingButton = document.getElementById('filterPending');
-export const filterEnteredButton = document.getElementById('filterEntered');
-export const filterAllButton = document.getElementById('filterAll');
-export const exportAllToExcelButton = document.getElementById('exportAllToExcelButton'); 
-export const exportAllUsersSeparateExcelButton = document.getElementById('exportAllUsersSeparateExcelButton'); 
-export const sacrificesTableContainer = document.getElementById('sacrificesTableContainer');
-export const adminLoadingMessage = document.getElementById('adminLoadingMessage'); 
-export const sacrificesTable = document.getElementById('sacrificesTable');
-export const sacrificesTableBody = document.getElementById('sacrificesTableBody');
-export const userLoadingMessage = document.getElementById('userLoadingMessage');
-export const userSacrificesTable = document.getElementById('userSacrificesTable');
-export const userSacrificesTableBody = document.getElementById('userSacrificesTableBody');
+// ... (بقية تعريفات العناصر كما هي) ...
 
+// --- عناصر نموذج الإضافة التي تهمنا الآن ---
+export const wantsPortionYesRadio = document.getElementById('wantsPortionYes');
+// console.log('wantsPortionYesRadio element:', wantsPortionYesRadio); // تشخيص
+export const wantsPortionNoRadio = document.getElementById('wantsPortionNo');
+// console.log('wantsPortionNoRadio element:', wantsPortionNoRadio); // تشخيص
+export const portionDetailsDiv = document.getElementById('portionDetailsDiv');
+// console.log('portionDetailsDiv element:', portionDetailsDiv); // تشخيص
+export const addressFieldDiv = document.getElementById('addressFieldDiv');
+// console.log('addressFieldDiv element:', addressFieldDiv); // تشخيص
+
+export const paymentDoneYesRadio = document.getElementById('paymentDoneYes');
+// console.log('paymentDoneYesRadio element:', paymentDoneYesRadio); // تشخيص
+export const paymentDoneNoRadio = document.getElementById('paymentDoneNo');
+// console.log('paymentDoneNoRadio element:', paymentDoneNoRadio); // تشخيص
+export const paymentDetailsDiv = document.getElementById('paymentDetailsDiv');
+// console.log('paymentDetailsDiv element:', paymentDetailsDiv); // تشخيص
+
+export const broughtByOtherYesRadio = document.getElementById('broughtByOtherYes');
+// console.log('broughtByOtherYesRadio element:', broughtByOtherYesRadio); // تشخيص
+export const broughtByOtherNoRadio = document.getElementById('broughtByOtherNo');
+// console.log('broughtByOtherNoRadio element:', broughtByOtherNoRadio); // تشخيص
+export const broughtByOtherNameDiv = document.getElementById('broughtByOtherNameDiv');
+// console.log('broughtByOtherNameDiv element:', broughtByOtherNameDiv); // تشخيص
+
+// --- (بقية عناصر الواجهة كما هي) ---
+export const adahiForm = document.getElementById('adahiForm');
+// ... الخ
 
 // --- دوال مساعدة للواجهة ---
 
 function updateWantsPortionVisibility() {
+    // console.log('--- updateWantsPortionVisibility called ---');
     if (wantsPortionYesRadio && portionDetailsDiv && addressFieldDiv) {
         const show = wantsPortionYesRadio.checked;
+        // console.log(`  wantsPortionYes is checked: ${show}`);
         portionDetailsDiv.style.display = show ? 'block' : 'none';
         addressFieldDiv.style.display = show ? 'block' : 'none';
+        // console.log(`  portionDetailsDiv display set to: ${portionDetailsDiv.style.display}`);
+        // console.log(`  addressFieldDiv display set to: ${addressFieldDiv.style.display}`);
+    } else {
+        // console.error('  Missing elements for wantsPortion visibility!');
     }
 }
 
 function updatePaymentDetailsVisibility() {
+    // console.log('--- updatePaymentDetailsVisibility called ---');
     if (paymentDoneYesRadio && paymentDetailsDiv) {
         const show = paymentDoneYesRadio.checked;
+        // console.log(`  paymentDoneYes is checked: ${show}`);
         paymentDetailsDiv.style.display = show ? 'block' : 'none';
+        // console.log(`  paymentDetailsDiv display set to: ${paymentDetailsDiv.style.display}`);
+    } else {
+        // console.error('  Missing elements for paymentDetails visibility!');
     }
 }
 
 function updateBroughtByOtherVisibility() {
+    // console.log('--- updateBroughtByOtherVisibility called ---');
     if (broughtByOtherYesRadio && broughtByOtherNameDiv) {
         const show = broughtByOtherYesRadio.checked;
+        // console.log(`  broughtByOtherYes is checked: ${show}`);
         broughtByOtherNameDiv.style.display = show ? 'block' : 'none';
+        // console.log(`  broughtByOtherNameDiv display set to: ${broughtByOtherNameDiv.style.display}`);
+    } else {
+        // console.error('  Missing elements for broughtByOther visibility!');
     }
 }
 
 function updateAllConditionalFieldsVisibility() {
+    // console.log('--- updateAllConditionalFieldsVisibility called ---');
     updateWantsPortionVisibility();
     updatePaymentDetailsVisibility();
     updateBroughtByOtherVisibility();
@@ -92,17 +81,24 @@ function updateAllConditionalFieldsVisibility() {
 
 
 export function resetAdahiFormToEntryMode(setCurrentEditingDocIdCallback) {
-    if (adahiForm) {
-        if (donorNameInput) donorNameInput.value = '';
-        if (sacrificeForInput) sacrificeForInput.value = '';
-        if (phoneNumberInput) phoneNumberInput.value = '';
-        if (portionDetailsInput) portionDetailsInput.value = '';
-        if (addressInput) addressInput.value = '';
-        if (receiptBookNumberInput) receiptBookNumberInput.value = '';
-        if (receiptNumberInput) receiptNumberInput.value = '';
-        if (broughtByOtherNameInput) broughtByOtherNameInput.value = '';
-        if (assistanceForSelect) assistanceForSelect.value = 'inside_ramtha';
+    const adahiFormElem = document.getElementById('adahiForm'); // استخدام getElementById هنا للتأكيد
+    if (adahiFormElem) { 
+        // console.log('Resetting Adahi Form...');
+        // إعادة تعيين حقول الإدخال النصية والمناطق النصية والقوائم المنسدلة
+        const donorNameInputElem = document.getElementById('donorName');
+        if (donorNameInputElem) donorNameInputElem.value = '';
+        // ... (إعادة تعيين باقي الحقول يدويًا كما في الرد السابق) ...
+        const sacrificeForInputElem = document.getElementById('sacrificeFor'); if (sacrificeForInputElem) sacrificeForInputElem.value = '';
+        const phoneNumberInputElem = document.getElementById('phoneNumber'); if (phoneNumberInputElem) phoneNumberInputElem.value = '';
+        const portionDetailsInputElem = document.getElementById('portionDetails'); if (portionDetailsInputElem) portionDetailsInputElem.value = '';
+        const addressInputElem = document.getElementById('address'); if (addressInputElem) addressInputElem.value = '';
+        const receiptBookNumberInputElem = document.getElementById('receiptBookNumber'); if (receiptBookNumberInputElem) receiptBookNumberInputElem.value = '';
+        const receiptNumberInputElem = document.getElementById('receiptNumber'); if (receiptNumberInputElem) receiptNumberInputElem.value = '';
+        const broughtByOtherNameInputElem = document.getElementById('broughtByOtherName'); if (broughtByOtherNameInputElem) broughtByOtherNameInputElem.value = '';
+        const assistanceForSelectElem = document.getElementById('assistanceFor'); if (assistanceForSelectElem) assistanceForSelectElem.value = 'inside_ramtha';
 
+
+        // إعادة تعيين أزرار الراديو إلى "لا" أو القيمة الافتراضية
         if (wantsToAttendNoRadio) wantsToAttendNoRadio.checked = true;
         if (wantsPortionNoRadio) wantsPortionNoRadio.checked = true;
         if (paymentDoneNoRadio) paymentDoneNoRadio.checked = true;
@@ -112,63 +108,70 @@ export function resetAdahiFormToEntryMode(setCurrentEditingDocIdCallback) {
     if (setCurrentEditingDocIdCallback) {
         setCurrentEditingDocIdCallback(null);
     }
-    if (adahiFormSubmitButton) { 
-        adahiFormSubmitButton.textContent = 'تسجيل البيانات';
+    const adahiFormSubmitButtonElem = adahiFormElem ? adahiFormElem.querySelector('button[type="submit"]') : null;
+    if (adahiFormSubmitButtonElem) { 
+        adahiFormSubmitButtonElem.textContent = 'تسجيل البيانات';
     }
     
-    updateAllConditionalFieldsVisibility();
+    // console.log('Calling updateAllConditionalFieldsVisibility from resetAdahiFormToEntryMode');
+    updateAllConditionalFieldsVisibility(); 
 
-    if (statusMessageEl) {
-        statusMessageEl.textContent = '';
-        statusMessageEl.className = '';
+    const statusMessageElElem = document.getElementById('statusMessage');
+    if (statusMessageElElem) {
+        statusMessageElElem.textContent = '';
+        statusMessageElElem.className = '';
     }
 }
 
 export function populateAdahiFormForEdit(docId, data, setCurrentEditingDocIdCallback) {
-    if (!adahiForm) return;
+    const adahiFormElem = document.getElementById('adahiForm');
+    if (!adahiFormElem) {
+        // console.error("adahiForm not found in populateAdahiFormForEdit");
+        return;
+    }
 
-    if (donorNameInput) donorNameInput.value = data.donorName || '';
-    if (sacrificeForInput) sacrificeForInput.value = data.sacrificeFor || '';
-    
+    // ... (نفس منطق ملء الحقول من الرد السابق باستخدام document.getElementById للتأكيد) ...
+    const donorNameInputElem = document.getElementById('donorName'); if (donorNameInputElem) donorNameInputElem.value = data.donorName || '';
+    const sacrificeForInputElem = document.getElementById('sacrificeFor'); if (sacrificeForInputElem) sacrificeForInputElem.value = data.sacrificeFor || '';
+    // ... (بقية الحقول) ...
     if (wantsToAttendYesRadio) wantsToAttendYesRadio.checked = data.wantsToAttend === true;
     if (wantsToAttendNoRadio) wantsToAttendNoRadio.checked = data.wantsToAttend === false || typeof data.wantsToAttend === 'undefined';
-    
-    if (phoneNumberInput) phoneNumberInput.value = data.phoneNumber || '';
-    
+    const phoneNumberInputElem = document.getElementById('phoneNumber'); if (phoneNumberInputElem) phoneNumberInputElem.value = data.phoneNumber || '';
     if (wantsPortionYesRadio) wantsPortionYesRadio.checked = data.wantsPortion === true;
     if (wantsPortionNoRadio) wantsPortionNoRadio.checked = data.wantsPortion === false || typeof data.wantsPortion === 'undefined';
-    
-    if (portionDetailsInput) portionDetailsInput.value = data.portionDetails || '';
-    if (addressInput) addressInput.value = data.address || '';
-    
+    const portionDetailsInputElem = document.getElementById('portionDetails'); if (portionDetailsInputElem) portionDetailsInputElem.value = data.portionDetails || '';
+    const addressInputElem = document.getElementById('address'); if (addressInputElem) addressInputElem.value = data.address || '';
     if (paymentDoneYesRadio) paymentDoneYesRadio.checked = data.paymentDone === true;
     if (paymentDoneNoRadio) paymentDoneNoRadio.checked = data.paymentDone === false || typeof data.paymentDone === 'undefined';
-    
-    if (receiptBookNumberInput) receiptBookNumberInput.value = data.receiptBookNumber || '';
-    if (receiptNumberInput) receiptNumberInput.value = data.receiptNumber || '';
-    if (assistanceForSelect) assistanceForSelect.value = data.assistanceFor || 'inside_ramtha';
-    
+    const receiptBookNumberInputElem = document.getElementById('receiptBookNumber'); if (receiptBookNumberInputElem) receiptBookNumberInputElem.value = data.receiptBookNumber || '';
+    const receiptNumberInputElem = document.getElementById('receiptNumber'); if (receiptNumberInputElem) receiptNumberInputElem.value = data.receiptNumber || '';
+    const assistanceForSelectElem = document.getElementById('assistanceFor'); if (assistanceForSelectElem) assistanceForSelectElem.value = data.assistanceFor || 'inside_ramtha';
     if (broughtByOtherYesRadio) broughtByOtherYesRadio.checked = data.broughtByOther === true;
     if (broughtByOtherNoRadio) broughtByOtherNoRadio.checked = data.broughtByOther === false || typeof data.broughtByOther === 'undefined';
-    if (broughtByOtherNameInput) broughtByOtherNameInput.value = data.broughtByOtherName || '';
+    const broughtByOtherNameInputElem = document.getElementById('broughtByOtherName'); if (broughtByOtherNameInputElem) broughtByOtherNameInputElem.value = data.broughtByOtherName || '';
 
-    updateAllConditionalFieldsVisibility(); 
+
+    // console.log('Calling updateAllConditionalFieldsVisibility from populateAdahiFormForEdit');
+    updateAllConditionalFieldsVisibility();
 
     if (setCurrentEditingDocIdCallback) setCurrentEditingDocIdCallback(docId);
-    if (adahiFormSubmitButton) adahiFormSubmitButton.textContent = 'تحديث البيانات';
+    const adahiFormSubmitButtonElem = adahiFormElem.querySelector('button[type="submit"]');
+    if (adahiFormSubmitButtonElem) adahiFormSubmitButtonElem.textContent = 'تحديث البيانات';
     
-    if (statusMessageEl) {
-        statusMessageEl.textContent = `وضع التعديل للسجل (رقم المرجع: ${docId}). قم بالتعديل ثم اضغط "تحديث البيانات".`;
-        statusMessageEl.className = '';
+    const statusMessageElElem = document.getElementById('statusMessage');
+    if (statusMessageElElem) {
+        statusMessageElElem.textContent = `وضع التعديل للسجل (رقم المرجع: ${docId}). قم بالتعديل ثم اضغط "تحديث البيانات".`;
+        statusMessageElElem.className = '';
     }
-    if (adahiForm.scrollIntoView) {
-        adahiForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (adahiFormElem.scrollIntoView) {
+        adahiFormElem.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } else { 
-        window.scrollTo(0, adahiForm.offsetTop - 20);
+        window.scrollTo(0, adahiFormElem.offsetTop - 20);
     }
 }
 
 export function formatFirestoreTimestamp(timestamp) {
+    // ... (نفس الدالة) ...
     if (!timestamp || typeof timestamp.seconds !== 'number') return ''; 
     const date = new Date(timestamp.seconds * 1000 + (timestamp.nanoseconds || 0) / 1000000);
     try {
@@ -182,25 +185,45 @@ export function formatFirestoreTimestamp(timestamp) {
 }
 
 function setupRadioListeners() {
-    const wantsPortionRadios = [wantsPortionYesRadio, wantsPortionNoRadio];
-    wantsPortionRadios.forEach(radio => {
-        if (radio) radio.addEventListener('change', updateWantsPortionVisibility);
-    });
+    // console.log("--- Setting up radio listeners ---");
+    
+    if (wantsPortionYesRadio && wantsPortionNoRadio) {
+        // console.log("  Attaching listener to wantsPortionYesRadio");
+        wantsPortionYesRadio.addEventListener('change', () => {
+            // console.log("wantsPortionYesRadio CHANGED, checked:", wantsPortionYesRadio.checked);
+            updateWantsPortionVisibility();
+        });
+        // console.log("  Attaching listener to wantsPortionNoRadio");
+        wantsPortionNoRadio.addEventListener('change', () => {
+            // console.log("wantsPortionNoRadio CHANGED, checked:", wantsPortionNoRadio.checked);
+            updateWantsPortionVisibility();
+        });
+    } else {
+        // console.warn("  wantsPortion radios not found for listeners!");
+    }
 
-    const paymentDoneRadios = [paymentDoneYesRadio, paymentDoneNoRadio];
-    paymentDoneRadios.forEach(radio => {
-        if (radio) radio.addEventListener('change', updatePaymentDetailsVisibility);
-    });
+    if (paymentDoneYesRadio && paymentDoneNoRadio) {
+        // console.log("  Attaching listener to paymentDoneYesRadio");
+        paymentDoneYesRadio.addEventListener('change', updatePaymentDetailsVisibility);
+        // console.log("  Attaching listener to paymentDoneNoRadio");
+        paymentDoneNoRadio.addEventListener('change', updatePaymentDetailsVisibility);
+    } else {
+        // console.warn("  paymentDone radios not found for listeners!");
+    }
 
-    const broughtByOtherRadios = [broughtByOtherYesRadio, broughtByOtherNoRadio];
-    broughtByOtherRadios.forEach(radio => {
-        if (radio) radio.addEventListener('change', updateBroughtByOtherVisibility);
-    });
+    if (broughtByOtherYesRadio && broughtByOtherNoRadio) {
+        // console.log("  Attaching listener to broughtByOtherYesRadio");
+        broughtByOtherYesRadio.addEventListener('change', updateBroughtByOtherVisibility);
+        // console.log("  Attaching listener to broughtByOtherNoRadio");
+        broughtByOtherNoRadio.addEventListener('change', updateBroughtByOtherVisibility);
+    } else {
+        // console.warn("  broughtByOther radios not found for listeners!");
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    // console.log("--- DOMContentLoaded in ui.js ---");
     setupRadioListeners();
+    // console.log("Initial call to updateAllConditionalFieldsVisibility from DOMContentLoaded");
     updateAllConditionalFieldsVisibility(); 
 });
-
-// *** تم حذف قسم export { ... } المكرر من هنا ***
