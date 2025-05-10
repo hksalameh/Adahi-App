@@ -5,7 +5,27 @@ import * as authModule from './auth.js';
 import * as fsService from './firestoreService.js';
 import * as uiGetters from './ui.js'; 
 import { getFirestore, collection, query, orderBy, where, getDocs, serverTimestamp, onSnapshot } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-firestore.js";
-
+function exportDataToExcel(data, headerKeys, displayHeaders, fileName) {
+    const ws_data = [
+        displayHeaders,
+        ...data.map(item => headerKeys.map(key => {
+            if (key === 'createdAt' && item[key]) {
+                return item[key].toDate ? item[key].toDate().toLocaleString('ar-SA', {
+                    year: 'numeric', month: 'short', day: 'numeric',
+                    hour: '2-digit', minute: '2-digit', hour12: true
+                }) : item[key];
+            }
+            if (typeof item[key] === 'boolean') {
+                return item[key] ? 'نعم' : 'لا';
+            }
+            return item[key] ?? '';
+        }))
+    ];
+    const ws = XLSX.utils.aoa_to_sheet(ws_data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Sacrifices");
+    XLSX.write(wb, fileName);
+}
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = authModule.initializeAuth(); 
