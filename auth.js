@@ -4,23 +4,21 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebas
 import { firebaseConfig } from './config.js';
 import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-firestore.js";
 
-const app = initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig); // تهيئة Firebase مرة واحدة هنا
 const auth = getAuth(app);
-const db = getFirestore(app); // نحتاجه هنا للبحث عن اسم المستخدم
+const db = getFirestore(app);
 
-export { auth, onAuthStateChanged, signOut }; // نصدر onAuthStateChanged و signOut لاستخدامهما في main.js
+export { auth, onAuthStateChanged, signOut }; // تصدير لاستخدامهما في main.js
 
 export async function loginUser(usernameOrEmail, password, rememberMe) {
     const persistenceMode = rememberMe ? browserLocalPersistence : browserSessionPersistence;
     await setPersistence(auth, persistenceMode);
 
     try {
-        // المحاولة الأولى: تسجيل الدخول مباشرة (قد يكون بريدًا إلكترونيًا)
         await signInWithEmailAndPassword(auth, usernameOrEmail, password);
         return { success: true };
     } catch (firstAttemptError) {
         if (firstAttemptError.code === 'auth/invalid-email' || firstAttemptError.code === 'auth/invalid-credential') {
-            // المحاولة الثانية: البحث عن اسم المستخدم في الخريطة
             try {
                 const usersMapRef = collection(db, "user_credentials_map");
                 const q = query(usersMapRef, where("username", "==", usernameOrEmail));
@@ -46,11 +44,10 @@ export async function loginUser(usernameOrEmail, password, rememberMe) {
                 if (lookupError.code === 'auth/invalid-credential') { errorMsg = 'كلمة المرور غير صحيحة لاسم المستخدم المقدم.'; }
                 else if (lookupError.code === 'auth/invalid-email') { errorMsg = 'البريد الإلكتروني المرتبط باسم المستخدم غير صالح.'; }
                 else if (lookupError.code === 'permission-denied') { errorMsg = 'خطأ في صلاحيات البحث عن المستخدم.'; }
-                else if (lookupError.message) { errorMsg = lookupError.message; } // استخدام رسالة الخطأ من lookupError
+                else if (lookupError.message) { errorMsg = lookupError.message; }
                 throw new Error(errorMsg);
             }
         } else {
-            // أخطاء أخرى من محاولة تسجيل الدخول الأولى
             throw new Error(firstAttemptError.message || 'خطأ غير متوقع في تسجيل الدخول.');
         }
     }
