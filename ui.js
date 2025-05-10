@@ -1,6 +1,6 @@
 // ui.js
 
-// --- عناصر تسجيل الدخول ---
+// --- (عناصر الواجهة كما هي من الرد السابق) ---
 export const loginSection = document.getElementById('loginSection');
 export const loginForm = document.getElementById('loginForm');
 export const loginEmailInput = document.getElementById('loginEmail'); 
@@ -8,30 +8,20 @@ export const loginPasswordInput = document.getElementById('loginPassword');
 export const rememberMeCheckbox = document.getElementById('rememberMe'); 
 export const logoutButton = document.getElementById('logoutButton');
 export const hrAfterLogout = document.getElementById('hrAfterLogout');
-
-// --- عناصر التسجيل ---
 export const registrationSection = document.getElementById('registrationSection');
 export const registrationForm = document.getElementById('registrationForm');
 export const regDisplayNameInput = document.getElementById('regDisplayNameInput');
 export const regEmailInput = document.getElementById('regEmailInput');
 export const regPasswordInput = document.getElementById('regPasswordInput');
 export const regConfirmPasswordInput = document.getElementById('regConfirmPasswordInput');
-
-// --- روابط التبديل بين النماذج ---
 export const formToggleLinksDiv = document.getElementById('formToggleLinks');
 export const switchToRegisterLink = document.getElementById('switchToRegisterLink');
 export const switchToLoginLink = document.getElementById('switchToLoginLink');
-
-// --- رسائل الحالة ---
 export const authStatusEl = document.getElementById('authStatus'); 
 export const statusMessageEl = document.getElementById('statusMessage');
-
-// --- أقسام المحتوى الرئيسية ---
 export const dataEntrySection = document.getElementById('dataEntrySection'); 
 export const adminViewSection = document.getElementById('adminViewSection');
 export const userDataViewSection = document.getElementById('userDataViewSection');
-
-// --- نموذج إضافة/تعديل الأضاحي (داخل dataEntrySection) ---
 export const adahiForm = document.getElementById('adahiForm');
 export const donorNameInput = document.getElementById('donorName');
 export const sacrificeForInput = document.getElementById('sacrificeFor');
@@ -55,22 +45,16 @@ export const broughtByOtherNoRadio = document.getElementById('broughtByOtherNo')
 export const broughtByOtherNameDiv = document.getElementById('broughtByOtherNameDiv');
 export const broughtByOtherNameInput = document.getElementById('broughtByOtherName');
 export const adahiFormSubmitButton = adahiForm ? adahiForm.querySelector('button[type="submit"]') : null;
-
-
-// --- عناصر واجهة المستخدم للمسؤول (داخل adminViewSection) ---
 export const adminActionsDiv = document.getElementById('adminActions');
 export const filterPendingButton = document.getElementById('filterPending');
 export const filterEnteredButton = document.getElementById('filterEntered');
 export const filterAllButton = document.getElementById('filterAll');
 export const exportAllToExcelButton = document.getElementById('exportAllToExcelButton'); 
 export const exportAllUsersSeparateExcelButton = document.getElementById('exportAllUsersSeparateExcelButton'); 
-
 export const sacrificesTableContainer = document.getElementById('sacrificesTableContainer');
 export const adminLoadingMessage = document.getElementById('adminLoadingMessage'); 
 export const sacrificesTable = document.getElementById('sacrificesTable');
 export const sacrificesTableBody = document.getElementById('sacrificesTableBody');
-
-// --- عناصر واجهة المستخدم للمستخدم العادي (داخل userDataViewSection) ---
 export const userLoadingMessage = document.getElementById('userLoadingMessage');
 export const userSacrificesTable = document.getElementById('userSacrificesTable');
 export const userSacrificesTableBody = document.getElementById('userSacrificesTableBody');
@@ -78,31 +62,37 @@ export const userSacrificesTableBody = document.getElementById('userSacrificesTa
 
 // --- دوال مساعدة للواجهة ---
 
-// دالة مساعدة لتحديث رؤية الحقول الشرطية
 function updateConditionalFieldsVisibility() {
-    if (wantsPortionYesRadio && portionDetailsDiv && addressFieldDiv) {
-        const displayPortion = wantsPortionYesRadio.checked ? 'block' : 'none';
-        portionDetailsDiv.style.display = displayPortion;
-        addressFieldDiv.style.display = displayPortion;
-    }
-    if (paymentDoneYesRadio && paymentDetailsDiv) {
-        paymentDetailsDiv.style.display = paymentDoneYesRadio.checked ? 'block' : 'none';
-    }
-    if (broughtByOtherYesRadio && broughtByOtherNameDiv) {
-        broughtByOtherNameDiv.style.display = broughtByOtherYesRadio.checked ? 'block' : 'none';
-    }
+    // console.log("Updating visibility...");
+    // console.log("wantsPortionYesRadio checked:", wantsPortionYesRadio ? wantsPortionYesRadio.checked : 'N/A');
+    // console.log("paymentDoneYesRadio checked:", paymentDoneYesRadio ? paymentDoneYesRadio.checked : 'N/A');
+    // console.log("broughtByOtherYesRadio checked:", broughtByOtherYesRadio ? broughtByOtherYesRadio.checked : 'N/A');
+
+    if (portionDetailsDiv) portionDetailsDiv.style.display = (wantsPortionYesRadio && wantsPortionYesRadio.checked) ? 'block' : 'none';
+    if (addressFieldDiv) addressFieldDiv.style.display = (wantsPortionYesRadio && wantsPortionYesRadio.checked) ? 'block' : 'none';
+    if (paymentDetailsDiv) paymentDetailsDiv.style.display = (paymentDoneYesRadio && paymentDoneYesRadio.checked) ? 'block' : 'none';
+    if (broughtByOtherNameDiv) broughtByOtherNameDiv.style.display = (broughtByOtherYesRadio && broughtByOtherYesRadio.checked) ? 'block' : 'none';
 }
 
 
 export function resetAdahiFormToEntryMode(setCurrentEditingDocIdCallback) {
-    if (adahiForm) {
-        adahiForm.reset(); 
-        // بعد reset، تأكد من أن أزرار الراديو "لا" هي المحددة افتراضيًا إذا كان هذا هو السلوك المطلوب
-        if (wantsToAttendNoRadio) wantsToAttendNoRadio.checked = true;
-        if (wantsPortionNoRadio) wantsPortionNoRadio.checked = true;
-        if (paymentDoneNoRadio) paymentDoneNoRadio.checked = true;
-        if (broughtByOtherNoRadio) broughtByOtherNoRadio.checked = true;
-    }
+    // إعادة تعيين حقول الإدخال النصية والمناطق النصية والقوائم المنسدلة
+    if (donorNameInput) donorNameInput.value = '';
+    if (sacrificeForInput) sacrificeForInput.value = '';
+    if (phoneNumberInput) phoneNumberInput.value = '';
+    if (portionDetailsInput) portionDetailsInput.value = '';
+    if (addressInput) addressInput.value = '';
+    if (receiptBookNumberInput) receiptBookNumberInput.value = '';
+    if (receiptNumberInput) receiptNumberInput.value = '';
+    if (broughtByOtherNameInput) broughtByOtherNameInput.value = '';
+    if (assistanceForSelect) assistanceForSelect.value = 'inside_ramtha'; // القيمة الافتراضية
+
+    // إعادة تعيين أزرار الراديو إلى "لا" أو القيمة الافتراضية
+    if (wantsToAttendNoRadio) wantsToAttendNoRadio.checked = true;
+    if (wantsPortionNoRadio) wantsPortionNoRadio.checked = true;
+    if (paymentDoneNoRadio) paymentDoneNoRadio.checked = true;
+    if (broughtByOtherNoRadio) broughtByOtherNoRadio.checked = true;
+    
     if (setCurrentEditingDocIdCallback) {
         setCurrentEditingDocIdCallback(null);
     }
@@ -110,7 +100,7 @@ export function resetAdahiFormToEntryMode(setCurrentEditingDocIdCallback) {
         adahiFormSubmitButton.textContent = 'تسجيل البيانات';
     }
     
-    updateConditionalFieldsVisibility(); // استدعاء الدالة لتحديث الرؤية
+    updateConditionalFieldsVisibility(); // تحديث رؤية الحقول بعد إعادة التعيين اليدوي
 
     if (statusMessageEl) {
         statusMessageEl.textContent = '';
@@ -146,7 +136,7 @@ export function populateAdahiFormForEdit(docId, data, setCurrentEditingDocIdCall
     if (broughtByOtherNoRadio) broughtByOtherNoRadio.checked = data.broughtByOther === false || typeof data.broughtByOther === 'undefined';
     if (broughtByOtherNameInput) broughtByOtherNameInput.value = data.broughtByOtherName || '';
 
-    updateConditionalFieldsVisibility(); // استدعاء الدالة لتحديث الرؤية
+    updateConditionalFieldsVisibility(); // تحديث الرؤية بعد ملء النموذج
 
     if (setCurrentEditingDocIdCallback) setCurrentEditingDocIdCallback(docId);
     if (adahiFormSubmitButton) adahiFormSubmitButton.textContent = 'تحديث البيانات';
@@ -171,7 +161,7 @@ export function formatFirestoreTimestamp(timestamp) {
             hour: '2-digit', minute: '2-digit', hour12: true
         });
     } catch (e) { 
-        console.warn("toLocaleString with ar-SA failed, using default.", e);
+        // console.warn("toLocaleString with ar-SA failed, using default.", e);
         return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
     }
 }
