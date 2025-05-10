@@ -1,9 +1,7 @@
 // ui.js
 
-// --- دوال للحصول على عناصر الواجهة (سيتم استدعاؤها من main.js داخل DOMContentLoaded) ---
-
+// --- دوال للحصول على عناصر الواجهة ---
 export function getLoginElements() {
-     console.log("[ui.js] getLoginElements called");
     return {
         loginSection: document.getElementById('loginSection'),
         loginForm: document.getElementById('loginForm'),
@@ -14,7 +12,6 @@ export function getLoginElements() {
 }
 
 export function getRegistrationElements() {
-     console.log("[ui.js] getRegistrationElements called");
     return {
         registrationSection: document.getElementById('registrationSection'),
         registrationForm: document.getElementById('registrationForm'),
@@ -26,7 +23,6 @@ export function getRegistrationElements() {
 }
 
 export function getToggleLinkElements() {
-     console.log("[ui.js] getToggleLinkElements called");
     return {
         formToggleLinksDiv: document.getElementById('formToggleLinks'),
         switchToRegisterLink: document.getElementById('switchToRegisterLink'),
@@ -35,7 +31,6 @@ export function getToggleLinkElements() {
 }
 
 export function getCommonUIElements() {
-     console.log("[ui.js] getCommonUIElements called");
     return {
         authStatusEl: document.getElementById('authStatus'),
         logoutButton: document.getElementById('logoutButton'),
@@ -44,7 +39,6 @@ export function getCommonUIElements() {
 }
 
 export function getDataEntryFormElements() {
-     console.log("[ui.js] getDataEntryFormElements called");
     const form = document.getElementById('adahiForm');
     return {
         dataEntrySection: document.getElementById('dataEntrySection'),
@@ -76,7 +70,6 @@ export function getDataEntryFormElements() {
 }
 
 export function getAdminViewElements() {
-     console.log("[ui.js] getAdminViewElements called");
     return {
         adminViewSection: document.getElementById('adminViewSection'),
         adminActionsDiv: document.getElementById('adminActions'),
@@ -93,7 +86,6 @@ export function getAdminViewElements() {
 }
 
 export function getUserDataViewElements() {
-     console.log("[ui.js] getUserDataViewElements called");
     return {
         userDataViewSection: document.getElementById('userDataViewSection'),
         userLoadingMessage: document.getElementById('userLoadingMessage'),
@@ -102,7 +94,7 @@ export function getUserDataViewElements() {
     };
 }
 
-// --- دوال مساعدة للواجهة (تعتمد على أن العناصر ستكون متاحة عند استدعائها) ---
+// --- دوال مساعدة للواجهة ---
 let formElementsCache = null; 
 function getFormElements() {
     if (!formElementsCache) {
@@ -115,11 +107,8 @@ function updateWantsPortionVisibility() {
     const elements = getFormElements();
     if (elements.wantsPortionYesRadio && elements.portionDetailsDiv && elements.addressFieldDiv) {
         const show = elements.wantsPortionYesRadio.checked;
-         console.log(`  [UI_LOG] updateWantsPortionVisibility: wantsPortionYes is checked: ${show}`);
         elements.portionDetailsDiv.style.display = show ? 'block' : 'none';
         elements.addressFieldDiv.style.display = show ? 'block' : 'none';
-         console.log(`  [UI_LOG] portionDetailsDiv display set to: ${elements.portionDetailsDiv.style.display}`);
-         console.log(`  [UI_LOG] addressFieldDiv display set to: ${elements.addressFieldDiv.style.display}`);
     }
 }
 
@@ -127,9 +116,7 @@ function updatePaymentDetailsVisibility() {
     const elements = getFormElements();
     if (elements.paymentDoneYesRadio && elements.paymentDetailsDiv) {
         const show = elements.paymentDoneYesRadio.checked;
-         console.log(`  [UI_LOG] updatePaymentDetailsVisibility: paymentDoneYes is checked: ${show}`);
         elements.paymentDetailsDiv.style.display = show ? 'block' : 'none';
-         console.log(`  [UI_LOG] paymentDetailsDiv display set to: ${elements.paymentDetailsDiv.style.display}`);
     }
 }
 
@@ -137,14 +124,11 @@ function updateBroughtByOtherVisibility() {
     const elements = getFormElements();
     if (elements.broughtByOtherYesRadio && elements.broughtByOtherNameDiv) {
         const show = elements.broughtByOtherYesRadio.checked;
-         console.log(`  [UI_LOG] updateBroughtByOtherVisibility: broughtByOtherYes is checked: ${show}`);
         elements.broughtByOtherNameDiv.style.display = show ? 'block' : 'none';
-         console.log(`  [UI_LOG] broughtByOtherNameDiv display set to: ${elements.broughtByOtherNameDiv.style.display}`);
     }
 }
 
 function updateAllConditionalFieldsVisibility() {
-     console.log("[UI_LOG] updateAllConditionalFieldsVisibility called from ui.js");
     updateWantsPortionVisibility();
     updatePaymentDetailsVisibility();
     updateBroughtByOtherVisibility();
@@ -152,7 +136,6 @@ function updateAllConditionalFieldsVisibility() {
 
 export function resetAdahiFormToEntryMode(setCurrentEditingDocIdCallback) {
     const elements = getFormElements();
-    // ... (منطق reset كما هو من الرد السابق، باستخدام elements.elementName) ...
     if (elements.adahiForm) { 
         if (elements.donorNameInput) elements.donorNameInput.value = '';
         if (elements.sacrificeForInput) elements.sacrificeForInput.value = '';
@@ -163,6 +146,8 @@ export function resetAdahiFormToEntryMode(setCurrentEditingDocIdCallback) {
         if (elements.receiptNumberInput) elements.receiptNumberInput.value = '';
         if (elements.broughtByOtherNameInput) elements.broughtByOtherNameInput.value = '';
         if (elements.assistanceForSelect) elements.assistanceForSelect.value = 'inside_ramtha';
+
+        // تأكد من أن أزرار "لا" هي المحددة بعد إعادة التعيين
         if (elements.wantsToAttendNoRadio) elements.wantsToAttendNoRadio.checked = true;
         if (elements.wantsPortionNoRadio) elements.wantsPortionNoRadio.checked = true;
         if (elements.paymentDoneNoRadio) elements.paymentDoneNoRadio.checked = true;   
@@ -170,14 +155,16 @@ export function resetAdahiFormToEntryMode(setCurrentEditingDocIdCallback) {
     }
     if (setCurrentEditingDocIdCallback) setCurrentEditingDocIdCallback(null);
     if (elements.adahiFormSubmitButton) elements.adahiFormSubmitButton.textContent = 'تسجيل البيانات';
-    updateAllConditionalFieldsVisibility();
+    
+    updateAllConditionalFieldsVisibility(); // تحديث الرؤية بعد إعادة التعيين
+
     if (elements.statusMessageEl) { elements.statusMessageEl.textContent = ''; elements.statusMessageEl.className = '';}
 }
 
 export function populateAdahiFormForEdit(docId, data, setCurrentEditingDocIdCallback) {
     const elements = getFormElements();
-    // ... (منطق populate كما هو من الرد السابق، باستخدام elements.elementName) ...
     if (!elements.adahiForm) return;
+
     if (elements.donorNameInput) elements.donorNameInput.value = data.donorName || '';
     if (elements.sacrificeForInput) elements.sacrificeForInput.value = data.sacrificeFor || '';
     if (elements.wantsToAttendYesRadio) elements.wantsToAttendYesRadio.checked = data.wantsToAttend === true;
@@ -195,9 +182,12 @@ export function populateAdahiFormForEdit(docId, data, setCurrentEditingDocIdCall
     if (elements.broughtByOtherYesRadio) elements.broughtByOtherYesRadio.checked = data.broughtByOther === true;
     if (elements.broughtByOtherNoRadio) elements.broughtByOtherNoRadio.checked = data.broughtByOther === false || typeof data.broughtByOther === 'undefined';
     if (elements.broughtByOtherNameInput) elements.broughtByOtherNameInput.value = data.broughtByOtherName || '';
+
     updateAllConditionalFieldsVisibility(); 
+
     if (setCurrentEditingDocIdCallback) setCurrentEditingDocIdCallback(docId);
     if (elements.adahiFormSubmitButton) elements.adahiFormSubmitButton.textContent = 'تحديث البيانات';
+    
     if (elements.statusMessageEl) {
         elements.statusMessageEl.textContent = `وضع التعديل للسجل (رقم المرجع: ${docId}). قم بالتعديل ثم اضغط "تحديث البيانات".`;
         elements.statusMessageEl.className = '';
@@ -223,44 +213,26 @@ export function formatFirestoreTimestamp(timestamp) {
 }
 
 export function setupConditionalFieldListeners() {
-     console.log("[UI_LOG] --- setupConditionalFieldListeners called from ui.js ---");
     const elements = getFormElements(); 
 
     if (elements.wantsPortionYesRadio && elements.wantsPortionNoRadio) {
         [elements.wantsPortionYesRadio, elements.wantsPortionNoRadio].forEach(radio => {
-            if (radio) {
-                radio.addEventListener('change', () => {
-                     console.log(`[UI_LOG] EVENT: ${radio.id} CHANGED. Checked: ${radio.checked}`);
-                    updateWantsPortionVisibility();
-                });
-            }
+            if (radio) radio.addEventListener('change', updateWantsPortionVisibility);
         });
     }
 
     if (elements.paymentDoneYesRadio && elements.paymentDoneNoRadio) {
         [elements.paymentDoneYesRadio, elements.paymentDoneNoRadio].forEach(radio => {
-            if (radio) {
-                radio.addEventListener('change', () => {
-                     console.log(`[UI_LOG] EVENT: ${radio.id} CHANGED. Checked: ${radio.checked}`);
-                    updatePaymentDetailsVisibility();
-                });
-            }
+            if (radio) radio.addEventListener('change', updatePaymentDetailsVisibility);
         });
     }
 
     if (elements.broughtByOtherYesRadio && elements.broughtByOtherNoRadio) {
         [elements.broughtByOtherYesRadio, elements.broughtByOtherNoRadio].forEach(radio => {
-            if (radio) {
-                radio.addEventListener('change', () => {
-                     console.log(`[UI_LOG] EVENT: ${radio.id} CHANGED. Checked: ${radio.checked}`);
-                    updateBroughtByOtherVisibility();
-                });
-            }
+            if (radio) radio.addEventListener('change', updateBroughtByOtherVisibility);
         });
     }
     
-     console.log("[UI_LOG] Initial call to updateAllConditionalFieldsVisibility from setupConditionalFieldListeners in ui.js");
+    // التحديث الأولي للرؤية بعد ربط المستمعين مباشرة
     updateAllConditionalFieldsVisibility(); 
 }
-
-// لا يوجد مستمع DOMContentLoaded هنا، main.js هو المسؤول عن توقيت الاستدعاء
