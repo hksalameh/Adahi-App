@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تسجيل الأضاحي</title>
-    <link rel="icon" href="favicon.ico" type="image/x-icon"> <!-- <<<--- السطر الجديد للـ Favicon -->
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
     <!-- SheetJS (js-xlsx) for Excel Export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
@@ -71,7 +71,7 @@
         #sacrificesTableBody button.edit:hover { background-color: #3498db; }
 
         .hidden-field { display: none !important; }
-        .admin-section, .user-section, .user-data-section { display: none; } 
+        /* .admin-section, .user-section, .user-data-section { display: none; } */ /* <<<--- تم التعليق على هذه القاعدة */
         hr { margin: 40px 0; border: 0; border-top: 1px solid #bdc3c7; } 
         #authStatus, #statusMessage { margin-top: 20px; padding: 14px; border-radius: 6px; font-weight: 500; font-size: 1.1em; text-align: center; } 
         .success { background-color: #d0f0c0; color: #228B22; border: 1px solid #a0d0a0; } 
@@ -95,7 +95,7 @@
             <h1>موقع تسجيل الأضاحي</h1>
             <div id="authStatus"></div> 
 
-            <div id="loginSection" class="auth-form-section">
+            <div id="loginSection" class="auth-form-section"> <!-- JavaScript will add/remove 'hidden-field' -->
                 <h2>تسجيل الدخول</h2>
                 <form id="loginForm">
                     <div><label for="loginEmail">البريد الإلكتروني (لتسجيل الدخول):</label><input type="email" id="loginEmail" name="loginEmail" required></div>
@@ -108,7 +108,7 @@
                 </form>
             </div>
 
-            <div id="registrationSection" class="auth-form-section hidden-field">
+            <div id="registrationSection" class="auth-form-section hidden-field"> <!-- Start hidden -->
                 <h2>إنشاء حساب جديد</h2>
                 <form id="registrationForm">
                     <div><label for="regDisplayNameInput">الاسم (الذي سيظهر للمسؤول):</label><input type="text" id="regDisplayNameInput" name="regDisplayNameInput" required></div>
@@ -119,7 +119,7 @@
                 </form>
             </div>
 
-            <div id="formToggleLinks" style="text-align: center; margin-top: 15px; margin-bottom: 25px;" class="hidden-field">
+            <div id="formToggleLinks" style="text-align: center; margin-top: 15px; margin-bottom: 25px;" class="hidden-field"> <!-- Start hidden -->
                 <a href="#" id="switchToRegisterLink">ليس لديك حساب؟ أنشئ واحدًا</a>
                 <a href="#" id="switchToLoginLink" class="hidden-field">لديك حساب بالفعل؟ سجل دخولك</a>
             </div>
@@ -127,7 +127,7 @@
             <button id="logoutButton" class="hidden-field" style="display: block; margin-left:auto; margin-right:auto;">تسجيل الخروج</button>
             <hr class="hidden-field" id="hrAfterLogout">
 
-            <div id="dataEntrySection" class="user-section"> <hr> 
+            <div id="dataEntrySection" class="hidden-field"> <hr> <!-- Start hidden; JS controls visibility -->
                 <h2>تسجيل أضحية/تبرع جديد</h2>
                 <form id="adahiForm">
                     <div><label for="donorName">اسم المتبرع (كما سيظهر في السجل):</label><input type="text" id="donorName" name="donorName" required></div>
@@ -177,7 +177,7 @@
                 <hr>
             </div>
 
-            <div id="userDataViewSection" class="user-data-section"> 
+            <div id="userDataViewSection" class="hidden-field"> <!-- Start hidden; JS controls visibility -->
                 <h2>تسجيلاتك الحالية</h2>
                 <p id="userLoadingMessage">جاري تحميل تسجيلاتك...</p>
                 <table id="userSacrificesTable" border="1">
@@ -188,7 +188,7 @@
                 </table><hr>
             </div>
 
-            <div id="adminViewSection" class="admin-section"> 
+            <div id="adminViewSection" class="hidden-field"> <!-- Start hidden; JS controls visibility -->
                 <h2>سجلات الأضاحي المسجلة (لوحة تحكم المسؤول)</h2>
                 <div id="adminActions">
                     <button id="filterPending">عرض "لم تدخل بعد" فقط</button>
