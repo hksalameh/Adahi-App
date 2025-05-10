@@ -101,7 +101,7 @@ function updateUIVisibility(user) {
 }
 
 function updateSacrificesSummary() {
-    if (!domReady || !ui.adminViewElements || !ui.adminViewElements.summaryGazaEl) return;
+    if (!domReady ||!ui.adminViewElements || !ui.adminViewElements.summaryGazaEl) return; 
     let gazaCount = 0, solidarityCount = 0, ramthaCount = 0, himselfCount = 0;
     allAdminSacrificesCache.forEach(data => {
         switch (data.assistanceFor) {
@@ -127,7 +127,7 @@ function renderCellValue(value, isBooleanNoMeansEmpty = false, conditionalEmptyV
 }
 
 function renderSacrificesForAdminUI(docsSnapshot) {
-    if (!domReady ||!ui.adminViewElements || !ui.adminViewElements.sacrificesTableBody) { return; }
+    if (!domReady || !ui.adminViewElements || !ui.adminViewElements.sacrificesTableBody) { return; }
     ui.adminViewElements.sacrificesTableBody.innerHTML = '';
     allAdminSacrificesCache = []; 
     if (docsSnapshot.empty) {
@@ -199,7 +199,7 @@ function renderSacrificesForAdminUI(docsSnapshot) {
 }
 
 function renderSacrificesForUserUI(docsSnapshot) {
-    if (!domReady || !ui.userDataViewElements || !ui.userDataViewElements.userSacrificesTableBody) { return; }
+    if (!domReady ||!ui.userDataViewElements || !ui.userDataViewElements.userSacrificesTableBody) { return; }
     ui.userDataViewElements.userSacrificesTableBody.innerHTML = '';
     if (docsSnapshot.empty) {
         if (ui.userDataViewElements.userLoadingMessage) {
@@ -318,8 +318,11 @@ function exportDataToPDF(dataArray, headerKeys, displayHeaders, filename, title 
     }
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'a4' });
-    doc.setFont("helvetica", "normal"); 
-    const head = [displayHeaders.map(h => h)];
+    const FONT_FAMILY = "helvetica"; 
+
+    doc.setFont(FONT_FAMILY, "normal"); 
+
+    const head = [displayHeaders.map(h => String(h))]; 
     const body = dataArray.map(obj => 
         headerKeys.map(key => {
             let cellValue = obj[key];
@@ -333,15 +336,28 @@ function exportDataToPDF(dataArray, headerKeys, displayHeaders, filename, title 
             return String(cellValue); 
         })
     );
-    doc.setFontSize(18);
-    doc.text(title, doc.internal.pageSize.getWidth() / 2, 40, { align: 'center' });
+    
     if (doc.autoTable) {
-        doc.autoTable({
-            head: head, body: body, startY: 60, theme: 'striped', 
-            styles: { font: "helvetica", halign: 'right', fontSize: 8, cellPadding: 3,},
-            headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold', halign: 'center'},
+         doc.autoTable({
+            body: [[title]], 
+            startY: 30,
+            theme: 'plain', 
+            tableWidth: 'wrap',
+            styles: { font: FONT_FAMILY, fontSize: 18, halign: 'center', fontStyle: 'bold'},
+            columnStyles: { 0: { cellWidth: 'auto' } },
+            margin: { top: 20 }
+        });
+
+        doc.autoTable({ 
+            head: head,
+            body: body,
+            startY: doc.autoTable.previous.finalY + 20, 
+            theme: 'striped', 
+            styles: { font: FONT_FAMILY, halign: 'right', fontSize: 8, cellPadding: 3, overflow: 'linebreak' },
+            headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold', halign: 'center', font: FONT_FAMILY },
             didDrawPage: function (data) {
                 doc.setFontSize(10);
+                doc.setFont(FONT_FAMILY);
                 doc.text('صفحة ' + doc.internal.getNumberOfPages(), data.settings.margin.left, doc.internal.pageSize.getHeight() - 10);
             },
         });
@@ -351,7 +367,6 @@ function exportDataToPDF(dataArray, headerKeys, displayHeaders, filename, title 
     }
     doc.save(filename);
 }
-
 
 document.addEventListener('DOMContentLoaded', () => {
     ui.loginElements = uiGetters.getLoginElements();
