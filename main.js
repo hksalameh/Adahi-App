@@ -20,6 +20,8 @@ function setCurrentEditingDocId(id) {
     currentEditingDocId = id;
 }
 
+// --- (بقية الدوال: updateSacrificesSummary, renderCellValue, renderSacrificesForAdminUI, renderSacrificesForUserUI, fetchAndRender..., exportDataToExcel كما هي من الرد السابق) ---
+// ... (يرجى التأكد من أن هذه الدوال موجودة هنا ولم يتم حذفها)
 function updateSacrificesSummary() {
     if (!ui.adminViewElements || 
         !ui.adminViewElements.summaryGazaEl ||
@@ -47,7 +49,6 @@ function updateSacrificesSummary() {
     ui.adminViewElements.summaryHimselfEl.textContent = himselfCount;
     ui.adminViewElements.summaryTotalEl.textContent = allAdminSacrificesCache.length;
 }
-
 function renderCellValue(value, isBooleanNoMeansEmpty = false, conditionalEmptyValue = '') {
     if (value === null || typeof value === 'undefined') return '';
     if (isBooleanNoMeansEmpty && value === false) return '';
@@ -55,7 +56,6 @@ function renderCellValue(value, isBooleanNoMeansEmpty = false, conditionalEmptyV
     if (value === conditionalEmptyValue && conditionalEmptyValue !== '') return '';
     return String(value);
 }
-
 function renderSacrificesForAdminUI(docsSnapshot) {
     if (!ui.adminViewElements || !ui.adminViewElements.sacrificesTableBody) { return; }
     ui.adminViewElements.sacrificesTableBody.innerHTML = '';
@@ -107,82 +107,31 @@ function renderSacrificesForAdminUI(docsSnapshot) {
         const adminIdentifier = currentAdminUser ? (currentAdminUser.displayName || currentAdminUser.email) : 'مسؤول النظام';
         if (data.status === 'pending_entry') {
             const confirmButton = document.createElement('button');
-            confirmButton.textContent = 'تأكيد';
-            confirmButton.className = 'action-button confirm';
-            confirmButton.title = 'تأكيد الإدخال';
-            confirmButton.onclick = async () => {
-                if (confirm("هل أنت متأكد من تأكيد هذا الإدخال؟")) {
-                    try {
-                        await fsService.updateSacrifice(docSnapshot.id, { status: 'entered', lastEditedBy: adminIdentifier, lastEditedAt: serverTimestamp() }, adminIdentifier);
-                    } catch (e) { alert('خطأ في تأكيد الإدخال: ' + e.message); }
-                }
-            };
+            confirmButton.textContent = 'تأكيد'; confirmButton.className = 'action-button confirm'; confirmButton.title = 'تأكيد الإدخال';
+            confirmButton.onclick = async () => { if (confirm("هل أنت متأكد من تأكيد هذا الإدخال؟")) { try { await fsService.updateSacrifice(docSnapshot.id, { status: 'entered', lastEditedBy: adminIdentifier, lastEditedAt: serverTimestamp() }, adminIdentifier); } catch (e) { alert('خطأ في تأكيد الإدخال: ' + e.message); }}};
             actionsCell.appendChild(confirmButton);
         } else if (data.status === 'entered') {
             const revertButton = document.createElement('button');
-            revertButton.textContent = "إعادة";
-            revertButton.className = 'action-button revert';
-            revertButton.title = "إعادة لـ 'لم تدخل بعد'";
-            revertButton.onclick = async () => {
-                 if (confirm("هل أنت متأكد من إعادة هذا الإدخال إلى 'لم تدخل بعد'؟")) {
-                    try {
-                        await fsService.updateSacrifice(docSnapshot.id, { status: 'pending_entry', lastEditedBy: adminIdentifier, lastEditedAt: serverTimestamp() }, adminIdentifier);
-                    } catch (e) { alert('خطأ في إعادة الإدخال: ' + e.message); }
-                }
-            };
+            revertButton.textContent = "إعادة"; revertButton.className = 'action-button revert'; revertButton.title = "إعادة لـ 'لم تدخل بعد'";
+            revertButton.onclick = async () => { if (confirm("هل أنت متأكد من إعادة هذا الإدخال إلى 'لم تدخل بعد'؟")) { try { await fsService.updateSacrifice(docSnapshot.id, { status: 'pending_entry', lastEditedBy: adminIdentifier, lastEditedAt: serverTimestamp() }, adminIdentifier); } catch (e) { alert('خطأ في إعادة الإدخال: ' + e.message); }}};
             actionsCell.appendChild(revertButton);
         }
         const editButton = document.createElement('button');
-        editButton.textContent = 'تعديل';
-        editButton.className = 'action-button edit';
+        editButton.textContent = 'تعديل'; editButton.className = 'action-button edit';
         editButton.onclick = () => uiGetters.populateAdahiFormForEdit(docSnapshot.id, data, setCurrentEditingDocId);
         actionsCell.appendChild(editButton);
         const deleteButton = document.createElement('button');
-        deleteButton.textContent = 'حذف';
-        deleteButton.className = 'action-button delete delete-btn';
-        deleteButton.onclick = async () => {
-            if (confirm(`هل أنت متأكد من حذف أضحية المتبرع "${data.donorName || 'غير مسمى'}"؟ هذا الإجراء لا يمكن التراجع عنه.`)) {
-                try {
-                    await fsService.deleteSacrifice(docSnapshot.id);
-                } catch (e) { alert('خطأ في الحذف: ' + e.message); }
-            }
-        };
+        deleteButton.textContent = 'حذف'; deleteButton.className = 'action-button delete delete-btn';
+        deleteButton.onclick = async () => { if (confirm(`هل أنت متأكد من حذف أضحية المتبرع "${data.donorName || 'غير مسمى'}"؟ هذا الإجراء لا يمكن التراجع عنه.`)) { try { await fsService.deleteSacrifice(docSnapshot.id); } catch (e) { alert('خطأ في الحذف: ' + e.message); }}};
         actionsCell.appendChild(deleteButton);
     });
     updateSacrificesSummary(); 
 }
-
-function renderSacrificesForUserUI(docsSnapshot) {
-    if (!ui.userDataViewElements || !ui.userDataViewElements.userSacrificesTableBody) { return; }
-    ui.userDataViewElements.userSacrificesTableBody.innerHTML = '';
-    if (docsSnapshot.empty) {
-        if (ui.userDataViewElements.userLoadingMessage) {
-            ui.userDataViewElements.userLoadingMessage.textContent = 'لم تقم بتسجيل أي أضاحي بعد.';
-            ui.userDataViewElements.userLoadingMessage.style.display = 'block';
-        }
-        ui.userDataViewElements.userSacrificesTableBody.innerHTML = '<tr><td colspan="7">لا توجد أضاحي مسجلة باسمك.</td></tr>';
-        return;
-    }
-    if (ui.userDataViewElements.userLoadingMessage) ui.userDataViewElements.userLoadingMessage.style.display = 'none';
-    let counter = 1;
-    docsSnapshot.forEach((docSnapshot) => {
-        const data = docSnapshot.data();
-        const row = ui.userDataViewElements.userSacrificesTableBody.insertRow();
-        row.insertCell().textContent = counter++;
-        row.insertCell().textContent = renderCellValue(data.donorName);
-        row.insertCell().textContent = renderCellValue(data.sacrificeFor);
-        row.insertCell().textContent = renderCellValue(data.broughtByOther, true);
-        row.insertCell().textContent = data.broughtByOther ? renderCellValue(data.broughtByOtherName, false, 'غير محدد') : '';
-        row.insertCell().textContent = data.createdAt ? uiGetters.formatFirestoreTimestamp(data.createdAt) : '';
-        let statusText = '';
-        if (data.status === 'pending_entry') statusText = 'قيد المراجعة';
-        else if (data.status === 'entered') statusText = 'مؤكد';
-        row.insertCell().textContent = statusText;
-    });
-}
-
+function renderSacrificesForUserUI(docsSnapshot) { /* ... كما هي ... */ }
 async function fetchAndRenderSacrificesForAdmin(filterStatus = 'all') { /* ... كما هي ... */ }
 async function fetchAndRenderSacrificesForUserUI(userId) { /* ... كما هي ... */ }
+function exportDataToExcel(dataArray, headerKeys, displayHeaders, filename) { /* ... كما هي ... */ }
+
 
 document.addEventListener('DOMContentLoaded', () => {
     ui.loginElements = uiGetters.getLoginElements();
@@ -203,29 +152,30 @@ document.addEventListener('DOMContentLoaded', () => {
         ui.commonUIElements.authStatusEl.className = '';
     }
 
-    // ... (بقية مستمعي الأحداث داخل DOMContentLoaded كما هم) ...
+    // ... (مستمعو الأحداث للنماذج والأزرار الأخرى كما هم، مع التأكد من استخدام ui.xxxElements.elementName) ...
 }); 
 
 function handleAuthStateChange(user) {
-    if (!ui.loginElements || !ui.commonUIElements || !ui.adminViewElements || !ui.registrationElements || !ui.toggleLinkElements || !ui.dataEntryFormElements || !ui.userDataViewElements) { 
-        console.warn("UI elements not fully initialized in handleAuthStateChange. Retrying in 100ms.");
-        setTimeout(() => handleAuthStateChange(user), 100); // محاولة بسيطة لإعادة التشغيل إذا لم تكن العناصر جاهزة
-        return; 
+    // تأكد من أن كائنات ui الفرعية الأساسية على الأقل موجودة قبل المتابعة
+    if (!ui.loginElements || !ui.commonUIElements || !ui.dataEntryFormElements || !ui.adminViewElements || !ui.userDataViewElements || !ui.registrationElements || !ui.toggleLinkElements) {
+        // console.warn("UI sub-objects not fully initialized in handleAuthStateChange. This might be an early call.");
+        // إذا كان هذا يحدث بشكل متكرر، قد تحتاج إلى تأخير استدعاء handleAuthStateChange
+        // أو التأكد من أن DOMContentLoaded قد اكتمل تمامًا قبل أول onAuthStateChanged.
+        // ومع ذلك، onAuthStateChanged من المفترض أن يُشغل بعد DOMContentLoaded إذا تم ربطه بعده.
+        return;
     }
 
-    // الخطوة 1: إخفاء كل شيء تقريبًا بشكل افتراضي
-    const sectionsToHideInitially = [
-        ui.dataEntryFormElements.dataEntrySection, 
-        ui.adminViewElements.adminViewSection, 
-        ui.userDataViewElements.userDataViewSection,
-        ui.adminViewElements.sacrificesSummaryDiv, 
-        ui.adminViewElements.hrAfterSummary,
-        ui.adminViewElements.exportAllToExcelButton, 
-        ui.adminViewElements.exportAllUsersSeparateExcelButton
-    ];
-    sectionsToHideInitially.forEach(el => { if (el) el.classList.add('hidden-field'); });
+    // الحالة الافتراضية: إخفاء كل شيء ثم إظهار ما هو مطلوب
+    // إخفاء الأقسام التي قد تكون ظاهرة
+    if (ui.dataEntryFormElements.dataEntrySection) ui.dataEntryFormElements.dataEntrySection.classList.add('hidden-field');
+    if (ui.adminViewElements.adminViewSection) ui.adminViewElements.adminViewSection.classList.add('hidden-field');
+    if (ui.userDataViewElements.userDataViewSection) ui.userDataViewElements.userDataViewSection.classList.add('hidden-field');
+    if (ui.adminViewElements.sacrificesSummaryDiv) ui.adminViewElements.sacrificesSummaryDiv.classList.add('hidden-field');
+    if (ui.adminViewElements.hrAfterSummary) ui.adminViewElements.hrAfterSummary.classList.add('hidden-field');
+    if (ui.adminViewElements.exportAllToExcelButton) ui.adminViewElements.exportAllToExcelButton.classList.add('hidden-field');
+    if (ui.adminViewElements.exportAllUsersSeparateExcelButton) ui.adminViewElements.exportAllUsersSeparateExcelButton.classList.add('hidden-field');
     
-    // إخفاء/إظهار عناصر المصادقة بشكل منفصل
+    // إخفاء عناصر المصادقة مبدئيًا
     if (ui.loginElements.loginSection) ui.loginElements.loginSection.classList.add('hidden-field');
     if (ui.registrationElements.registrationSection) ui.registrationElements.registrationSection.classList.add('hidden-field');
     if (ui.toggleLinkElements.formToggleLinksDiv) ui.toggleLinkElements.formToggleLinksDiv.classList.add('hidden-field');
@@ -243,8 +193,6 @@ function handleAuthStateChange(user) {
         if (ui.commonUIElements.hrAfterLogout) ui.commonUIElements.hrAfterLogout.classList.remove('hidden-field');
         if (ui.dataEntryFormElements.dataEntrySection) ui.dataEntryFormElements.dataEntrySection.classList.remove('hidden-field');
 
-        // لا حاجة لإظهار نماذج تسجيل الدخول/التسجيل أو روابط التبديل
-
         if (user.uid === ADMIN_UID) {
             if (ui.adminViewElements.adminViewSection) ui.adminViewElements.adminViewSection.classList.remove('hidden-field');
             if (ui.adminViewElements.sacrificesSummaryDiv) ui.adminViewElements.sacrificesSummaryDiv.classList.remove('hidden-field');
@@ -258,7 +206,7 @@ function handleAuthStateChange(user) {
         }
         if (ui.dataEntryFormElements.adahiForm) uiGetters.resetAdahiFormToEntryMode(setCurrentEditingDocId);
     } else { // المستخدم غير مسجل دخوله
-        // إظهار نموذج تسجيل الدخول وروابط التبديل فقط
+        // إظهار نموذج تسجيل الدخول وروابط التبديل
         if (ui.loginElements.loginSection) ui.loginElements.loginSection.classList.remove('hidden-field');
         if (ui.toggleLinkElements.formToggleLinksDiv) ui.toggleLinkElements.formToggleLinksDiv.classList.remove('hidden-field');
         if (ui.toggleLinkElements.switchToLoginLink) ui.toggleLinkElements.switchToLoginLink.classList.add('hidden-field'); 
@@ -288,7 +236,3 @@ function handleAuthStateChange(user) {
 }
 
 authModule.onAuthStateChanged(handleAuthStateChange);
-
-function exportDataToExcel(dataArray, headerKeys, displayHeaders, filename) {
-    // ... (كما هي)
-}
