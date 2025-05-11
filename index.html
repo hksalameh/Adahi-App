@@ -12,6 +12,9 @@
         h1 { color: #2c3e50; text-align: center; margin-bottom: 35px; font-size: 2.5em; font-weight: 700; }
         h2 { color: #34495e; text-align: center; margin-top: 35px; margin-bottom: 30px; border-bottom: 2px solid #eaecee; padding-bottom: 12px; font-size: 2em; font-weight: 700; }
         #dataEntrySection form label, #loginSection form label { font-size: 1.1em; color: #34495e; margin-bottom: 8px; font-weight: 500; display: block; }
+        #loginSection .remember-me { display: flex; align-items: center; margin-top: 10px; }
+        #loginSection .remember-me input[type="checkbox"] { margin-left: 8px; transform: scale(1.2); }
+        #loginSection .remember-me label { display: inline; margin-bottom: 0; font-size: 1em; }
         #dataEntrySection form input[type="text"], #dataEntrySection form input[type="tel"], #dataEntrySection form select, #loginSection form input[type="text"], #loginSection form input[type="password"] { font-size: 1.1em; padding: 12px; border: 1px solid #bcccdc; background-color: #fcfdff; border-radius: 6px; width: 100%; box-sizing: border-box; }
         #dataEntrySection form textarea#portionDetails { font-size: 1.1em; padding: 10px; border: 1px solid #bcccdc; background-color: #fcfdff; border-radius: 6px; width: 100%; box-sizing: border-box; min-height: 60px; height: 80px; resize: vertical; }
         #dataEntrySection form input[type="text"]:focus, #dataEntrySection form input[type="tel"]:focus, #dataEntrySection form textarea:focus, #dataEntrySection form select:focus, #loginSection form input[type="text"]:focus, #loginSection form input[type="password"]:focus { border-color: #5dade2; box-shadow: 0 0 0 0.2rem rgba(41,128,185,.25); outline: none; }
@@ -19,6 +22,9 @@
         #dataEntrySection form div, #loginSection form div { margin-bottom: 20px; }
         #loginSection form { max-width: 400px; margin-left: auto; margin-right: auto; }
         #loginSection form label { text-align: right; }
+        #toggleFormLink { color: #3498db; text-decoration: none; font-weight: 500; display: inline-block; margin-top: 10px; }
+        #toggleFormLink:hover { color: #2980b9; text-decoration: underline; }
+        #registerForm button[type="submit"] { background-color: #27ae60; }
         #dataEntrySection .radio-group-label { font-size: 1.1em; margin-bottom: 10px;}
         #dataEntrySection input[type="radio"] + label { font-weight: normal; font-size: 1.05em; margin-right: 15px; margin-left: 5px; color: #566573; display: inline-flex; align-items: center; }
         #dataEntrySection input[type="radio"] { margin-left: 8px; vertical-align: middle; width: auto; transform: scale(1.1); }
@@ -42,24 +48,49 @@
         <div class="container"> 
             <h1>موقع تسجيل الأضاحي</h1>
             <div id="authStatus"></div> 
-            <div id="loginSection"><h2>تسجيل الدخول</h2><form id="loginForm"><div><label for="usernameInput">رقم/اسم المستخدم:</label><input type="text" id="usernameInput" name="usernameInput" required></div><div><label for="passwordInput">كلمة المرور:</label><input type="password" id="passwordInput" name="passwordInput" required></div><button type="submit">دخول</button></form></div><button id="logoutButton" class="hidden-field">تسجيل الخروج</button> <hr class="hidden-field" id="hrAfterLogout"><div id="dataEntrySection" class="user-section"> <hr> <h2>تسجيل أضحية/تبرع جديد</h2><form id="adahiForm"><div><label for="donorName">اسم المتبرع:</label><input type="text" id="donorName" name="donorName" required></div><div><label for="sacrificeFor">الأضحية عن (اسم الشخص/الجهة):</label><input type="text" id="sacrificeFor" name="sacrificeFor" required></div><div><label class="radio-group-label">هل يريد الحضور؟</label><input type="radio" id="wantsToAttendYes" name="wantsToAttend" value="yes"><label for="wantsToAttendYes">نعم</label><input type="radio" id="wantsToAttendNo" name="wantsToAttend" value="no" checked><label for="wantsToAttendNo">لا</label></div><div><label for="phoneNumber">رقم الهاتف (اختياري):</label><input type="tel" id="phoneNumber" name="phoneNumber"></div><div><label class="radio-group-label">هل يريد جزءًا من الأضحية؟</label><input type="radio" id="wantsPortionYes" name="wantsPortion" value="yes"><label for="wantsPortionYes">نعم</label><input type="radio" id="wantsPortionNo" name="wantsPortion" value="no" checked><label for="wantsPortionNo">لا</label></div><div id="portionDetailsDiv" class="hidden-field"><label for="portionDetails">ماذا يريد من الأضحية؟</label><textarea id="portionDetails" name="portionDetails" rows="3"></textarea></div><div id="addressFieldDiv" class="hidden-field"><label for="address">العنوان (لتوصيل الجزء إذا اختار "نعم"):</label><input type="text" id="address" name="address"></div><div><label class="radio-group-label">هل تم الدفع؟</label><input type="radio" id="paymentDoneYes" name="paymentDone" value="yes"><label for="paymentDoneYes">نعم</label><input type="radio" id="paymentDoneNo" name="paymentDone" value="no" checked><label for="paymentDoneNo">لا</label></div><div id="paymentDetailsDiv" class="hidden-field"><div><label for="receiptBookNumber">رقم الدفتر:</label><input type="text" id="receiptBookNumber" name="receiptBookNumber"></div><div><label for="receiptNumber">رقم السند:</label><input type="text" id="receiptNumber" name="receiptNumber"></div></div><div><label for="assistanceFor">لمن المساعدة (توزيع اللحم)؟</label><select id="assistanceFor" name="assistanceFor"><option value="inside_ramtha">داخل الرمثا</option><option value="gaza_people">لأهل غزة</option><option value="for_himself">لنفسه (إذا كان سيأخذها كاملة)</option></select></div><div style="text-align: center;"><button type="submit">تسجيل البيانات</button></div></form><div id="statusMessage"></div><hr></div><div id="userDataViewSection" class="user-data-section"><h2>تسجيلاتك الحالية</h2><p id="userLoadingMessage">جاري تحميل تسجيلاتك...</p><table id="userSacrificesTable" border="1"><thead><tr><th>م.</th><th>اسم المتبرع</th><th>الأضحية عن</th><th>تاريخ التسجيل</th><th>الحالة</th></tr></thead><tbody id="userSacrificesTableBody"></tbody></table><hr></div>
+            <div id="loginSection">
+                <h2 id="loginTitle">تسجيل الدخول</h2>
+                <form id="loginForm">
+                    <div><label for="usernameInput">رقم/اسم المستخدم:</label><input type="text" id="usernameInput" name="usernameInput" required></div>
+                    <div><label for="passwordInput">كلمة المرور:</label><input type="password" id="passwordInput" name="passwordInput" required></div>
+                    <div class="remember-me"><input type="checkbox" id="rememberMe" name="rememberMe"><label for="rememberMe">تذكرني</label></div>
+                    <button type="submit">دخول</button>
+                </form>
+                <form id="registerForm" style="display: none;">
+                    <div><label for="newUsernameInput">اسم المستخدم:</label><input type="text" id="newUsernameInput" name="newUsernameInput" required></div>
+                    <div><label for="newPasswordInput">كلمة المرور:</label><input type="password" id="newPasswordInput" name="newPasswordInput" required></div>
+                    <div><label for="confirmPasswordInput">تأكيد كلمة المرور:</label><input type="password" id="confirmPasswordInput" name="confirmPasswordInput" required></div>
+                    <button type="submit">إنشاء حساب</button>
+                </form>
+                <div style="text-align: center; margin-top: 15px;">
+                    <a href="#" id="toggleFormLink">إنشاء حساب جديد</a>
+                </div>
+            </div><button id="logoutButton" class="hidden-field">تسجيل الخروج</button> <hr class="hidden-field" id="hrAfterLogout"><div id="dataEntrySection" class="user-section"> <hr> <h2>تسجيل أضحية/تبرع جديد</h2><form id="adahiForm"><div><label for="donorName">اسم المتبرع:</label><input type="text" id="donorName" name="donorName" required></div><div><label for="sacrificeFor">الأضحية عن (اسم الشخص/الجهة):</label><input type="text" id="sacrificeFor" name="sacrificeFor" required></div><div><label class="radio-group-label">هل يريد الحضور؟</label><input type="radio" id="wantsToAttendYes" name="wantsToAttend" value="yes"><label for="wantsToAttendYes">نعم</label><input type="radio" id="wantsToAttendNo" name="wantsToAttend" value="no" checked><label for="wantsToAttendNo">لا</label></div><div><label for="phoneNumber">رقم الهاتف (اختياري):</label><input type="tel" id="phoneNumber" name="phoneNumber"></div><div><label class="radio-group-label">هل يريد جزءًا من الأضحية؟</label><input type="radio" id="wantsPortionYes" name="wantsPortion" value="yes"><label for="wantsPortionYes">نعم</label><input type="radio" id="wantsPortionNo" name="wantsPortion" value="no" checked><label for="wantsPortionNo">لا</label></div><div id="portionDetailsDiv" class="hidden-field"><label for="portionDetails">ماذا يريد من الأضحية؟</label><textarea id="portionDetails" name="portionDetails" rows="3"></textarea></div><div id="addressFieldDiv" class="hidden-field"><label for="address">العنوان (لتوصيل الجزء إذا اختار "نعم"):</label><input type="text" id="address" name="address"></div><div><label class="radio-group-label">هل تم الدفع؟</label><input type="radio" id="paymentDoneYes" name="paymentDone" value="yes"><label for="paymentDoneYes">نعم</label><input type="radio" id="paymentDoneNo" name="paymentDone" value="no" checked><label for="paymentDoneNo">لا</label></div><div id="paymentDetailsDiv" class="hidden-field"><div><label for="receiptBookNumber">رقم الدفتر:</label><input type="text" id="receiptBookNumber" name="receiptBookNumber"></div><div><label for="receiptNumber">رقم السند:</label><input type="text" id="receiptNumber" name="receiptNumber"></div></div><div><label class="radio-group-label">أحضرت بواسطة؟</label><input type="radio" id="broughtByOtherYes" name="broughtByOther" value="yes"><label for="broughtByOtherYes">نعم</label><input type="radio" id="broughtByOtherNo" name="broughtByOther" value="no" checked><label for="broughtByOtherNo">لا</label></div><div id="broughtByOtherNameDiv" class="hidden-field"><div><label for="broughtByOtherName">اسم الواسطة:</label><input type="text" id="broughtByOtherName" name="broughtByOtherName"></div></div><div><label for="assistanceFor">لمن المساعدة (توزيع اللحم)؟</label><select id="assistanceFor" name="assistanceFor"><option value="inside_ramtha">داخل الرمثا</option><option value="gaza_people">لأهل غزة</option><option value="for_himself">لنفسه (إذا كان سيأخذها كاملة)</option></select></div><div style="text-align: center;"><button type="submit">تسجيل البيانات</button></div></form><div id="statusMessage"></div><hr></div><div id="userDataViewSection" class="user-data-section"><h2>تسجيلاتك الحالية</h2><p id="userLoadingMessage">جاري تحميل تسجيلاتك...</p><table id="userSacrificesTable" border="1"><thead><tr><th>م.</th><th>اسم المتبرع</th><th>الأضحية عن</th><th>تاريخ التسجيل</th><th>الحالة</th></tr></thead><tbody id="userSacrificesTableBody"></tbody></table><hr></div>
             <div id="adminViewSection" class="admin-section"> 
                 <h2>سجلات الأضاحي المسجلة</h2>
                 <div id="adminActions">
                     <button id="filterPending">عرض قيد المراجعة فقط</button><button id="filterApproved">عرض الموافق عليها فقط</button><button id="filterRejected">عرض المرفوضة فقط</button><button id="filterAll">عرض الكل</button>
-                    {/* <br> 
-                    <button id="exportToPdfButton">تصدير المحدد PDF</button> 
-                    <button id="exportAllToCsvButton">تصدير الكل Excel (CSV)</button> */}
-                    {/* تم التعليق على أزرار التصدير مؤقتًا */}
+                    <br>
+                    <div style="margin-top: 15px;">
+                        <h4 style="margin-bottom: 10px;">تصدير البيانات</h4>
+                        <div>
+                            <button id="exportAllToExcelButton">تصدير الكل (Excel)</button>
+                            <button id="exportAllUsersSeparateExcelButton">تصدير ملفات Excel لكل مستخدم</button>
+                        </div>
+                        <div style="margin-top: 10px;">
+                            <button id="exportAllToPdfButton">تصدير الكل (PDF)</button>
+                            <button id="exportAllUsersSeparatePdfButton">تصدير ملفات PDF لكل مستخدم</button>
+                        </div>
+                    </div>
                 </div>
-                <div id="sacrificesTableContainer"><p id="loadingMessage">جاري تحميل البيانات...</p><table id="sacrificesTable" border="1"><thead><tr><th>م.</th><th>اسم المتبرع</th><th>الأضحية عن</th><th>يريد الحضور</th><th>رقم الهاتف</th><th>يريد جزءًا</th><th>تفاصيل الجزء</th><th>العنوان</th><th>تم الدفع</th><th>رقم الدفتر</th><th>رقم السند</th><th>لمن المساعدة</th><th>تاريخ التسجيل</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody id="sacrificesTableBody"></tbody></table></div><hr>
+                <div id="sacrificesTableContainer"><p id="loadingMessage">جاري تحميل البيانات...</p><table id="sacrificesTable" border="1"><thead><tr><th>م.</th><th>اسم المتبرع</th><th>الأضحية عن</th><th>يريد الحضور</th><th>رقم الهاتف</th><th>يريد جزءًا</th><th>تفاصيل الجزء</th><th>العنوان</th><th>تم الدفع</th><th>رقم الدفتر</th><th>رقم السند</th><th>أحضرت بواسطة</th><th>لمن المساعدة</th><th>تاريخ التسجيل</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody id="sacrificesTableBody"></tbody></table></div><hr>
             </div>
         </div> 
     </div> 
 
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
-      import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-auth.js";
+      import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-auth.js";
       import { getFirestore, collection, addDoc, serverTimestamp, onSnapshot, query, orderBy, where, doc, updateDoc, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-firestore.js"; 
       
       console.log("SCRIPT START"); // تشخيص
@@ -85,10 +116,13 @@
       console.log("4. Auth instance created:", auth ? "OK" : "Failed"); 
       
       const loginSection = document.getElementById('loginSection');
+      const loginForm = document.getElementById('loginForm');
+      const registerForm = document.getElementById('registerForm');
+      const toggleFormLink = document.getElementById('toggleFormLink');
+      const loginTitle = document.getElementById('loginTitle');
       const dataEntrySection = document.getElementById('dataEntrySection'); 
       const adminViewSection = document.getElementById('adminViewSection'); 
       const userDataViewSection = document.getElementById('userDataViewSection');
-      const loginForm = document.getElementById('loginForm');
       const logoutButton = document.getElementById('logoutButton');
       const hrAfterLogout = document.getElementById('hrAfterLogout');
       const authStatus = document.getElementById('authStatus');
@@ -125,6 +159,7 @@
               const paymentDone = document.querySelector('input[name="paymentDone"]:checked').value;
               const receiptBookNumber = paymentDone === 'yes' ? document.getElementById('receiptBookNumber').value.trim() : '';
               const receiptNumber = paymentDone === 'yes' ? document.getElementById('receiptNumber').value.trim() : '';
+              const broughtBy = paymentDone === 'yes' ? document.getElementById('broughtBy').value.trim() : '';
               const assistanceFor = document.getElementById('assistanceFor').value;
               
               // التحقق من البيانات المطلوبة
@@ -158,6 +193,7 @@
                       paymentDone,
                       receiptBookNumber,
                       receiptNumber,
+                      broughtBy,
                       assistanceFor,
                       createdAt: serverTimestamp(),
                       userId: user.uid,
@@ -237,6 +273,7 @@
                   <td>${data.paymentDone === 'yes' ? 'نعم' : 'لا'}</td>
                   <td>${data.receiptBookNumber || '-'}</td>
                   <td>${data.receiptNumber || '-'}</td>
+                  <td>${data.broughtBy || '-'}</td>
                   <td>${data.assistanceFor === 'inside_ramtha' ? 'داخل الرمثا' : 
                        data.assistanceFor === 'gaza_people' ? 'لأهل غزة' : 'لنفسه'}</td>
                   <td>${formatFirestoreTimestamp(data.createdAt)}</td>
@@ -408,6 +445,115 @@
       }); 
       console.log("7. onAuthStateChanged listener set up."); // تشخيص
       
+      // التبديل بين نموذج تسجيل الدخول ونموذج إنشاء الحساب
+      if (toggleFormLink) {
+          toggleFormLink.addEventListener('click', function(e) {
+              e.preventDefault();
+              if (loginForm.style.display === 'none') {
+                  // التبديل إلى نموذج تسجيل الدخول
+                  loginForm.style.display = 'block';
+                  registerForm.style.display = 'none';
+                  toggleFormLink.textContent = 'إنشاء حساب جديد';
+                  loginTitle.textContent = 'تسجيل الدخول';
+              } else {
+                  // التبديل إلى نموذج إنشاء الحساب
+                  loginForm.style.display = 'none';
+                  registerForm.style.display = 'block';
+                  toggleFormLink.textContent = 'العودة إلى تسجيل الدخول';
+                  loginTitle.textContent = 'إنشاء حساب جديد';
+              }
+          });
+      }
+
+      // معالجة نموذج إنشاء حساب جديد
+      if (registerForm) {
+          registerForm.addEventListener('submit', async (e) => {
+              e.preventDefault();
+              
+              const username = document.getElementById('newUsernameInput').value.trim();
+              const password = document.getElementById('newPasswordInput').value.trim();
+              const confirmPassword = document.getElementById('confirmPasswordInput').value.trim();
+              
+              if (!username || !password || !confirmPassword) {
+                  authStatus.textContent = 'يرجى ملء جميع الحقول المطلوبة';
+                  authStatus.className = 'error';
+                  return;
+              }
+              
+              if (password !== confirmPassword) {
+                  authStatus.textContent = 'كلمة المرور وتأكيد كلمة المرور غير متطابقين';
+                  authStatus.className = 'error';
+                  return;
+              }
+              
+              if (password.length < 6) {
+                  authStatus.textContent = 'يجب أن تكون كلمة المرور 6 أحرف على الأقل';
+                  authStatus.className = 'error';
+                  return;
+              }
+              
+              authStatus.textContent = 'جاري إنشاء الحساب...';
+              authStatus.className = '';
+              
+              try {
+                  // تحويل اسم المستخدم إلى بريد إلكتروني إذا لم يكن بالفعل
+                  const email = username.includes('@') ? username : `${username}@adahi-app.com`;
+                  console.log(`Attempting to create account with email: ${email}`);
+                  
+                  await createUserWithEmailAndPassword(auth, email, password);
+                  console.log("Account creation successful. onAuthStateChanged should handle UI.");
+                  authStatus.textContent = 'تم إنشاء الحساب بنجاح وتسجيل الدخول';
+                  authStatus.className = 'success';
+                  // لا تقم بتحديث الواجهة هنا مباشرة، دع onAuthStateChanged يتولى الأمر
+              } catch (error) {
+                  console.error("Registration error:", error);
+                  let errorMessage = 'حدث خطأ أثناء إنشاء الحساب';
+                  
+                  if (error.code === 'auth/email-already-in-use') {
+                      errorMessage = 'اسم المستخدم مستخدم بالفعل';
+                  } else if (error.code === 'auth/invalid-email') {
+                      errorMessage = 'البريد الإلكتروني غير صالح';
+                  } else if (error.code === 'auth/weak-password') {
+                      errorMessage = 'كلمة المرور ضعيفة جدًا';
+                  } else if (error.code === 'auth/network-request-failed') {
+                      errorMessage = 'فشل الاتصال بالشبكة. يرجى التحقق من اتصالك بالإنترنت';
+                  }
+                  
+                  authStatus.textContent = errorMessage;
+                  authStatus.className = 'error';
+              }
+          });
+      }
+
+      // وظيفة لحفظ بيانات تسجيل الدخول في localStorage
+      function saveLoginCredentials(username, password) {
+          localStorage.setItem('rememberedUser', username);
+          // تشفير بسيط لكلمة المرور (ليس آمنًا تمامًا ولكن أفضل من تخزينها كنص عادي)
+          localStorage.setItem('rememberedPass', btoa(password));
+          localStorage.setItem('rememberMe', 'true');
+      }
+      
+      // وظيفة لمسح بيانات تسجيل الدخول من localStorage
+      function clearLoginCredentials() {
+          localStorage.removeItem('rememberedUser');
+          localStorage.removeItem('rememberedPass');
+          localStorage.removeItem('rememberMe');
+      }
+      
+      // التحقق من وجود بيانات محفوظة عند تحميل الصفحة
+      document.addEventListener('DOMContentLoaded', () => {
+          const rememberedUser = localStorage.getItem('rememberedUser');
+          const rememberedPass = localStorage.getItem('rememberedPass');
+          const rememberMe = localStorage.getItem('rememberMe');
+          
+          if (rememberedUser && rememberedPass && rememberMe === 'true') {
+              document.getElementById('usernameInput').value = rememberedUser;
+              document.getElementById('passwordInput').value = atob(rememberedPass);
+              document.getElementById('rememberMe').checked = true;
+          }
+      });
+      
+      // معالجة نموذج تسجيل الدخول
       if (loginForm) { 
           loginForm.addEventListener('submit', async (e) => {
               e.preventDefault();
@@ -415,6 +561,7 @@
               
               const username = document.getElementById('usernameInput').value.trim();
               const password = document.getElementById('passwordInput').value.trim();
+              const rememberMe = document.getElementById('rememberMe').checked;
               
               if (!username || !password) {
                   authStatus.textContent = 'يرجى إدخال اسم المستخدم وكلمة المرور';
@@ -432,6 +579,13 @@
                   
                   await signInWithEmailAndPassword(auth, email, password);
                   console.log("Login successful (from signInWithEmailAndPassword promise). onAuthStateChanged should handle UI.");
+                  
+                  // حفظ بيانات تسجيل الدخول إذا تم اختيار "تذكرني"
+                  if (rememberMe) {
+                      saveLoginCredentials(username, password);
+                  } else {
+                      clearLoginCredentials();
+                  }
                   // لا تقم بتحديث الواجهة هنا مباشرة، دع onAuthStateChanged يتولى الأمر
               } catch (error) {
                   console.error("Login error:", error);
@@ -456,6 +610,8 @@
               console.log("Logout button clicked. Attempting to sign out."); // تشخيص
               signOut(auth).then(() => { 
                   console.log("Sign out successful (from signOut promise). onAuthStateChanged should handle UI.");
+                  // مسح بيانات تسجيل الدخول المحفوظة عند تسجيل الخروج
+                  clearLoginCredentials();
                   // لا تقم بتحديث الواجهة هنا مباشرة، دع onAuthStateChanged يتولى الأمر
               }).catch((error) => {
                   console.error("Error signing out:", error);
