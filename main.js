@@ -381,6 +381,23 @@ document.addEventListener('DOMContentLoaded', () => {
         uiGetters.cacheFormElements(ui.dataEntryFormElements);
     }
     uiGetters.setupConditionalFieldListeners();
+    
+    // إضافة مستمعي الأحداث للحقل الجديد "أحضرت بواسطة"
+    if(ui.dataEntryFormElements.broughtByOtherYesRadio) {
+        ui.dataEntryFormElements.broughtByOtherYesRadio.addEventListener('change', function() {
+            if (this.checked) {
+                ui.dataEntryFormElements.broughtByOtherNameDiv.style.display = 'block';
+            }
+        });
+    }
+    if(ui.dataEntryFormElements.broughtByOtherNoRadio) {
+        ui.dataEntryFormElements.broughtByOtherNoRadio.addEventListener('change', function() {
+            if (this.checked) {
+                ui.dataEntryFormElements.broughtByOtherNameDiv.style.display = 'none';
+            }
+        });
+    }
+    
     domReady = true; 
 
     if (ui.commonUIElements.authStatusEl) {
