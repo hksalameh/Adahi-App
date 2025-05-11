@@ -4,10 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تسجيل الأضاحي</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
     <style>
-        /* ... (CSS كما هو بالضبط من الرد السابق) ... */
         @import url('https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;700&display=swap');
         body { font-family: 'Noto Kufi Arabic', 'Tajawal', sans-serif; margin: 0; padding: 0; background-color: #f0f2f5; color: #2c3e50; line-height: 1.7; font-size: 16px; }
         .page-container { padding: 20px; }
@@ -34,8 +31,6 @@
         #adminActions { text-align: center; margin-bottom: 25px; } 
         #adminActions button { background-color: #7f8c8d; font-size: 1em; padding: 10px 20px; box-shadow: none; margin-bottom: 10px; } 
         #adminActions button:hover { background-color: #6c7a7b; } 
-        #exportToPdfButton, #exportAllToCsvButton, #exportUserCsvButton { background-color: #17a2b8; margin-top: 5px; }
-        #exportToPdfButton:hover, #exportAllToCsvButton:hover, #exportUserCsvButton:hover { background-color: #138496; }
         #sacrificesTableBody button { font-size: 0.9em; padding: 6px 12px; margin-right: 5px; box-shadow: none; border-radius: 4px; }
         #sacrificesTableBody button.delete-btn { background-color: #e74c3c; }
         #sacrificesTableBody button.delete-btn:hover { background-color: #c0392b; }
@@ -51,9 +46,11 @@
             <div id="adminViewSection" class="admin-section"> 
                 <h2>سجلات الأضاحي المسجلة</h2>
                 <div id="adminActions">
-                    <button id="filterPending">عرض قيد المراجعة فقط</button><button id="filterApproved">عرض الموافق عليها فقط</button><button id="filterRejected">عرض المرفوضة فقط</button><button id="filterAll">عرض الكل</button><br> 
+                    <button id="filterPending">عرض قيد المراجعة فقط</button><button id="filterApproved">عرض الموافق عليها فقط</button><button id="filterRejected">عرض المرفوضة فقط</button><button id="filterAll">عرض الكل</button>
+                    {/* <br> 
                     <button id="exportToPdfButton">تصدير المحدد PDF</button> 
-                    <button id="exportAllToCsvButton">تصدير الكل Excel (CSV)</button>
+                    <button id="exportAllToCsvButton">تصدير الكل Excel (CSV)</button> */}
+                    {/* تم التعليق على أزرار التصدير مؤقتًا */}
                 </div>
                 <div id="sacrificesTableContainer"><p id="loadingMessage">جاري تحميل البيانات...</p><table id="sacrificesTable" border="1"><thead><tr><th>م.</th><th>اسم المتبرع</th><th>الأضحية عن</th><th>يريد الحضور</th><th>رقم الهاتف</th><th>يريد جزءًا</th><th>تفاصيل الجزء</th><th>العنوان</th><th>تم الدفع</th><th>رقم الدفتر</th><th>رقم السند</th><th>لمن المساعدة</th><th>تاريخ التسجيل</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody id="sacrificesTableBody"></tbody></table></div><hr>
             </div>
@@ -65,7 +62,7 @@
       import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-auth.js";
       import { getFirestore, collection, addDoc, serverTimestamp, onSnapshot, query, orderBy, where, doc, updateDoc, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-firestore.js"; 
       
-      // alert("السكريبت الرئيسي بدأ التنفيذ!"); // يمكنك إزالة هذا الآن
+      console.log("SCRIPT START"); // تشخيص
 
       const firebaseConfig = { 
         apiKey: "AIzaSyAOV5iF6t5kdAeBIZPNcmINB4Ya66Yx9Pg",
@@ -76,26 +73,89 @@
         appId: "1:42370235858:web:6f839b92404afafdae9c0b",
         measurementId: "G-1T2TGPK72K"
       };
-      // console.log("1. firebaseConfig object:", firebaseConfig); 
+      console.log("1. firebaseConfig object:", firebaseConfig); 
 
       const app = initializeApp(firebaseConfig);
-      // console.log("2. Firebase app initialized:", app ? app.name : "App not initialized"); 
+      console.log("2. Firebase app initialized:", app ? app.name : "App not initialized"); 
 
       const db = getFirestore(app);
-      // console.log("3. Firestore instance created:", db ? "OK" : "Failed"); 
+      console.log("3. Firestore instance created:", db ? "OK" : "Failed"); 
 
       const auth = getAuth(app);
-      // console.log("4. Auth instance created:", auth ? "OK" : "Failed"); 
+      console.log("4. Auth instance created:", auth ? "OK" : "Failed"); 
       
-      const loginSection = document.getElementById('loginSection'); /* ... (بقية متغيرات DOM كما هي) ... */
-      const dataEntrySection = document.getElementById('dataEntrySection'); const adminViewSection = document.getElementById('adminViewSection'); const userDataViewSection = document.getElementById('userDataViewSection');const loginForm = document.getElementById('loginForm');const logoutButton = document.getElementById('logoutButton');const hrAfterLogout = document.getElementById('hrAfterLogout');const authStatus = document.getElementById('authStatus');const ADMIN_UID = 'AKpJLStGGnRC2Albb8bpZ0KtTGq1'; const wantsPortionYesRadio = document.getElementById('wantsPortionYes');const wantsPortionNoRadio = document.getElementById('wantsPortionNo');const portionDetailsDiv = document.getElementById('portionDetailsDiv');const addressFieldDiv = document.getElementById('addressFieldDiv');const paymentDoneYesRadio = document.getElementById('paymentDoneYes');const paymentDoneNoRadio = document.getElementById('paymentDoneNo');const paymentDetailsDiv = document.getElementById('paymentDetailsDiv');if(wantsPortionYesRadio){wantsPortionYesRadio.addEventListener('change', function() {if (this.checked) {portionDetailsDiv.style.display = 'block';addressFieldDiv.style.display = 'block';}});}if(wantsPortionNoRadio){wantsPortionNoRadio.addEventListener('change', function() {if (this.checked) {portionDetailsDiv.style.display = 'none';addressFieldDiv.style.display = 'none';}});}if(paymentDoneYesRadio){paymentDoneYesRadio.addEventListener('change', function() {if (this.checked) {paymentDetailsDiv.style.display = 'block';}});}if(paymentDoneNoRadio){paymentDoneNoRadio.addEventListener('change', function() {if (this.checked) {paymentDetailsDiv.style.display = 'none';}});} const adahiForm = document.getElementById('adahiForm');const statusMessage = document.getElementById('statusMessage');if(adahiForm){adahiForm.addEventListener('submit', async (event) => { /* ... (كما هي) ... */ });}
-      const sacrificesTableBody = document.getElementById('sacrificesTableBody');const loadingMessage = document.getElementById('loadingMessage');let currentAdminData = []; function formatFirestoreTimestamp(timestamp) { /* ... (كما هي) ... */ } function renderSacrificesForAdmin(docs) { /* ... (كما هي) ... */ } async function updateSacrificeStatus(docId, newStatus) { /* ... (كما هي) ... */ } async function deleteSacrifice(docId, donorNameToConfirm) { /* ... (كما هي) ... */ } function fetchAndRenderSacrificesForAdmin(statusFilter = null) { /* ... (كما هي، مع console.log للتشخيص) ... */ } if(document.getElementById('filterPending')){document.getElementById('filterPending').addEventListener('click', () => fetchAndRenderSacrificesForAdmin('pending_approval'));}if(document.getElementById('filterApproved')){document.getElementById('filterApproved').addEventListener('click', () => fetchAndRenderSacrificesForAdmin('approved'));}if(document.getElementById('filterRejected')){document.getElementById('filterRejected').addEventListener('click', () => fetchAndRenderSacrificesForAdmin('rejected'));}if(document.getElementById('filterAll')){document.getElementById('filterAll').addEventListener('click', () => fetchAndRenderSacrificesForAdmin(null));}  const userSacrificesTableBody = document.getElementById('userSacrificesTableBody'); const userLoadingMessage = document.getElementById('userLoadingMessage'); function renderSacrificesForUser(docs) { /* ... (كما هي) ... */ }  function fetchAndRenderSacrificesForUser(userId) { /* ... (كما هي) ... */ } 
+      const loginSection = document.getElementById('loginSection');
+      const dataEntrySection = document.getElementById('dataEntrySection'); 
+      const adminViewSection = document.getElementById('adminViewSection'); 
+      const userDataViewSection = document.getElementById('userDataViewSection');
+      const loginForm = document.getElementById('loginForm');
+      const logoutButton = document.getElementById('logoutButton');
+      const hrAfterLogout = document.getElementById('hrAfterLogout');
+      const authStatus = document.getElementById('authStatus');
+      const ADMIN_UID = 'AKpJLStGGnRC2Albb8bpZ0KtTGq1'; 
+      console.log("5. DOM elements and ADMIN_UID defined.");
+
+      const wantsPortionYesRadio = document.getElementById('wantsPortionYes');
+      const wantsPortionNoRadio = document.getElementById('wantsPortionNo');
+      const portionDetailsDiv = document.getElementById('portionDetailsDiv');
+      const addressFieldDiv = document.getElementById('addressFieldDiv');
+      const paymentDoneYesRadio = document.getElementById('paymentDoneYes');
+      const paymentDoneNoRadio = document.getElementById('paymentDoneNo');
+      const paymentDetailsDiv = document.getElementById('paymentDetailsDiv');
+      if(wantsPortionYesRadio){wantsPortionYesRadio.addEventListener('change', function() {if (this.checked) {portionDetailsDiv.style.display = 'block';addressFieldDiv.style.display = 'block';}});}
+      if(wantsPortionNoRadio){wantsPortionNoRadio.addEventListener('change', function() {if (this.checked) {portionDetailsDiv.style.display = 'none';addressFieldDiv.style.display = 'none';}});}
+      if(paymentDoneYesRadio){paymentDoneYesRadio.addEventListener('change', function() {if (this.checked) {paymentDetailsDiv.style.display = 'block';}});}
+      if(paymentDoneNoRadio){paymentDoneNoRadio.addEventListener('change', function() {if (this.checked) {paymentDetailsDiv.style.display = 'none';}});}
       
-      // *** تعديل onAuthStateChanged لإضافة console.log أكثر تفصيلاً ***
+      const adahiForm = document.getElementById('adahiForm');
+      const statusMessage = document.getElementById('statusMessage');
+      if(adahiForm){
+          adahiForm.addEventListener('submit', async (event) => { /* ... (دالة إرسال النموذج كما هي) ... */ });
+      }
+      
+      const sacrificesTableBody = document.getElementById('sacrificesTableBody');
+      const loadingMessage = document.getElementById('loadingMessage');
+      let currentAdminData = []; 
+      function formatFirestoreTimestamp(timestamp) { /* ... (كما هي) ... */ }
+      
+      function renderSacrificesForAdmin(docs) { /* ... (كما هي) ... */ }
+      async function updateSacrificeStatus(docId, newStatus) { /* ... (كما هي) ... */ }
+      async function deleteSacrifice(docId, donorNameToConfirm) { /* ... (كما هي) ... */ }
+      function fetchAndRenderSacrificesForAdmin(statusFilter = null) { 
+          console.log("Attempting to fetch admin data with filter:", statusFilter); // تشخيص
+          loadingMessage.textContent = 'جاري تحميل البيانات...'; 
+          loadingMessage.style.display = 'block'; 
+          sacrificesTableBody.innerHTML = ''; 
+          let q; 
+          if (statusFilter) { 
+              q = query(collection(db, "sacrifices"), where("status", "==", statusFilter), orderBy("createdAt", "desc")); 
+          } else { 
+              q = query(collection(db, "sacrifices"), orderBy("createdAt", "desc")); 
+          } 
+          onSnapshot(q, (querySnapshot) => {
+              console.log("Admin data received from onSnapshot, number of docs:", querySnapshot.size); // تشخيص
+              renderSacrificesForAdmin(querySnapshot); 
+          }, (error) => {  
+              console.error("Error fetching admin documents (onSnapshot): ", error); // تشخيص
+              loadingMessage.textContent = 'حدث خطأ أثناء جلب البيانات: ' + error.message;
+              sacrificesTableBody.innerHTML = `<tr><td colspan="15">خطأ في تحميل البيانات.</td></tr>`; 
+          });
+      }
+      if(document.getElementById('filterPending')){document.getElementById('filterPending').addEventListener('click', () => fetchAndRenderSacrificesForAdmin('pending_approval'));}
+      if(document.getElementById('filterApproved')){document.getElementById('filterApproved').addEventListener('click', () => fetchAndRenderSacrificesForAdmin('approved'));}
+      if(document.getElementById('filterRejected')){document.getElementById('filterRejected').addEventListener('click', () => fetchAndRenderSacrificesForAdmin('rejected'));}
+      if(document.getElementById('filterAll')){document.getElementById('filterAll').addEventListener('click', () => fetchAndRenderSacrificesForAdmin(null));}  
+      
+      const userSacrificesTableBody = document.getElementById('userSacrificesTableBody'); 
+      const userLoadingMessage = document.getElementById('userLoadingMessage'); 
+      function renderSacrificesForUser(docs) { /* ... (كما هي) ... */ }  
+      function fetchAndRenderSacrificesForUser(userId) { /* ... (كما هي) ... */ } 
+      
+      console.log("6. Setting up onAuthStateChanged listener..."); // تشخيص
       onAuthStateChanged(auth, (user) => {
-          console.log("--- onAuthStateChanged CALLED ---"); // تشخيص بداية الدالة
+          console.log("--- onAuthStateChanged CALLED --- User object:", user); 
           if (user) {
-              console.log("User IS signed in. UID:", user.uid, "Email:", user.email);
+              console.log("User IS signed in. UID:", user.uid);
               authStatus.textContent = `مرحباً بك، ${user.email}`; 
               authStatus.className = 'success';
               loginSection.style.display = 'none'; 
@@ -114,10 +174,10 @@
                   fetchAndRenderSacrificesForUser(user.uid); 
               }
           } else {
-              console.log("User is signed OUT or not yet determined.");
+              console.log("User is signed OUT or not yet determined. Showing login section.");
               authStatus.textContent = 'يرجى تسجيل الدخول للوصول.';
               authStatus.className = '';
-              loginSection.style.display = 'block'; // <-- التأكد من إظهار قسم تسجيل الدخول
+              loginSection.style.display = 'block'; 
               dataEntrySection.style.display = 'none'; 
               adminViewSection.style.display = 'none'; 
               userDataViewSection.style.display = 'none'; 
@@ -130,63 +190,26 @@
           }
           console.log("--- onAuthStateChanged FINISHED ---");
       }); 
+      console.log("7. onAuthStateChanged listener set up."); // تشخيص
       
       if (loginForm) { 
-          loginForm.addEventListener('submit', async (e) => { 
-              e.preventDefault();
-              authStatus.textContent = 'جاري التحقق...';
-              authStatus.className = '';
-              const usernameOrEmail = document.getElementById('usernameInput').value; 
-              const password = document.getElementById('passwordInput').value; 
-              console.log("Login form submitted. Attempting login with:", usernameOrEmail); 
-              try {
-                  const userCredential = await signInWithEmailAndPassword(auth, usernameOrEmail, password);
-                  console.log("Direct email sign-in successful for:", userCredential.user.email); 
-                  // لا حاجة لعمل شيء هنا، onAuthStateChanged سيتولى تحديث الواجهة
-              } catch (emailSignInError) {
-                  console.log("Direct email sign-in failed. Error:", emailSignInError.code, emailSignInError.message); 
-                  if (emailSignInError.code === 'auth/invalid-email' || emailSignInError.code === 'auth/user-not-found' || emailSignInError.code === 'auth/wrong-password' || emailSignInError.code === 'auth/invalid-credential') {
-                      console.log("Attempting username lookup for:", usernameOrEmail); 
-                      try {
-                          const usersMapRef = collection(db, "user_credentials_map");
-                          const q = query(usersMapRef, where("username", "==", usernameOrEmail));
-                          const querySnapshot = await getDocs(q);
-                          if (querySnapshot.empty) {
-                              authStatus.textContent = 'رقم/اسم المستخدم أو كلمة المرور غير صحيحة.';
-                              authStatus.className = 'error';
-                              console.log("Username not found in map:", usernameOrEmail); 
-                              return;
-                          }
-                          let foundUserEmail = null;
-                          querySnapshot.forEach((doc) => { 
-                              foundUserEmail = doc.data().email; 
-                              console.log("Found in map. Username:", doc.data().username, "Mapped Email:", foundUserEmail); 
-                          });
-                          if (foundUserEmail) {
-                              console.log("Attempting sign-in with mapped email:", foundUserEmail); 
-                              await signInWithEmailAndPassword(auth, foundUserEmail, password);
-                              console.log("Sign-in successful with mapped email:", foundUserEmail); 
-                          } else {
-                              authStatus.textContent = 'خطأ في بيانات المستخدم.';
-                              authStatus.className = 'error';
-                              console.log("Error: foundUserEmail is null after map lookup."); 
-                          }
-                      } catch (lookupError) {
-                          console.error("Error during username lookup or secondary sign-in:", lookupError);
-                          authStatus.textContent = 'رقم/اسم المستخدم أو كلمة المرور غير صحيحة.';
-                          authStatus.className = 'error';
-                      }
-                  } else {
-                      console.error("Unexpected error during direct email sign-in:", emailSignInError);
-                      authStatus.textContent = `خطأ في تسجيل الدخول: ${emailSignInError.message}`;
-                      authStatus.className = 'error';
-                  }
-              }
-          });
+          loginForm.addEventListener('submit', async (e) => { /* ... (دالة تسجيل الدخول كما هي مع console.log) ... */ });
       } 
       
-      if (logoutButton) { /* ... (كما هي) ... */ }
-      const exportToPdfButton = document.getElementById('exportToPdfButton');const exportAllToCsvButton = document.getElementById('exportAllToCsvButton'); async function exportDataToPdf(filename, dataToExport) { /* ... (كما هي) ... */ } if(exportToPdfButton){exportToPdfButton.addEventListener('click', () => {exportDataToPdf('بيانات_الأضاحي_المفلترة', currentAdminData);});} function exportDataToCsv(filename, dataToExport) { /* ... (كما هي) ... */ } if(exportAllToCsvButton){exportAllToCsvButton.addEventListener('click', async () => { /* ... (كما هي) ... */ });}
+      if (logoutButton) { 
+          logoutButton.addEventListener('click', () => {
+              console.log("Logout button clicked. Attempting to sign out."); // تشخيص
+              signOut(auth).then(() => { 
+                  console.log("Sign out successful (from signOut promise). onAuthStateChanged should handle UI.");
+                  // لا تقم بتحديث الواجهة هنا مباشرة، دع onAuthStateChanged يتولى الأمر
+              }).catch((error) => {
+                  console.error("Error signing out:", error);
+                  authStatus.textContent = `خطأ في الخروج: ${error.message}`;
+                  authStatus.className = 'error';
+              });
+          });
+      }
+      console.log("SCRIPT END"); // تشخيص
     </script>
 </body>
 </html>
