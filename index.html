@@ -110,17 +110,191 @@
       const adahiForm = document.getElementById('adahiForm');
       const statusMessage = document.getElementById('statusMessage');
       if(adahiForm){
-          adahiForm.addEventListener('submit', async (event) => { /* ... (دالة إرسال النموذج كما هي) ... */ });
+          adahiForm.addEventListener('submit', async (event) => {
+              event.preventDefault();
+              console.log("Form submission started");
+              
+              // جمع البيانات من النموذج
+              const donorName = document.getElementById('donorName').value.trim();
+              const sacrificeFor = document.getElementById('sacrificeFor').value.trim();
+              const wantsToAttend = document.querySelector('input[name="wantsToAttend"]:checked').value;
+              const phoneNumber = document.getElementById('phoneNumber').value.trim();
+              const wantsPortion = document.querySelector('input[name="wantsPortion"]:checked').value;
+              const portionDetails = wantsPortion === 'yes' ? document.getElementById('portionDetails').value.trim() : '';
+              const address = wantsPortion === 'yes' ? document.getElementById('address').value.trim() : '';
+              const paymentDone = document.querySelector('input[name="paymentDone"]:checked').value;
+              const receiptBookNumber = paymentDone === 'yes' ? document.getElementById('receiptBookNumber').value.trim() : '';
+              const receiptNumber = paymentDone === 'yes' ? document.getElementById('receiptNumber').value.trim() : '';
+              const assistanceFor = document.getElementById('assistanceFor').value;
+              
+              // التحقق من البيانات المطلوبة
+              if (!donorName || !sacrificeFor) {
+                  statusMessage.textContent = 'يرجى ملء جميع الحقول المطلوبة';
+                  statusMessage.className = 'error';
+                  return;
+              }
+              
+              try {
+                  // إضافة البيانات إلى Firestore
+                  const user = auth.currentUser;
+                  if (!user) {
+                      statusMessage.textContent = 'يجب تسجيل الدخول أولاً';
+                      statusMessage.className = 'error';
+                      return;
+                  }
+                  
+                  statusMessage.textContent = 'جاري حفظ البيانات...';
+                  statusMessage.className = '';
+                  
+                  // إنشاء كائن البيانات
+                  const sacrificeData = {
+                      donorName,
+                      sacrificeFor,
+                      wantsToAttend,
+                      phoneNumber,
+                      wantsPortion,
+                      portionDetails,
+                      address,
+                      paymentDone,
+                      receiptBookNumber,
+                      receiptNumber,
+                      assistanceFor,
+                      createdAt: serverTimestamp(),
+                      userId: user.uid,
+                      userEmail: user.email,
+                      status: 'pending_approval'
+                  };
+                  
+                  // إضافة المستند إلى مجموعة التضحيات
+                  const docRef = await addDoc(collection(db, "sacrifices"), sacrificeData);
+                  console.log("Document written with ID: ", docRef.id);
+                  
+                  // إعادة تعيين النموذج وعرض رسالة نجاح
+                  adahiForm.reset();
+                  statusMessage.textContent = 'تم تسجيل الأضحية بنجاح!';
+                  statusMessage.className = 'success';
+                  
+                  // إعادة تعيين حالة الحقول المخفية
+                  portionDetailsDiv.style.display = 'none';
+                  addressFieldDiv.style.display = 'none';
+                  paymentDetailsDiv.style.display = 'none';
+                  
+                  // تحديث عرض البيانات للمستخدم
+                  if (user.uid !== ADMIN_UID) {
+                      fetchAndRenderSacrificesForUser(user.uid);
+                  }
+              } catch (error) {
+                  console.error("Error adding document: ", error);
+                  statusMessage.textContent = `حدث خطأ أثناء حفظ البيانات: ${error.message}`;
+                  statusMessage.className = 'error';
+              }
+          });
       }
       
       const sacrificesTableBody = document.getElementById('sacrificesTableBody');
       const loadingMessage = document.getElementById('loadingMessage');
       let currentAdminData = []; 
-      function formatFirestoreTimestamp(timestamp) { /* ... (كما هي) ... */ }
+      function formatFirestoreTimestamp(timestamp) {
+          if (!timestamp) return 'غير محدد';
+          try {
+              const date = timestamp.toDate();
+              return date.toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+          } catch (error) {
+              console.error("Error formatting timestamp:", error);
+              return 'تاريخ غير صالح';
+          }
+      }
       
-      function renderSacrificesForAdmin(docs) { /* ... (كما هي) ... */ }
-      async function updateSacrificeStatus(docId, newStatus) { /* ... (كما هي) ... */ }
-      async function deleteSacrifice(docId, donorNameToConfirm) { /* ... (كما هي) ... */ }
+      function renderSacrificesForAdmin(docs) {
+          loadingMessage.style.display = 'none';
+          if (docs.empty) {
+              sacrificesTableBody.innerHTML = `<tr><td colspan="15">لا توجد تضحيات مسجلة.</td></tr>`;
+              return;
+          }
+          
+          currentAdminData = [];
+          let html = '';
+          let counter = 1;
+          
+          docs.forEach(doc => {
+              const data = doc.data();
+              currentAdminData.push({ id: doc.id, ...data });
+              
+              const statusText = data.status === 'approved' ? 'تمت الموافقة' : 
+                                data.status === 'rejected' ? 'مرفوض' : 'قيد المراجعة';
+              const statusClass = data.status === 'approved' ? 'success' : 
+                                data.status === 'rejected' ? 'error' : '';
+              
+              html += `<tr>
+                  <td>${counter}</td>
+                  <td>${data.donorName || '-'}</td>
+                  <td>${data.sacrificeFor || '-'}</td>
+                  <td>${data.wantsToAttend === 'yes' ? 'نعم' : 'لا'}</td>
+                  <td>${data.phoneNumber || '-'}</td>
+                  <td>${data.wantsPortion === 'yes' ? 'نعم' : 'لا'}</td>
+                  <td>${data.portionDetails || '-'}</td>
+                  <td>${data.address || '-'}</td>
+                  <td>${data.paymentDone === 'yes' ? 'نعم' : 'لا'}</td>
+                  <td>${data.receiptBookNumber || '-'}</td>
+                  <td>${data.receiptNumber || '-'}</td>
+                  <td>${data.assistanceFor === 'inside_ramtha' ? 'داخل الرمثا' : 
+                       data.assistanceFor === 'gaza_people' ? 'لأهل غزة' : 'لنفسه'}</td>
+                  <td>${formatFirestoreTimestamp(data.createdAt)}</td>
+                  <td class="${statusClass}">${statusText}</td>
+                  <td>
+                      ${data.status !== 'approved' ? `<button class="approve-btn" data-id="${doc.id}">موافقة</button>` : ''}
+                      ${data.status !== 'rejected' ? `<button class="reject-btn" data-id="${doc.id}">رفض</button>` : ''}
+                      <button class="delete-btn" data-id="${doc.id}" data-name="${data.donorName}">حذف</button>
+                  </td>
+              </tr>`;
+              counter++;
+          });
+          
+          sacrificesTableBody.innerHTML = html;
+          
+          // إضافة مستمعي الأحداث للأزرار
+          const approveButtons = sacrificesTableBody.querySelectorAll('.approve-btn');
+          const rejectButtons = sacrificesTableBody.querySelectorAll('.reject-btn');
+          const deleteButtons = sacrificesTableBody.querySelectorAll('.delete-btn');
+          
+          approveButtons.forEach(button => {
+              button.addEventListener('click', () => updateSacrificeStatus(button.dataset.id, 'approved'));
+          });
+          
+          rejectButtons.forEach(button => {
+              button.addEventListener('click', () => updateSacrificeStatus(button.dataset.id, 'rejected'));
+          });
+          
+          deleteButtons.forEach(button => {
+              button.addEventListener('click', () => deleteSacrifice(button.dataset.id, button.dataset.name));
+          });
+      }
+      async function updateSacrificeStatus(docId, newStatus) {
+          try {
+              const docRef = doc(db, "sacrifices", docId);
+              await updateDoc(docRef, {
+                  status: newStatus,
+                  updatedAt: serverTimestamp()
+              });
+              console.log(`Status updated to ${newStatus} for document ${docId}`);
+          } catch (error) {
+              console.error("Error updating status: ", error);
+              alert(`حدث خطأ أثناء تحديث الحالة: ${error.message}`);
+          }
+      }
+      async function deleteSacrifice(docId, donorNameToConfirm) {
+          const confirmDelete = confirm(`هل أنت متأكد من حذف تسجيل الأضحية لـ "${donorNameToConfirm}"؟ هذا الإجراء لا يمكن التراجع عنه.`);
+          if (!confirmDelete) return;
+          
+          try {
+              const docRef = doc(db, "sacrifices", docId);
+              await deleteDoc(docRef);
+              console.log(`Document ${docId} successfully deleted.`);
+          } catch (error) {
+              console.error("Error deleting document: ", error);
+              alert(`حدث خطأ أثناء حذف التسجيل: ${error.message}`);
+          }
+      }
       function fetchAndRenderSacrificesForAdmin(statusFilter = null) { 
           console.log("Attempting to fetch admin data with filter:", statusFilter); // تشخيص
           loadingMessage.textContent = 'جاري تحميل البيانات...'; 
@@ -148,8 +322,50 @@
       
       const userSacrificesTableBody = document.getElementById('userSacrificesTableBody'); 
       const userLoadingMessage = document.getElementById('userLoadingMessage'); 
-      function renderSacrificesForUser(docs) { /* ... (كما هي) ... */ }  
-      function fetchAndRenderSacrificesForUser(userId) { /* ... (كما هي) ... */ } 
+      function renderSacrificesForUser(docs) {
+          userLoadingMessage.style.display = 'none';
+          if (docs.empty) {
+              userSacrificesTableBody.innerHTML = `<tr><td colspan="5">لا توجد تضحيات مسجلة.</td></tr>`;
+              return;
+          }
+          
+          let html = '';
+          let counter = 1;
+          
+          docs.forEach(doc => {
+              const data = doc.data();
+              const statusText = data.status === 'approved' ? 'تمت الموافقة' : 
+                                data.status === 'rejected' ? 'مرفوض' : 'قيد المراجعة';
+              const statusClass = data.status === 'approved' ? 'success' : 
+                                data.status === 'rejected' ? 'error' : '';
+              
+              html += `<tr>
+                  <td>${counter}</td>
+                  <td>${data.donorName || '-'}</td>
+                  <td>${data.sacrificeFor || '-'}</td>
+                  <td>${formatFirestoreTimestamp(data.createdAt)}</td>
+                  <td class="${statusClass}">${statusText}</td>
+              </tr>`;
+              counter++;
+          });
+          
+          userSacrificesTableBody.innerHTML = html;
+      }  
+      function fetchAndRenderSacrificesForUser(userId) {
+          userLoadingMessage.textContent = 'جاري تحميل تسجيلاتك...';
+          userLoadingMessage.style.display = 'block';
+          userSacrificesTableBody.innerHTML = '';
+          
+          const q = query(collection(db, "sacrifices"), where("userId", "==", userId), orderBy("createdAt", "desc"));
+          onSnapshot(q, (querySnapshot) => {
+              console.log("User data received, number of docs:", querySnapshot.size);
+              renderSacrificesForUser(querySnapshot);
+          }, (error) => {
+              console.error("Error fetching user documents: ", error);
+              userLoadingMessage.textContent = 'حدث خطأ أثناء جلب البيانات: ' + error.message;
+              userSacrificesTableBody.innerHTML = `<tr><td colspan="5">خطأ في تحميل البيانات.</td></tr>`;
+          });
+      } 
       
       console.log("6. Setting up onAuthStateChanged listener..."); // تشخيص
       onAuthStateChanged(auth, (user) => {
@@ -193,7 +409,46 @@
       console.log("7. onAuthStateChanged listener set up."); // تشخيص
       
       if (loginForm) { 
-          loginForm.addEventListener('submit', async (e) => { /* ... (دالة تسجيل الدخول كما هي مع console.log) ... */ });
+          loginForm.addEventListener('submit', async (e) => {
+              e.preventDefault();
+              console.log("Login form submitted");
+              
+              const username = document.getElementById('usernameInput').value.trim();
+              const password = document.getElementById('passwordInput').value.trim();
+              
+              if (!username || !password) {
+                  authStatus.textContent = 'يرجى إدخال اسم المستخدم وكلمة المرور';
+                  authStatus.className = 'error';
+                  return;
+              }
+              
+              authStatus.textContent = 'جاري تسجيل الدخول...';
+              authStatus.className = '';
+              
+              try {
+                  // تحويل اسم المستخدم إلى بريد إلكتروني إذا لم يكن بالفعل
+                  const email = username.includes('@') ? username : `${username}@adahi-app.com`;
+                  console.log(`Attempting to sign in with email: ${email}`);
+                  
+                  await signInWithEmailAndPassword(auth, email, password);
+                  console.log("Login successful (from signInWithEmailAndPassword promise). onAuthStateChanged should handle UI.");
+                  // لا تقم بتحديث الواجهة هنا مباشرة، دع onAuthStateChanged يتولى الأمر
+              } catch (error) {
+                  console.error("Login error:", error);
+                  let errorMessage = 'حدث خطأ أثناء تسجيل الدخول';
+                  
+                  if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                      errorMessage = 'اسم المستخدم أو كلمة المرور غير صحيحة';
+                  } else if (error.code === 'auth/too-many-requests') {
+                      errorMessage = 'تم تجاوز عدد محاولات تسجيل الدخول. يرجى المحاولة لاحقًا';
+                  } else if (error.code === 'auth/network-request-failed') {
+                      errorMessage = 'فشل الاتصال بالشبكة. يرجى التحقق من اتصالك بالإنترنت';
+                  }
+                  
+                  authStatus.textContent = errorMessage;
+                  authStatus.className = 'error';
+              }
+          });
       } 
       
       if (logoutButton) { 
