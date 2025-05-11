@@ -78,8 +78,8 @@ export function getAdminViewElements() {
         filterAllButton: document.getElementById('filterAll'),
         exportAllToExcelButton: document.getElementById('exportAllToExcelButton'),
         exportAllUsersSeparateExcelButton: document.getElementById('exportAllUsersSeparateExcelButton'),
-        exportAllToPdfButton: document.getElementById('exportAllToPdfButton'), // <<<--- زر PDF جديد
-        exportAllUsersSeparatePdfButton: document.getElementById('exportAllUsersSeparatePdfButton'), // <<<--- زر PDF جديد
+        exportAllToPdfButton: document.getElementById('exportAllToPdfButton'),
+        exportAllUsersSeparatePdfButton: document.getElementById('exportAllUsersSeparatePdfButton'),
         sacrificesSummaryDiv: document.getElementById('sacrificesSummary'),
         summaryGazaEl: document.getElementById('summaryGaza'),
         summarySolidarityEl: document.getElementById('summarySolidarity'),
