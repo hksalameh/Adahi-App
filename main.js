@@ -5,7 +5,7 @@ import * as authModule from './auth.js';
 import * as fsService from './firestoreService.js';
 import * as uiGetters from './ui.js'; 
 import { getFirestore, collection, query, orderBy, where, getDocs, serverTimestamp, onSnapshot } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-firestore.js";
-
+ alert("السكريبت الرئيسي بدأ التنفيذ!"); // <--- إضافة هذا السطر
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = authModule.initializeAuth(); 
