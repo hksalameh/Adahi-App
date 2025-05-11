@@ -4,255 +4,178 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تسجيل الأضاحي</title>
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
-    <!-- SheetJS (js-xlsx) for Excel Export -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <!-- jsPDF for PDF Export -->
+    <!-- *** تضمين مكتبات jsPDF و jsPDF-AutoTable *** -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <!-- jsPDF-AutoTable plugin for tables -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
     
     <style>
+        /* ... (كل CSS كما هو من الرد السابق) ... */
         @import url('https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;700&display=swap');
         body { font-family: 'Noto Kufi Arabic', 'Tajawal', sans-serif; margin: 0; padding: 0; background-color: #f0f2f5; color: #2c3e50; line-height: 1.7; font-size: 16px; }
         .page-container { padding: 20px; }
-        .container { max-width: 1000px; margin: 25px auto; background-color: #ffffff; padding: 30px 35px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.07); }
+        .container { max-width: 950px; margin: 25px auto; background-color: #ffffff; padding: 30px 35px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.07); }
         h1 { color: #2c3e50; text-align: center; margin-bottom: 35px; font-size: 2.5em; font-weight: 700; }
         h2 { color: #34495e; text-align: center; margin-top: 35px; margin-bottom: 30px; border-bottom: 2px solid #eaecee; padding-bottom: 12px; font-size: 2em; font-weight: 700; }
-        
-        .auth-form-section form label, #dataEntrySection form label { font-size: 1.1em; color: #34495e; margin-bottom: 8px; font-weight: 500; display: block; text-align: right; }
-        .auth-form-section .remember-me-group { margin-bottom: 15px; text-align: right; display:flex; align-items:center; }
-        .auth-form-section .remember-me-label { font-size: 1em; font-weight: normal; margin-right: 5px; margin-bottom:0; }
-        .auth-form-section input[type="checkbox"]#rememberMe { vertical-align: middle; margin-left: 5px; transform: scale(1.1); width: auto; }
-        
-        .auth-form-section form input[type="text"], 
-        .auth-form-section form input[type="email"], 
-        .auth-form-section form input[type="password"],
-        #dataEntrySection form input[type="text"], 
-        #dataEntrySection form input[type="tel"], 
-        #dataEntrySection form select { 
-            font-size: 1.1em; padding: 12px; border: 1px solid #bcccdc; background-color: #fcfdff; 
-            border-radius: 6px; width: 100%; box-sizing: border-box; 
-        }
-        .auth-form-section form input[type="text"]:focus,
-        .auth-form-section form input[type="email"]:focus,
-        .auth-form-section form input[type="password"]:focus,
-        #dataEntrySection form input[type="text"]:focus, 
-        #dataEntrySection form input[type="tel"]:focus, 
-        #dataEntrySection form textarea:focus, 
-        #dataEntrySection form select:focus { 
-            border-color: #5dade2; box-shadow: 0 0 0 0.2rem rgba(41,128,185,.25); outline: none; 
-        }
-        .auth-form-section form div:not(.remember-me-group), #dataEntrySection form div { margin-bottom: 20px; }
-        .auth-form-section form { max-width: 400px; margin-left: auto; margin-right: auto; }
-
+        #dataEntrySection form label, #loginSection form label { font-size: 1.1em; color: #34495e; margin-bottom: 8px; font-weight: 500; display: block; }
+        #dataEntrySection form input[type="text"], #dataEntrySection form input[type="tel"], #dataEntrySection form select, #loginSection form input[type="text"], #loginSection form input[type="password"] { font-size: 1.1em; padding: 12px; border: 1px solid #bcccdc; background-color: #fcfdff; border-radius: 6px; width: 100%; box-sizing: border-box; }
         #dataEntrySection form textarea#portionDetails { font-size: 1.1em; padding: 10px; border: 1px solid #bcccdc; background-color: #fcfdff; border-radius: 6px; width: 100%; box-sizing: border-box; min-height: 60px; height: 80px; resize: vertical; }
+        #dataEntrySection form input[type="text"]:focus, #dataEntrySection form input[type="tel"]:focus, #dataEntrySection form textarea:focus, #dataEntrySection form select:focus, #loginSection form input[type="text"]:focus, #loginSection form input[type="password"]:focus { border-color: #5dade2; box-shadow: 0 0 0 0.2rem rgba(41,128,185,.25); outline: none; }
         #dataEntrySection form textarea#portionDetails:focus { border-color: #5dade2; box-shadow: 0 0 0 0.2rem rgba(41,128,185,.25); outline: none; }
-        #dataEntrySection .radio-group-label { font-size: 1.1em; margin-bottom: 10px; display:block; text-align:right;}
+        #dataEntrySection form div, #loginSection form div { margin-bottom: 20px; }
+        #loginSection form { max-width: 400px; margin-left: auto; margin-right: auto; }
+        #loginSection form label { text-align: right; }
+        #dataEntrySection .radio-group-label { font-size: 1.1em; margin-bottom: 10px;}
         #dataEntrySection input[type="radio"] + label { font-weight: normal; font-size: 1.05em; margin-right: 15px; margin-left: 5px; color: #566573; display: inline-flex; align-items: center; }
         #dataEntrySection input[type="radio"] { margin-left: 8px; vertical-align: middle; width: auto; transform: scale(1.1); }
-        
         button, input[type="submit"] { padding: 12px 25px; background-color: #3498db; color: white; border: none; cursor: pointer; margin-top: 10px; margin-right: 10px; border-radius: 6px; font-size: 1.1em; font-weight: 500; transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        button:hover, input[type="submit"]:hover { background-color: #2980b9; } 
-        button:active, input[type="submit"]:active { transform: translateY(1px); box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-        
+        button:hover, input[type="submit"]:hover { background-color: #2980b9; } button:active, input[type="submit"]:active { transform: translateY(1px); box-shadow: 0 1px 2px rgba(0,0,0,0.1); } 
         #adahiForm button[type="submit"] { background-color: #27ae60; min-width: 180px; font-weight: 700; font-size: 1.15em; padding: 13px 30px; }
         #adahiForm button[type="submit"]:hover { background-color: #229954; }
-        #logoutButton { background-color: #e74c3c; font-size: 1.1em; padding: 12px 25px;}
+        #logoutButton { background-color: #e74c3c; font-size: 1.1em; padding: 12px 25px;} 
         #logoutButton:hover { background-color: #c0392b; }
-        
-        #adminActions { text-align: center; margin-bottom: 25px; }
-        #adminActions button { background-color: #7f8c8d; font-size: 1em; padding: 10px 20px; box-shadow: none; margin-bottom: 5px; margin-left: 5px; }
-        #adminActions button:hover { background-color: #6c7a7b; }
-        #exportAllToPdfButton, #exportAllUsersSeparatePdfButton {
-            background-color: #d35400; /* لون مختلف لزر PDF */
+        #adminActions { text-align: center; margin-bottom: 25px; } 
+        #adminActions button { background-color: #7f8c8d; font-size: 1em; padding: 10px 20px; box-shadow: none; margin-bottom: 5px; } 
+        #adminActions button:hover { background-color: #6c7a7b; } 
+        #exportToPdfButton { /* *** كان exportToCsvButton *** */
+            background-color: #17a2b8; 
         }
-        #exportAllToPdfButton:hover, #exportAllUsersSeparatePdfButton:hover {
-            background-color: #a04000;
+        #exportToPdfButton:hover {
+            background-color: #138496;
         }
-        
-        #sacrificesTableBody button, #userSacrificesTableBody button { font-size: 0.9em; padding: 6px 12px; margin-right: 5px; box-shadow: none; border-radius: 4px; }
-        /* ... (بقية تنسيقات الأزرار في الجدول) ... */
-
-        .hidden-field { display: none; } 
-        hr { margin: 40px 0; border: 0; border-top: 1px solid #bdc3c7; } 
-        #authStatus, #statusMessage { margin-top: 20px; padding: 14px; border-radius: 6px; font-weight: 500; font-size: 1.1em; text-align: center; } 
-        .success { background-color: #d0f0c0; color: #228B22; border: 1px solid #a0d0a0; } 
-        .error { background-color: #fddfdf; color: #D8000C; border: 1px solid #fccfcf; } 
-        
-        table { width:100%; margin-top: 25px; border-collapse: separate; border-spacing: 0; box-shadow: 0 3px 8px rgba(0,0,0,0.06); border-radius: 8px; overflow-x: auto; font-size: 0.9em; } 
-        th, td { border-bottom: 1px solid #d3d9e0; padding: 8px 10px; text-align: right; vertical-align: middle; white-space: nowrap; } 
-        td { border-left: 1px solid #d3d9e0; } td:first-child { border-left: none; } 
-        th { background-color: #eaf0f7; font-weight: 700; color: #2c3e50; border-top: 1px solid #d3d9e0;} 
-        tbody tr:last-child td { border-bottom: none; } 
-        #sacrificesTableBody tr:nth-child(even), #userSacrificesTableBody tr:nth-child(even) { background-color: #fbfcfd; } 
-        #sacrificesTableBody tr:hover, #userSacrificesTableBody tr:hover { background-color: #e6f3ff; }
-
-        #formToggleLinks a { color: #3498db; text-decoration: none; margin: 0 10px; font-size: 0.95em; }
-        #formToggleLinks a:hover { text-decoration: underline; }
-
-        #sacrificesSummary { margin-top: 30px; padding: 20px; background-color: #eaf0f7; border-radius: 8px; }
-        #sacrificesSummary h3 { text-align: center; margin-bottom: 15px; color: #34495e; }
-        #sacrificesSummary p { margin: 8px 0; font-size: 1.1em; }
-        #sacrificesSummary p strong { color: #2c3e50; }
+        #sacrificesTableBody button { font-size: 0.9em; padding: 6px 12px; margin-right: 5px; box-shadow: none; border-radius: 4px; }
+        #sacrificesTableBody button.delete-btn { background-color: #e74c3c; }
+        #sacrificesTableBody button.delete-btn:hover { background-color: #c0392b; }
+        .hidden-field, .admin-section, .user-section, .user-data-section { display: none; } hr { margin: 40px 0; border: 0; border-top: 1px solid #bdc3c7; } #statusMessage, #authStatus { margin-top: 20px; padding: 14px; border-radius: 6px; font-weight: 500; font-size: 1.1em; } .success { background-color: #d0f0c0; color: #228B22; border: 1px solid #a0d0a0; } .error { background-color: #fddfdf; color: #D8000C; border: 1px solid #fccfcf; } table { width:100%; margin-top: 25px; border-collapse: separate; border-spacing: 0; box-shadow: 0 3px 8px rgba(0,0,0,0.06); border-radius: 8px; overflow: hidden; } th, td { border-bottom: 1px solid #d3d9e0; padding: 14px 18px; text-align: right; vertical-align: middle; font-size: 1.05em; } td { border-left: 1px solid #d3d9e0; } td:first-child { border-left: none; } th { background-color: #eaf0f7; font-weight: 700; color: #2c3e50; font-size: 1.1em; border-top: 1px solid #d3d9e0;} tbody tr:last-child td { border-bottom: none; } #sacrificesTableBody tr:nth-child(even), #userSacrificesTableBody tr:nth-child(even) { background-color: #fbfcfd; } #sacrificesTableBody tr:hover, #userSacrificesTableBody tr:hover { background-color: #e6f3ff; }
     </style>
 </head>
 <body>
     <div class="page-container">
-        <div class="container">
+        <div class="container"> 
             <h1>موقع تسجيل الأضاحي</h1>
             <div id="authStatus"></div> 
-
-            <div id="loginSection" class="auth-form-section">
-                <h2>تسجيل الدخول</h2>
-                <form id="loginForm">
-                    <div><label for="loginEmail">البريد الإلكتروني (لتسجيل الدخول):</label><input type="email" id="loginEmail" name="loginEmail" required></div>
-                    <div><label for="loginPassword">كلمة المرور:</label><input type="password" id="loginPassword" name="loginPassword" required></div>
-                    <div class="remember-me-group">
-                        <input type="checkbox" id="rememberMe" name="rememberMe" checked>
-                        <label for="rememberMe" class="remember-me-label">تذكرني</label>
-                    </div>
-                    <button type="submit">دخول</button>
-                </form>
-            </div>
-
-            <div id="registrationSection" class="auth-form-section hidden-field">
-                <h2>إنشاء حساب جديد</h2>
-                <form id="registrationForm">
-                    <div><label for="regDisplayNameInput">الاسم (الذي سيظهر للمسؤول):</label><input type="text" id="regDisplayNameInput" name="regDisplayNameInput" required></div>
-                    <div><label for="regEmailInput">البريد الإلكتروني (لتسجيل الدخول):</label><input type="email" id="regEmailInput" name="regEmailInput" required></div>
-                    <div><label for="regPasswordInput">كلمة المرور (6 أحرف على الأقل):</label><input type="password" id="regPasswordInput" name="regPasswordInput" required></div>
-                    <div><label for="regConfirmPasswordInput">تأكيد كلمة المرور:</label><input type="password" id="regConfirmPasswordInput" name="regConfirmPasswordInput" required></div>
-                    <button type="submit">إنشاء حساب</button>
-                </form>
-            </div>
-
-            <div id="formToggleLinks" style="text-align: center; margin-top: 15px; margin-bottom: 25px;" class="hidden-field">
-                <a href="#" id="switchToRegisterLink">ليس لديك حساب؟ أنشئ واحدًا</a>
-                <a href="#" id="switchToLoginLink" class="hidden-field">لديك حساب بالفعل؟ سجل دخولك</a>
-            </div>
-            
-            <button id="logoutButton" class="hidden-field" style="display: block; margin-left:auto; margin-right:auto;">تسجيل الخروج</button>
-            <hr class="hidden-field" id="hrAfterLogout">
-
-            <div id="dataEntrySection" class="hidden-field"> <hr> 
-                <h2>تسجيل أضحية/تبرع جديد</h2>
-                <form id="adahiForm">
-                    <div><label for="donorName">اسم المتبرع (كما سيظهر في السجل):</label><input type="text" id="donorName" name="donorName" required></div>
-                    <div><label for="sacrificeFor">الأضحية عن (اسم الشخص/الجهة):</label><input type="text" id="sacrificeFor" name="sacrificeFor" required></div>
-                    <div>
-                        <label class="radio-group-label">هل يريد الحضور للذبح؟</label>
-                        <input type="radio" id="wantsToAttendYes" name="wantsToAttend" value="yes"><label for="wantsToAttendYes">نعم</label>
-                        <input type="radio" id="wantsToAttendNo" name="wantsToAttend" value="no" checked><label for="wantsToAttendNo">لا</label>
-                    </div>
-                    <div><label for="phoneNumber">رقم الهاتف (اختياري، للتواصل):</label><input type="tel" id="phoneNumber" name="phoneNumber"></div>
-                    <div>
-                        <label class="radio-group-label">هل يريد جزءًا من الأضحية؟</label>
-                        <input type="radio" id="wantsPortionYes" name="wantsPortion" value="yes"><label for="wantsPortionYes">نعم</label>
-                        <input type="radio" id="wantsPortionNo" name="wantsPortion" value="no" checked><label for="wantsPortionNo">لا</label>
-                    </div>
-                    <div id="portionDetailsDiv" class="hidden-field"><label for="portionDetails">ماذا يريد من الأضحية؟</label><textarea id="portionDetails" name="portionDetails" rows="3"></textarea></div>
-                    <div id="addressFieldDiv" class="hidden-field"><label for="address">العنوان (لتوصيل الجزء إذا اختار "نعم"):</label><input type="text" id="address" name="address"></div>
-                    <div>
-                        <label class="radio-group-label">هل تم الدفع؟</label>
-                        <input type="radio" id="paymentDoneYes" name="paymentDone" value="yes"><label for="paymentDoneYes">نعم</label>
-                        <input type="radio" id="paymentDoneNo" name="paymentDone" value="no" checked><label for="paymentDoneNo">لا</label>
-                    </div>
-                    <div id="paymentDetailsDiv" class="hidden-field">
-                        <div><label for="receiptBookNumber">رقم الدفتر:</label><input type="text" id="receiptBookNumber" name="receiptBookNumber"></div>
-                        <div><label for="receiptNumber">رقم السند:</label><input type="text" id="receiptNumber" name="receiptNumber"></div>
-                    </div>
-                    <div>
-                        <label for="assistanceFor">لمن المساعدة (توزيع اللحم)؟</label>
-                        <select id="assistanceFor" name="assistanceFor">
-                            <option value="inside_ramtha">داخل الرمثا</option>
-                            <option value="gaza_people">لأهل غزة</option>
-                            <option value="for_himself">لنفسه (إذا كان سيأخذها كاملة)</option>
-                            <option value="solidarity_fund">صندوق التضامن</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="radio-group-label">هل تم إحضارها بواسطة شخص آخر (وسيط)؟</label>
-                        <input type="radio" id="broughtByOtherYes" name="broughtByOther" value="yes"><label for="broughtByOtherYes">نعم</label>
-                        <input type="radio" id="broughtByOtherNo" name="broughtByOther" value="no" checked><label for="broughtByOtherNo">لا</label>
-                    </div>
-                    <div id="broughtByOtherNameDiv" class="hidden-field">
-                        <label for="broughtByOtherName">اسم الشخص الذي أحضرها (الوسيط):</label>
-                        <input type="text" id="broughtByOtherName" name="broughtByOtherName">
-                    </div>
-                    <div style="text-align: center;"><button type="submit">تسجيل البيانات</button></div>
-                </form>
-                <div id="statusMessage"></div>
-                <hr>
-            </div>
-
-            <div id="userDataViewSection" class="hidden-field"> 
-                <h2>تسجيلاتك الحالية</h2>
-                <p id="userLoadingMessage">جاري تحميل تسجيلاتك...</p>
-                <table id="userSacrificesTable" border="1">
-                    <thead>
-                        <tr><th>م.</th><th>اسم المتبرع</th><th>الأضحية عن</th><th>بوسيط؟</th><th>اسم الوسيط</th><th>تاريخ التسجيل</th><th>الحالة</th></tr>
-                    </thead>
-                    <tbody id="userSacrificesTableBody"></tbody>
-                </table><hr>
-            </div>
-
-            <div id="adminViewSection" class="hidden-field"> 
-                <h2>سجلات الأضاحي المسجلة (لوحة تحكم المسؤول)</h2>
+            <div id="loginSection"> <!-- ... (HTML كما هو) ... --> </div>
+            <button id="logoutButton" class="hidden-field">تسجيل الخروج</button> <hr class="hidden-field" id="hrAfterLogout">
+            <div id="dataEntrySection" class="user-section"> <!-- ... (HTML كما هو) ... --> </div>
+            <div id="userDataViewSection" class="user-data-section"> <!-- ... (HTML كما هو) ... --> </div>
+            <div id="adminViewSection" class="admin-section"> 
+                <h2>سجلات الأضاحي المسجلة</h2>
                 <div id="adminActions">
-                    <button id="filterPending">عرض "لم تدخل بعد" فقط</button>
-                    <button id="filterEntered">عرض "تم الإدخال" فقط</button>
+                    <button id="filterPending">عرض قيد المراجعة فقط</button>
+                    <button id="filterApproved">عرض الموافق عليها فقط</button>
+                    <button id="filterRejected">عرض المرفوضة فقط</button>
                     <button id="filterAll">عرض الكل</button>
-                    <hr style="margin: 15px 0;">
-                    <button id="exportAllToExcelButton">تصدير كل البيانات (Excel)</button>
-                    <button id="exportAllUsersSeparateExcelButton" style="margin-top:5px;">تصدير بيانات كل مدخل بملف منفصل (Excel)</button>
-                    <br>
-                    <button id="exportAllToPdfButton" style="margin-top:5px;">تصدير كل البيانات (PDF)</button>
-                    <button id="exportAllUsersSeparatePdfButton" style="margin-top:5px;">تصدير بيانات كل مدخل بملف منفصل (PDF)</button>
+                    <br> 
+                    {/* *** تغيير ID والنص هنا *** */}
+                    <button id="exportToPdfButton">تصدير إلى PDF</button> 
                 </div>
-                
-                <div id="sacrificesSummary" class="hidden-field">
-                    <h3>ملخص الأضاحي الموجهة</h3>
-                    <p>لأهل غزة: <strong id="summaryGaza">0</strong></p>
-                    <p>صندوق التضامن: <strong id="summarySolidarity">0</strong></p>
-                    <p>داخل الرمثا: <strong id="summaryRamtha">0</strong></p>
-                    <p>لنفسه: <strong id="summaryHimself">0</strong></p>
-                    <p><strong>المجموع الكلي:</strong> <strong id="summaryTotal">0</strong></p>
-                </div>
-                <hr class="hidden-field" id="hrAfterSummary">
-
-                <div id="sacrificesTableContainer">
-                    <p id="adminLoadingMessage">جاري تحميل البيانات...</p> 
-                    <table id="sacrificesTable" border="1">
-                        <thead>
-                            <tr>
-                                <th>م.</th>
-                                <th>اسم المتبرع</th>
-                                <th>الأضحية عن</th>
-                                <th>حضور؟</th>
-                                <th>رقم الهاتف</th>
-                                <th>جزء؟</th>
-                                <th>تفاصيل الجزء</th>
-                                <th>العنوان</th>
-                                <th>مدفوع؟</th>
-                                <th>ر.الدفتر</th>
-                                <th>ر.السند</th>
-                                <th>المساعدة لـ</th>
-                                <th>أدخل بواسطة</th>
-                                <th>بوسيط؟</th>
-                                <th>اسم الوسيط</th>
-                                <th>ت.التسجيل</th>
-                                <th>الحالة</th>
-                                <th>إجراءات</th>
-                            </tr>
-                        </thead>
-                        <tbody id="sacrificesTableBody"></tbody>
-                    </table>
-                </div><hr>
+                <div id="sacrificesTableContainer"> <!-- ... (HTML كما هو) ... --> </div>
             </div>
-        </div>
-    </div>
+        </div> 
+    </div> 
 
-    <script type="module" src="main.js"></script>
+    <script type="module">
+      // ... (كل JavaScript يبقى كما هو من الرد السابق، مع إضافة وتعديل وظائف التصدير)
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-auth.js";import { getFirestore, collection, addDoc, serverTimestamp, onSnapshot, query, orderBy, where, doc, updateDoc, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-firestore.js"; const firebaseConfig = { apiKey: "AIzaSyAOV5iF6t5kdAeBIZPNcmINB4Ya66Yx9Pg",authDomain: "adahi-app.firebaseapp.com",projectId: "adahi-app",storageBucket: "adahi-app.firebasestorage.app", messagingSenderId: "42370235858",appId: "1:42370235858:web:6f839b92404afafdae9c0b",measurementId: "G-1T2TGPK72K"};const app = initializeApp(firebaseConfig);const db = getFirestore(app);const auth = getAuth(app); const loginSection = document.getElementById('loginSection');const dataEntrySection = document.getElementById('dataEntrySection'); const adminViewSection = document.getElementById('adminViewSection'); const userDataViewSection = document.getElementById('userDataViewSection');const loginForm = document.getElementById('loginForm');const logoutButton = document.getElementById('logoutButton');const hrAfterLogout = document.getElementById('hrAfterLogout');const authStatus = document.getElementById('authStatus');const ADMIN_UID = 'AKpJLStGGnRC2Albb8bpZ0KtTGq1'; const wantsPortionYesRadio = document.getElementById('wantsPortionYes');const wantsPortionNoRadio = document.getElementById('wantsPortionNo');const portionDetailsDiv = document.getElementById('portionDetailsDiv');const addressFieldDiv = document.getElementById('addressFieldDiv');const paymentDoneYesRadio = document.getElementById('paymentDoneYes');const paymentDoneNoRadio = document.getElementById('paymentDoneNo');const paymentDetailsDiv = document.getElementById('paymentDetailsDiv');wantsPortionYesRadio.addEventListener('change', function() {if (this.checked) {portionDetailsDiv.style.display = 'block';addressFieldDiv.style.display = 'block';}});wantsPortionNoRadio.addEventListener('change', function() {if (this.checked) {portionDetailsDiv.style.display = 'none';addressFieldDiv.style.display = 'none';}});paymentDoneYesRadio.addEventListener('change', function() {if (this.checked) {paymentDetailsDiv.style.display = 'block';}});paymentDoneNoRadio.addEventListener('change', function() {if (this.checked) {paymentDetailsDiv.style.display = 'none';}});const adahiForm = document.getElementById('adahiForm');const statusMessage = document.getElementById('statusMessage');adahiForm.addEventListener('submit', async (event) => { /* ... (كما هي) ... */ });const sacrificesTableBody = document.getElementById('sacrificesTableBody');const loadingMessage = document.getElementById('loadingMessage');function formatFirestoreTimestamp(timestamp) { /* ... (كما هي) ... */ } function renderSacrificesForAdmin(docs) { /* ... (كما هي، مع تخزين البيانات في currentAdminData) ... */ } async function updateSacrificeStatus(docId, newStatus) { /* ... (كما هي) ... */ } async function deleteSacrifice(docId, donorNameToConfirm) { /* ... (كما هي) ... */ } function fetchAndRenderSacrificesForAdmin(statusFilter = null) { /* ... (كما هي) ... */ } document.getElementById('filterPending').addEventListener('click', () => fetchAndRenderSacrificesForAdmin('pending_approval'));document.getElementById('filterApproved').addEventListener('click', () => fetchAndRenderSacrificesForAdmin('approved'));document.getElementById('filterRejected').addEventListener('click', () => fetchAndRenderSacrificesForAdmin('rejected'));document.getElementById('filterAll').addEventListener('click', () => fetchAndRenderSacrificesForAdmin(null)); const userSacrificesTableBody = document.getElementById('userSacrificesTableBody'); const userLoadingMessage = document.getElementById('userLoadingMessage'); function renderSacrificesForUser(docs) { /* ... (كما هي) ... */ } function fetchAndRenderSacrificesForUser(userId) { /* ... (كما هي) ... */ } onAuthStateChanged(auth, (user) => { /* ... (كما هي) ... */ }); if (loginForm) { loginForm.addEventListener('submit', async (e) => { /* ... (كما هي) ... */ });} if (logoutButton) { logoutButton.addEventListener('click', () => { /* ... (كما هي) ... */ });}
+
+      // --- *** بداية: دالة تصدير البيانات إلى PDF *** ---
+      const exportToPdfButton = document.getElementById('exportToPdfButton'); // تم تغيير الـ ID
+      let currentAdminData = []; // سيبقى لتخزين البيانات
+
+      // تعديل renderSacrificesForAdmin لتخزين البيانات (كما كان)
+      function renderSacrificesForAdmin(docs) { 
+          sacrificesTableBody.innerHTML = ''; currentAdminData = []; 
+          if (docs.empty) { /* ... */ return; }
+          loadingMessage.style.display = 'none'; let counter = 1; 
+          docs.forEach((docSnapshot) => {
+              const data = docSnapshot.data(); currentAdminData.push(data); 
+              const row = sacrificesTableBody.insertRow();
+              row.insertCell().textContent = counter++;row.insertCell().textContent = data.donorName || '';row.insertCell().textContent = data.sacrificeFor || '';row.insertCell().textContent = data.wantsToAttend ? 'نعم' : 'لا';row.insertCell().textContent = data.phoneNumber || '';row.insertCell().textContent = data.wantsPortion ? 'نعم' : 'لا';row.insertCell().textContent = data.portionDetails || '';row.insertCell().textContent = data.address || '';row.insertCell().textContent = data.paymentDone ? 'نعم' : 'لا';row.insertCell().textContent = data.receiptBookNumber || '';row.insertCell().textContent = data.receiptNumber || '';row.insertCell().textContent = data.assistanceFor ? (data.assistanceFor === 'inside_ramtha' ? 'داخل الرمثا' : data.assistanceFor === 'gaza_people' ? 'لأهل غزة' : data.assistanceFor === 'for_himself' ? 'لنفسه' : data.assistanceFor) : '';row.insertCell().textContent = formatFirestoreTimestamp(data.createdAt);row.insertCell().textContent = data.status === 'pending_approval' ? 'قيد المراجعة' : data.status === 'approved' ? 'موافق عليه' : data.status === 'rejected' ? 'مرفوض' : data.status;const actionsCell = row.insertCell();if (data.status === 'pending_approval') {const approveButton = document.createElement('button'); approveButton.textContent = 'موافقة'; approveButton.onclick = () => updateSacrificeStatus(docSnapshot.id, 'approved'); actionsCell.appendChild(approveButton); const rejectButton = document.createElement('button'); rejectButton.textContent = 'رفض'; rejectButton.style.backgroundColor = '#e74c3c'; rejectButton.style.marginRight = '5px'; rejectButton.onclick = () => updateSacrificeStatus(docSnapshot.id, 'rejected'); actionsCell.appendChild(rejectButton); } else if (data.status === 'approved' || data.status === 'rejected') { const revertButton = document.createElement('button'); revertButton.textContent = 'إعادة للمراجعة'; revertButton.style.backgroundColor = '#f39c12'; revertButton.onclick = () => { updateSacrificeStatus(docSnapshot.id, 'pending_approval'); }; actionsCell.appendChild(revertButton); } const deleteBtn = document.createElement('button'); deleteBtn.textContent = 'حذف'; deleteBtn.className = 'delete-btn'; deleteBtn.style.marginLeft = '5px'; deleteBtn.onclick = () => deleteSacrifice(docSnapshot.id, data.donorName || 'هذا السجل'); actionsCell.appendChild(deleteBtn);
+          });
+      }
+      
+      async function exportDataToPdf(filename, dataToExport) {
+          if (!dataToExport || dataToExport.length === 0) {
+              alert('لا توجد بيانات لتصديرها.');
+              return;
+          }
+
+          const { jsPDF } = window.jspdf; // الوصول إلى jsPDF من النطاق العام
+          const doc = new jsPDF();
+
+          // --- تحميل الخط العربي ---
+          // تأكد أن ملف Amiri-Regular.ttf موجود في نفس مسار index.html
+          // أو قم بتعديل المسار إذا وضعته في مجلد fonts مثلاً: 'fonts/Amiri-Regular.ttf'
+          try {
+            const fontFile = await fetch('Amiri-Regular.ttf').then(res => res.arrayBuffer());
+            const AmiriRegularBase64 = btoa(new Uint8Array(fontFile).reduce((data, byte) => data + String.fromCharCode(byte), ''));
+            doc.addFileToVFS('Amiri-Regular.ttf', AmiriRegularBase64);
+            doc.addFont('Amiri-Regular.ttf', 'Amiri', 'normal');
+            doc.setFont('Amiri'); // تعيين الخط الافتراضي للمستند
+          } catch (err) {
+            console.error("Error loading font:", err);
+            alert("خطأ في تحميل الخط العربي. قد لا تظهر النصوص العربية بشكل صحيح.");
+            // يمكن الاستمرار بدون الخط المخصص، لكن العربية لن تكون جيدة
+          }
+          // --- نهاية تحميل الخط ---
+
+          // تحديد رؤوس الأعمدة (يجب أن تكون بالترتيب الذي تريده في PDF)
+          // (ملاحظة: jsPDF-AutoTable يتعامل مع RTL بشكل أفضل إذا كانت النصوص معكوسة مبدئيًا في الكود،
+          // لكن سنحاول بدون عكس مبدئيًا ونرى النتيجة مع الخط العربي)
+          const head = [[
+              "إجراءات", "الحالة", "تاريخ التسجيل", "لمن المساعدة", 
+              "رقم السند", "رقم الدفتر", "تم الدفع", "العنوان", 
+              "تفاصيل الجزء", "يريد جزءًا", "رقم الهاتف", "يريد الحضور", 
+              "الأضحية عن", "اسم المتبرع", "م."
+          ].reverse()]; // عكس ترتيب الرؤوس لـ RTL
+
+          const body = dataToExport.map((item, index) => [
+              "", // خلية الإجراءات فارغة في PDF (أو يمكن وضع الحالة)
+              item.status === 'pending_approval' ? "قيد المراجعة" : item.status === 'approved' ? "موافق عليه" : item.status === 'rejected' ? "مرفوض" : (item.status || ''),
+              formatFirestoreTimestamp(item.createdAt),
+              item.assistanceFor === 'inside_ramtha' ? "داخل الرمثا" : item.assistanceFor === 'gaza_people' ? "لأهل غزة" : item.assistanceFor === 'for_himself' ? "لنفسه" : (item.assistanceFor || ''),
+              item.receiptNumber || '',
+              item.receiptBookNumber || '',
+              item.paymentDone ? "نعم" : "لا",
+              item.address || '',
+              item.portionDetails || '',
+              item.wantsPortion ? "نعم" : "لا",
+              item.phoneNumber || '',
+              item.wantsToAttend ? "نعم" : "لا",
+              item.sacrificeFor || '',
+              item.donorName || '',
+              dataToExport.length - index // للترقيم التنازلي (مثل الجدول) أو index + 1 للترقيم التصاعدي
+          ].reverse()); // عكس ترتيب خلايا كل صف لـ RTL
+
+          doc.autoTable({
+              head: head,
+              body: body,
+              startY: 10, // من أين يبدأ الجدول في الصفحة
+              styles: {
+                  font: 'Amiri', // استخدام الخط العربي
+                  halign: 'right', // محاذاة النص لليمين
+                  cellPadding: 2,
+                  fontSize: 8, // يمكنك تعديل حجم الخط
+              },
+              headStyles: {
+                  fillColor: [22, 160, 133], // لون خلفية الرؤوس
+                  textColor: 255,
+                  fontStyle: 'bold',
+                  halign: 'center', // توسيط نصوص الرؤوس
+              },
+              didDrawPage: function (data) { // لإضافة رقم الصفحة أو أي شيء آخر
+                  // doc.text("Page " + doc.internal.getNumberOfPages(), data.settings.margin.left, doc.internal.pageSize.height - 10);
+              }
+          });
+
+          doc.save(filename + '.pdf');
+      }
+
+      if (exportToPdfButton) {
+          exportToPdfButton.addEventListener('click', () => {
+              exportDataToPdf('بيانات_الأضاحي_المفلترة', currentAdminData);
+          });
+      }
+      // --- *** نهاية: دالة تصدير البيانات إلى PDF *** ---
+    </script>
 </body>
 </html>
