@@ -9,4 +9,5 @@ export const firebaseConfig = {
     measurementId: "G-1T2TGPK72K"
 };
 
+// تأكد من أن هذا هو الـ UID الصحيح للمسؤول في Firebase Authentication
 export const ADMIN_UID = 'AKpJLStGGnRC2Albb8bpZ0KtTGq1'; // استبدل بالـ UID الفعلي للمسؤول
