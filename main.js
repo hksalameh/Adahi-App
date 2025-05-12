@@ -5,7 +5,27 @@ import * as authModule from './auth.js';
 import * as fsService from './firestoreService.js';
 import * as uiGetters from './ui.js'; 
 import { getFirestore, collection, query, orderBy, where, getDocs, serverTimestamp, onSnapshot } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-firestore.js";
- 
+function exportDataToExcel(data, headerKeys, displayHeaders, fileName) {
+    const ws_data = [
+        displayHeaders,
+        ...data.map(item => headerKeys.map(key => {
+            if (key === 'createdAt' && item[key]) {
+                return item[key].toDate ? item[key].toDate().toLocaleString('ar-SA', {
+                    year: 'numeric', month: 'short', day: 'numeric',
+                    hour: '2-digit', minute: '2-digit', hour12: true
+                }) : item[key];
+            }
+            if (typeof item[key] === 'boolean') {
+                return item[key] ? 'نعم' : 'لا';
+            }
+            return item[key] ?? '';
+        }))
+    ];
+    const ws = XLSX.utils.aoa_to_sheet(ws_data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Sacrifices");
+    XLSX.write(wb, fileName);
+}
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = authModule.initializeAuth(); 
@@ -21,88 +41,19 @@ function setCurrentEditingDocId(id) {
     currentEditingDocId = id;
 }
 
-// --- تعريف دالة updateUIVisibility في بداية الملف ---
-function updateUIVisibility(user) {
-    if (!domReady || !ui.loginElements || !ui.commonUIElements || !ui.adminViewElements || !ui.registrationElements || !ui.toggleLinkElements || !ui.dataEntryFormElements || !ui.userDataViewElements) { 
-        if (!domReady) {
-            setTimeout(() => updateUIVisibility(user), 100); 
-        }
-        return; 
-    }
-
-    const allElementsToManage = [
-        ui.loginElements.loginSection, 
-        ui.registrationElements.registrationSection, 
-        ui.toggleLinkElements.formToggleLinksDiv, 
-        ui.dataEntryFormElements.dataEntrySection, 
-        ui.adminViewElements.adminViewSection, 
-        ui.userDataViewElements.userDataViewSection,
-        ui.commonUIElements.logoutButton, 
-        ui.commonUIElements.hrAfterLogout,
-        ui.adminViewElements.sacrificesSummaryDiv, 
-        ui.adminViewElements.hrAfterSummary,
-        ui.adminViewElements.exportAllToExcelButton, 
-        ui.adminViewElements.exportAllUsersSeparateExcelButton,
-        ui.adminViewElements.exportAllToPdfButton, 
-        ui.adminViewElements.exportAllUsersSeparatePdfButton
-    ];
-    allElementsToManage.forEach(el => { if (el) el.classList.add('hidden-field'); });
-
-
-    if (user) { 
-        if (ui.commonUIElements.authStatusEl) {
-            ui.commonUIElements.authStatusEl.textContent = `مرحباً بك ${user.displayName || user.email}!`;
-            ui.commonUIElements.authStatusEl.className = 'success';
-        }
-        if (ui.commonUIElements.logoutButton) ui.commonUIElements.logoutButton.classList.remove('hidden-field');
-        if (ui.commonUIElements.hrAfterLogout) ui.commonUIElements.hrAfterLogout.classList.remove('hidden-field');
-        if (ui.dataEntryFormElements.dataEntrySection) ui.dataEntryFormElements.dataEntrySection.classList.remove('hidden-field');
-
-        if (user.uid === ADMIN_UID) {
-            if (ui.adminViewElements.adminViewSection) ui.adminViewElements.adminViewSection.classList.remove('hidden-field');
-            if (ui.adminViewElements.sacrificesSummaryDiv) ui.adminViewElements.sacrificesSummaryDiv.classList.remove('hidden-field');
-            if (ui.adminViewElements.hrAfterSummary) ui.adminViewElements.hrAfterSummary.classList.remove('hidden-field');
-            fetchAndRenderSacrificesForAdmin(); 
-            if (ui.adminViewElements.exportAllToExcelButton) ui.adminViewElements.exportAllToExcelButton.classList.remove('hidden-field');
-            if (ui.adminViewElements.exportAllUsersSeparateExcelButton) ui.adminViewElements.exportAllUsersSeparateExcelButton.classList.remove('hidden-field');
-            if (ui.adminViewElements.exportAllToPdfButton) ui.adminViewElements.exportAllToPdfButton.classList.remove('hidden-field');
-            if (ui.adminViewElements.exportAllUsersSeparatePdfButton) ui.adminViewElements.exportAllUsersSeparatePdfButton.classList.remove('hidden-field');
-        } else {
-            if (ui.userDataViewElements.userDataViewSection) ui.userDataViewElements.userDataViewSection.classList.remove('hidden-field');
-            fetchAndRenderSacrificesForUserUI(user.uid); 
-        }
-        if (ui.dataEntryFormElements.adahiForm) uiGetters.resetAdahiFormToEntryMode(setCurrentEditingDocId);
-    } else { 
-        if (ui.loginElements.loginSection) ui.loginElements.loginSection.classList.remove('hidden-field');
-        if (ui.toggleLinkElements.formToggleLinksDiv) ui.toggleLinkElements.formToggleLinksDiv.classList.remove('hidden-field');
-        if (ui.toggleLinkElements.switchToLoginLink) ui.toggleLinkElements.switchToLoginLink.classList.add('hidden-field'); 
-        if (ui.toggleLinkElements.switchToRegisterLink) ui.toggleLinkElements.switchToRegisterLink.classList.remove('hidden-field'); 
-        
-        if (ui.adminViewElements && ui.adminViewElements.sacrificesTableBody) ui.adminViewElements.sacrificesTableBody.innerHTML = '';
-        if (ui.userDataViewElements && ui.userDataViewElements.userSacrificesTableBody) ui.userDataViewElements.userSacrificesTableBody.innerHTML = '';
-
-        const initialAuthMsg = 'يرجى تسجيل الدخول أو إنشاء حساب جديد للمتابعة.';
-         if (ui.commonUIElements.authStatusEl) {
-            if (!ui.commonUIElements.authStatusEl.classList.contains('error') || ui.commonUIElements.authStatusEl.textContent.includes('مرحباً بك')) { 
-                 ui.commonUIElements.authStatusEl.textContent = initialAuthMsg;
-                 ui.commonUIElements.authStatusEl.className = '';
-            }
-        }
-        if (ui.dataEntryFormElements && ui.dataEntryFormElements.statusMessageEl) { 
-            ui.dataEntryFormElements.statusMessageEl.textContent = '';
-            ui.dataEntryFormElements.statusMessageEl.className = '';
-        }
-        if (unsubscribeAdminSacrifices) { unsubscribeAdminSacrifices(); unsubscribeAdminSacrifices = null; }
-        if (unsubscribeUserSacrifices) { unsubscribeUserSacrifices(); unsubscribeUserSacrifices = null; }
-        currentEditingDocId = null;
-        allAdminSacrificesCache = []; 
-        updateSacrificesSummary(); 
-    }
-}
-
 function updateSacrificesSummary() {
-    if (!domReady ||!ui.adminViewElements || !ui.adminViewElements.summaryGazaEl) return; 
-    let gazaCount = 0, solidarityCount = 0, ramthaCount = 0, himselfCount = 0;
+    if (!ui.adminViewElements || 
+        !ui.adminViewElements.summaryGazaEl ||
+        !ui.adminViewElements.summarySolidarityEl ||
+        !ui.adminViewElements.summaryRamthaEl ||
+        !ui.adminViewElements.summaryHimselfEl ||
+        !ui.adminViewElements.summaryTotalEl) {
+        return;
+    }
+    let gazaCount = 0;
+    let solidarityCount = 0;
+    let ramthaCount = 0;
+    let himselfCount = 0;
     allAdminSacrificesCache.forEach(data => {
         switch (data.assistanceFor) {
             case 'gaza_people': gazaCount++; break;
@@ -111,11 +62,11 @@ function updateSacrificesSummary() {
             case 'for_himself': himselfCount++; break;
         }
     });
-    if (ui.adminViewElements.summaryGazaEl) ui.adminViewElements.summaryGazaEl.textContent = gazaCount;
-    if (ui.adminViewElements.summarySolidarityEl) ui.adminViewElements.summarySolidarityEl.textContent = solidarityCount;
-    if (ui.adminViewElements.summaryRamthaEl) ui.adminViewElements.summaryRamthaEl.textContent = ramthaCount;
-    if (ui.adminViewElements.summaryHimselfEl) ui.adminViewElements.summaryHimselfEl.textContent = himselfCount;
-    if (ui.adminViewElements.summaryTotalEl) ui.adminViewElements.summaryTotalEl.textContent = allAdminSacrificesCache.length;
+    ui.adminViewElements.summaryGazaEl.textContent = gazaCount;
+    ui.adminViewElements.summarySolidarityEl.textContent = solidarityCount;
+    ui.adminViewElements.summaryRamthaEl.textContent = ramthaCount;
+    ui.adminViewElements.summaryHimselfEl.textContent = himselfCount;
+    ui.adminViewElements.summaryTotalEl.textContent = allAdminSacrificesCache.length;
 }
 
 function renderCellValue(value, isBooleanNoMeansEmpty = false, conditionalEmptyValue = '') {
@@ -127,7 +78,7 @@ function renderCellValue(value, isBooleanNoMeansEmpty = false, conditionalEmptyV
 }
 
 function renderSacrificesForAdminUI(docsSnapshot) {
-    if (!domReady || !ui.adminViewElements || !ui.adminViewElements.sacrificesTableBody) { return; }
+    if (!ui.adminViewElements || !ui.adminViewElements.sacrificesTableBody) { return; }
     ui.adminViewElements.sacrificesTableBody.innerHTML = '';
     allAdminSacrificesCache = []; 
     if (docsSnapshot.empty) {
@@ -199,7 +150,7 @@ function renderSacrificesForAdminUI(docsSnapshot) {
 }
 
 function renderSacrificesForUserUI(docsSnapshot) {
-    if (!domReady ||!ui.userDataViewElements || !ui.userDataViewElements.userSacrificesTableBody) { return; }
+    if (!ui.userDataViewElements || !ui.userDataViewElements.userSacrificesTableBody) { return; }
     ui.userDataViewElements.userSacrificesTableBody.innerHTML = '';
     if (docsSnapshot.empty) {
         if (ui.userDataViewElements.userLoadingMessage) {
@@ -230,7 +181,7 @@ function renderSacrificesForUserUI(docsSnapshot) {
 async function fetchAndRenderSacrificesForAdmin(filterStatus = 'all') {
     const authService = authModule.getAuthInstance();
     if (!authService || !authService.currentUser || authService.currentUser.uid !== ADMIN_UID) return;
-    if (domReady && ui.adminViewElements && ui.adminViewElements.adminLoadingMessage) { 
+    if (ui.adminViewElements && ui.adminViewElements.adminLoadingMessage) { 
         ui.adminViewElements.adminLoadingMessage.style.display = 'block';
         ui.adminViewElements.adminLoadingMessage.textContent = 'جاري تحميل بيانات المسؤول...';
     }
@@ -246,14 +197,14 @@ async function fetchAndRenderSacrificesForAdmin(filterStatus = 'all') {
         renderSacrificesForAdminUI(querySnapshot); 
     }, (error) => {
         console.error("Error fetching admin sacrifices with onSnapshot: ", error);
-        if (domReady && ui.adminViewElements && ui.adminViewElements.adminLoadingMessage) ui.adminViewElements.adminLoadingMessage.textContent = 'خطأ في تحميل بيانات المسؤول: ' + error.message;
-        if (domReady && ui.adminViewElements && ui.adminViewElements.sacrificesTableBody) ui.adminViewElements.sacrificesTableBody.innerHTML = `<tr><td colspan="18">خطأ في تحميل البيانات.</td></tr>`;
+        if (ui.adminViewElements && ui.adminViewElements.adminLoadingMessage) ui.adminViewElements.adminLoadingMessage.textContent = 'خطأ في تحميل بيانات المسؤول: ' + error.message;
+        if (ui.adminViewElements && ui.adminViewElements.sacrificesTableBody) ui.adminViewElements.sacrificesTableBody.innerHTML = `<tr><td colspan="18">خطأ في تحميل البيانات.</td></tr>`;
     });
 }
 
 async function fetchAndRenderSacrificesForUserUI(userId) {
     if (!userId) return;
-    if (domReady && ui.userDataViewElements && ui.userDataViewElements.userLoadingMessage) { 
+    if (ui.userDataViewElements && ui.userDataViewElements.userLoadingMessage) { 
         ui.userDataViewElements.userLoadingMessage.style.display = 'block';
         ui.userDataViewElements.userLoadingMessage.textContent = 'جاري تحميل أضاحيك المسجلة...';
     }
@@ -262,111 +213,86 @@ async function fetchAndRenderSacrificesForUserUI(userId) {
     const q = query(sacrificesCol, where("userId", "==", userId), orderBy("createdAt", "desc"));
     unsubscribeUserSacrifices = onSnapshot(q, (querySnapshot) => {
         renderSacrificesForUserUI(querySnapshot);
-         if (domReady && ui.userDataViewElements && ui.userDataViewElements.userLoadingMessage && !querySnapshot.empty) {
+         if (ui.userDataViewElements && ui.userDataViewElements.userLoadingMessage && !querySnapshot.empty) {
             ui.userDataViewElements.userLoadingMessage.style.display = 'none';
-        } else if (querySnapshot.empty && domReady && ui.userDataViewElements && ui.userDataViewElements.userLoadingMessage) {
+        } else if (querySnapshot.empty && ui.userDataViewElements && ui.userDataViewElements.userLoadingMessage) {
             ui.userDataViewElements.userLoadingMessage.textContent = 'لم تقم بتسجيل أي أضاحي بعد.';
             ui.userDataViewElements.userLoadingMessage.style.display = 'block';
         }
     }, (error) => {
         console.error("Error fetching user sacrifices with onSnapshot: ", error);
-        if (domReady && ui.userDataViewElements && ui.userDataViewElements.userLoadingMessage) ui.userDataViewElements.userLoadingMessage.textContent = 'خطأ في تحميل الأضاحي: ' + error.message;
-        if (domReady && ui.userDataViewElements && ui.userDataViewElements.userSacrificesTableBody) ui.userDataViewElements.userSacrificesTableBody.innerHTML = `<tr><td colspan="7">خطأ في تحميل البيانات.</td></tr>`;
+        if (ui.userDataViewElements && ui.userDataViewElements.userLoadingMessage) ui.userDataViewElements.userLoadingMessage.textContent = 'خطأ في تحميل الأضاحي: ' + error.message;
+        if (ui.userDataViewElements && ui.userDataViewElements.userSacrificesTableBody) ui.userDataViewElements.userSacrificesTableBody.innerHTML = `<tr><td colspan="7">خطأ في تحميل البيانات.</td></tr>`;
     });
 }
 
-function exportDataToExcel(dataArray, headerKeys, displayHeaders, filename) {
-    if (typeof XLSX === 'undefined') {
-        console.error("SheetJS (XLSX) library is not loaded!");
-        if (domReady && ui.commonUIElements && ui.commonUIElements.authStatusEl) { 
-            ui.commonUIElements.authStatusEl.textContent = "خطأ: مكتبة تصدير Excel غير محملة.";
-            ui.commonUIElements.authStatusEl.className = 'error';
-        }
-        return;
+// --- دالة مركزية لتحديث الواجهة بناءً على حالة المصادقة ---
+function updateUIVisibility(user) {
+    if (!domReady || !ui.loginElements || !ui.commonUIElements) { 
+        return; 
     }
-    const dataForSheet = [displayHeaders];
-    dataArray.forEach(obj => {
-        const row = headerKeys.map(key => {
-            let cellValue = obj[key];
-            if ((key === 'createdAt' || key === 'lastEditedAt') && cellValue && typeof cellValue.seconds === 'number') {
-                cellValue = uiGetters.formatFirestoreTimestamp(cellValue); 
-            } else if (typeof cellValue === 'boolean') {
-                cellValue = cellValue ? 'نعم' : ''; 
-            } else if (cellValue === null || typeof cellValue === 'undefined') {
-                cellValue = '';
+
+    // إخفاء كل شيء أولاً
+    const allElementsToManage = [
+        ui.loginElements.loginSection, ui.registrationElements.registrationSection,
+        ui.toggleLinkElements.formToggleLinksDiv, ui.dataEntryFormElements.dataEntrySection,
+        ui.adminViewElements.adminViewSection, ui.userDataViewElements.userDataViewSection,
+        ui.commonUIElements.logoutButton, ui.commonUIElements.hrAfterLogout,
+        ui.adminViewElements.sacrificesSummaryDiv, ui.adminViewElements.hrAfterSummary,
+        ui.adminViewElements.exportAllToExcelButton, ui.adminViewElements.exportAllUsersSeparateExcelButton
+    ];
+    allElementsToManage.forEach(el => { if (el) el.classList.add('hidden-field'); });
+
+
+    if (user) { // المستخدم مسجل دخوله
+        if (ui.commonUIElements.authStatusEl) {
+            ui.commonUIElements.authStatusEl.textContent = `مرحباً بك ${user.displayName || user.email}!`;
+            ui.commonUIElements.authStatusEl.className = 'success';
+        }
+        if (ui.commonUIElements.logoutButton) ui.commonUIElements.logoutButton.classList.remove('hidden-field');
+        if (ui.commonUIElements.hrAfterLogout) ui.commonUIElements.hrAfterLogout.classList.remove('hidden-field');
+        if (ui.dataEntryFormElements.dataEntrySection) ui.dataEntryFormElements.dataEntrySection.classList.remove('hidden-field');
+
+        if (user.uid === ADMIN_UID) {
+            if (ui.adminViewElements.adminViewSection) ui.adminViewElements.adminViewSection.classList.remove('hidden-field');
+            if (ui.adminViewElements.sacrificesSummaryDiv) ui.adminViewElements.sacrificesSummaryDiv.classList.remove('hidden-field');
+            if (ui.adminViewElements.hrAfterSummary) ui.adminViewElements.hrAfterSummary.classList.remove('hidden-field');
+            fetchAndRenderSacrificesForAdmin(); 
+            if (ui.adminViewElements.exportAllToExcelButton) ui.adminViewElements.exportAllToExcelButton.classList.remove('hidden-field');
+            if (ui.adminViewElements.exportAllUsersSeparateExcelButton) ui.adminViewElements.exportAllUsersSeparateExcelButton.classList.remove('hidden-field');
+        } else {
+            if (ui.userDataViewElements.userDataViewSection) ui.userDataViewElements.userDataViewSection.classList.remove('hidden-field');
+            fetchAndRenderSacrificesForUserUI(user.uid); 
+        }
+        if (ui.dataEntryFormElements.adahiForm) uiGetters.resetAdahiFormToEntryMode(setCurrentEditingDocId);
+    } else { // المستخدم غير مسجل دخوله
+        if (ui.loginElements.loginSection) ui.loginElements.loginSection.classList.remove('hidden-field');
+        if (ui.toggleLinkElements.formToggleLinksDiv) ui.toggleLinkElements.formToggleLinksDiv.classList.remove('hidden-field');
+        if (ui.toggleLinkElements.switchToLoginLink) ui.toggleLinkElements.switchToLoginLink.classList.add('hidden-field'); 
+        if (ui.toggleLinkElements.switchToRegisterLink) ui.toggleLinkElements.switchToRegisterLink.classList.remove('hidden-field'); 
+        
+        if (ui.adminViewElements && ui.adminViewElements.sacrificesTableBody) ui.adminViewElements.sacrificesTableBody.innerHTML = '';
+        if (ui.userDataViewElements && ui.userDataViewElements.userSacrificesTableBody) ui.userDataViewElements.userSacrificesTableBody.innerHTML = '';
+
+        const initialAuthMsg = 'يرجى تسجيل الدخول أو إنشاء حساب جديد للمتابعة.';
+         if (ui.commonUIElements.authStatusEl) {
+            if (!ui.commonUIElements.authStatusEl.classList.contains('error') || ui.commonUIElements.authStatusEl.textContent.includes('مرحباً بك')) { 
+                 ui.commonUIElements.authStatusEl.textContent = initialAuthMsg;
+                 ui.commonUIElements.authStatusEl.className = '';
             }
-            return cellValue;
-        });
-        dataForSheet.push(row);
-    });
-    const ws = XLSX.utils.aoa_to_sheet(dataForSheet);
-    if(!ws['!props']) ws['!props'] = {};
-    ws['!props'].RTL = true; 
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "البيانات");
-    XLSX.writeFile(wb, filename);
+        }
+        if (ui.dataEntryFormElements && ui.dataEntryFormElements.statusMessageEl) { 
+            ui.dataEntryFormElements.statusMessageEl.textContent = '';
+            ui.dataEntryFormElements.statusMessageEl.className = '';
+        }
+        if (unsubscribeAdminSacrifices) { unsubscribeAdminSacrifices(); unsubscribeAdminSacrifices = null; }
+        if (unsubscribeUserSacrifices) { unsubscribeUserSacrifices(); unsubscribeUserSacrifices = null; }
+        currentEditingDocId = null;
+        allAdminSacrificesCache = []; 
+        updateSacrificesSummary(); 
+    }
 }
 
-function exportDataToPDF(dataArray, headerKeys, displayHeaders, filename, title = "تقرير الأضاحي") {
-    if (typeof window.jspdf === 'undefined') {
-        console.error("jsPDF library is not loaded!");
-        if (domReady && ui.commonUIElements && ui.commonUIElements.authStatusEl) {
-            ui.commonUIElements.authStatusEl.textContent = "خطأ: مكتبة تصدير PDF غير محملة.";
-            ui.commonUIElements.authStatusEl.className = 'error';
-        }
-        return;
-    }
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'a4' });
-    const FONT_FAMILY = "helvetica"; 
-
-    doc.setFont(FONT_FAMILY, "normal"); 
-
-    const head = [displayHeaders.map(h => String(h))]; 
-    const body = dataArray.map(obj => 
-        headerKeys.map(key => {
-            let cellValue = obj[key];
-            if ((key === 'createdAt' || key === 'lastEditedAt') && cellValue && typeof cellValue.seconds === 'number') {
-                cellValue = uiGetters.formatFirestoreTimestamp(cellValue); 
-            } else if (typeof cellValue === 'boolean') {
-                cellValue = cellValue ? 'نعم' : ''; 
-            } else if (cellValue === null || typeof cellValue === 'undefined') {
-                cellValue = '';
-            }
-            return String(cellValue); 
-        })
-    );
-    
-    if (doc.autoTable) {
-         doc.autoTable({
-            body: [[title]], 
-            startY: 30,
-            theme: 'plain', 
-            tableWidth: 'wrap',
-            styles: { font: FONT_FAMILY, fontSize: 18, halign: 'center', fontStyle: 'bold'},
-            columnStyles: { 0: { cellWidth: 'auto' } },
-            margin: { top: 20 }
-        });
-
-        doc.autoTable({ 
-            head: head,
-            body: body,
-            startY: doc.autoTable.previous.finalY + 20, 
-            theme: 'striped', 
-            styles: { font: FONT_FAMILY, halign: 'right', fontSize: 8, cellPadding: 3, overflow: 'linebreak' },
-            headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold', halign: 'center', font: FONT_FAMILY },
-            didDrawPage: function (data) {
-                doc.setFontSize(10);
-                doc.setFont(FONT_FAMILY);
-                doc.text('صفحة ' + doc.internal.getNumberOfPages(), data.settings.margin.left, doc.internal.pageSize.getHeight() - 10);
-            },
-        });
-    } else {
-        console.error("jsPDF-AutoTable plugin is not loaded!");
-        doc.text("jsPDF-AutoTable plugin is required to render tables correctly.", 20, 80);
-    }
-    doc.save(filename);
-}
 
 document.addEventListener('DOMContentLoaded', () => {
     ui.loginElements = uiGetters.getLoginElements();
@@ -381,23 +307,6 @@ document.addEventListener('DOMContentLoaded', () => {
         uiGetters.cacheFormElements(ui.dataEntryFormElements);
     }
     uiGetters.setupConditionalFieldListeners();
-    
-    // إضافة مستمعي الأحداث للحقل الجديد "أحضرت بواسطة"
-    if(ui.dataEntryFormElements.broughtByOtherYesRadio) {
-        ui.dataEntryFormElements.broughtByOtherYesRadio.addEventListener('change', function() {
-            if (this.checked) {
-                ui.dataEntryFormElements.broughtByOtherNameDiv.style.display = 'block';
-            }
-        });
-    }
-    if(ui.dataEntryFormElements.broughtByOtherNoRadio) {
-        ui.dataEntryFormElements.broughtByOtherNoRadio.addEventListener('change', function() {
-            if (this.checked) {
-                ui.dataEntryFormElements.broughtByOtherNameDiv.style.display = 'none';
-            }
-        });
-    }
-    
     domReady = true; 
 
     if (ui.commonUIElements.authStatusEl) {
@@ -405,9 +314,10 @@ document.addEventListener('DOMContentLoaded', () => {
         ui.commonUIElements.authStatusEl.className = '';
     }
 
+    // استدعاء updateUIVisibility مع المستخدم الحالي (قد يكون null) لضبط الواجهة الأولية
     const authService = authModule.getAuthInstance();
     if (authService) {
-        updateUIVisibility(authService.currentUser); 
+        updateUIVisibility(authService.currentUser);
     }
 
     // Auth form event listeners
@@ -745,133 +655,6 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         console.error("ui.adminViewElements.exportAllUsersSeparateExcelButton not found. (DOMContentLoaded)");
     }
-
-    if (ui.adminViewElements.exportAllToPdfButton) {
-        ui.adminViewElements.exportAllToPdfButton.addEventListener('click', async () => {
-            if (ui.commonUIElements.authStatusEl) {ui.commonUIElements.authStatusEl.textContent = "جاري تجهيز كل البيانات للتصدير (PDF)..."; ui.commonUIElements.authStatusEl.className = '';}
-            try {
-                const dataToExport = allAdminSacrificesCache.map(data => ({
-                    donorName: data.donorName, 
-                    sacrificeFor: data.sacrificeFor,
-                    wantsToAttend: data.wantsToAttend, 
-                    phoneNumber: data.phoneNumber, 
-                    portionDetails: data.portionDetails, 
-                    address: data.address, 
-                    paymentDone: data.paymentDone,
-                    receiptBookNumber: data.receiptBookNumber, 
-                    receiptNumber: data.receiptNumber,
-                    assistanceFor: data.assistanceFor, 
-                    broughtByOther: data.broughtByOther,
-                    broughtByOtherName: data.broughtByOtherName,
-                    createdAt: data.createdAt, 
-                    enteredBy: data.enteredBy || ''
-                }));
-                if (dataToExport.length === 0) {
-                    if (ui.commonUIElements.authStatusEl) {ui.commonUIElements.authStatusEl.textContent = "لا توجد بيانات للتصدير."; ui.commonUIElements.authStatusEl.className = 'error';}
-                    return;
-                }
-                const headerKeys_pdf = [
-                    "donorName", "sacrificeFor", "wantsToAttend", "phoneNumber", 
-                    "portionDetails", "address", "paymentDone", "receiptBookNumber", "receiptNumber", 
-                    "assistanceFor", "broughtByOther", "broughtByOtherName", "createdAt", "enteredBy"
-                ];
-                const displayHeaders_pdf = [
-                    "المتبرع", "الأضحية عن", "حضور؟", "هاتف", 
-                    "تفاصيل الجزء", "العنوان", "مدفوع؟", "ر.الدفتر", "ر.السند", 
-                    "المساعدة لـ", "بوسيط؟", "اسم الوسيط", "ت.التسجيل", "أدخل بواسطة"
-                ];
-                await exportDataToPDF(dataToExport, headerKeys_pdf, displayHeaders_pdf, 'كل_بيانات_الاضاحي.pdf', 'تقرير كل بيانات الأضاحي');
-                if (ui.commonUIElements.authStatusEl) {ui.commonUIElements.authStatusEl.textContent = "تم تصدير كل البيانات بنجاح (PDF)."; ui.commonUIElements.authStatusEl.className = 'success';}
-            } catch (error) { 
-                console.error("Error exporting all data to PDF: ", error); 
-                if (ui.commonUIElements.authStatusEl) {ui.commonUIElements.authStatusEl.textContent = "خطأ في تصدير كل البيانات (PDF): " + error.message; ui.commonUIElements.authStatusEl.className = 'error';}
-            }
-        });
-    } else {
-        console.error("ui.adminViewElements.exportAllToPdfButton not found. (DOMContentLoaded)");
-    }
-
-    if (ui.adminViewElements.exportAllUsersSeparatePdfButton) {
-        ui.adminViewElements.exportAllUsersSeparatePdfButton.addEventListener('click', async () => {
-            if (ui.commonUIElements.authStatusEl) {ui.commonUIElements.authStatusEl.textContent = "جاري تجهيز بيانات كل مدخل (PDF)..."; ui.commonUIElements.authStatusEl.className = '';}
-            try {
-                if (allAdminSacrificesCache.length === 0) {
-                    if (ui.commonUIElements.authStatusEl) {ui.commonUIElements.authStatusEl.textContent = "لا توجد بيانات لتصديرها."; ui.commonUIElements.authStatusEl.className = 'error';}
-                    return;
-                }
-                const dataByUser = {};
-                allAdminSacrificesCache.forEach(data => {
-                    const userId = data.userId;
-                    const userNameForGrouping = data.enteredBy || userId || 'مستخدم_غير_معروف';
-                    const groupKey = userId || 'entries_without_userid';
-                    if (!dataByUser[groupKey]) { 
-                        dataByUser[groupKey] = { name: userNameForGrouping, entries: [] };
-                    }
-                    if (data.enteredBy && data.enteredBy !== userId && dataByUser[groupKey].name === userId) {
-                        dataByUser[groupKey].name = data.enteredBy;
-                    }
-                    dataByUser[groupKey].entries.push({ 
-                        donorName: data.donorName, 
-                        sacrificeFor: data.sacrificeFor,
-                        wantsToAttend: data.wantsToAttend, 
-                        phoneNumber: data.phoneNumber, 
-                        portionDetails: data.portionDetails, 
-                        address: data.address, 
-                        paymentDone: data.paymentDone,
-                        receiptBookNumber: data.receiptBookNumber, 
-                        receiptNumber: data.receiptNumber,
-                        assistanceFor: data.assistanceFor, 
-                        broughtByOther: data.broughtByOther,
-                        broughtByOtherName: data.broughtByOtherName,
-                        createdAt: data.createdAt,
-                        enteredBy: data.enteredBy || ''
-                    });
-                });
-                if (Object.keys(dataByUser).length === 0) { 
-                    if (ui.commonUIElements.authStatusEl) {ui.commonUIElements.authStatusEl.textContent = "لم يتم العثور على بيانات مجمعة حسب المدخلين."; ui.commonUIElements.authStatusEl.className = 'error';}
-                    return; 
-                }
-                const headerKeys_pdf_users = [
-                    "donorName", "sacrificeFor", "wantsToAttend", "phoneNumber",
-                    "portionDetails", "address", "paymentDone", "receiptBookNumber", "receiptNumber",
-                    "assistanceFor", "broughtByOther", "broughtByOtherName", "createdAt", "enteredBy"
-                ];
-                const displayHeaders_pdf_users = [
-                    "المتبرع", "الأضحية عن", "حضور؟", "هاتف",
-                    "تفاصيل الجزء", "العنوان", "مدفوع؟", "ر.الدفتر", "ر.السند",
-                    "المساعدة لـ", "بوسيط؟", "اسم الوسيط", "ت.التسجيل", "أدخل بواسطة"
-                ];
-                let exportedCount = 0;
-                const totalUserGroups = Object.keys(dataByUser).length;
-                if (ui.commonUIElements.authStatusEl) {ui.commonUIElements.authStatusEl.textContent = `بدء تصدير ${totalUserGroups} ملف للمدخلين (PDF)...`;}
-                for (const groupKey in dataByUser) {
-                    if (dataByUser.hasOwnProperty(groupKey)) {
-                        const fileNamePart = String(dataByUser[groupKey].name).replace(/[^\p{L}\p{N}_-]/gu, '_');
-                        const userDataEntries = dataByUser[groupKey].entries;
-                        if (userDataEntries.length > 0) {
-                            await exportDataToPDF(userDataEntries, headerKeys_pdf_users, displayHeaders_pdf_users, `بيانات_مدخل_${fileNamePart}.pdf`, `تقرير المدخل: ${dataByUser[groupKey].name}`);
-                            await new Promise(resolve => setTimeout(resolve, 300)); 
-                            exportedCount++;
-                            if (ui.commonUIElements.authStatusEl) {ui.commonUIElements.authStatusEl.textContent = `تم تصدير ${exportedCount} من ${totalUserGroups} ملف (PDF)...`;}
-                        }
-                    }
-                }
-                if (ui.commonUIElements.authStatusEl) {ui.commonUIElements.authStatusEl.textContent = `تم تصدير بيانات ${exportedCount} مدخل بنجاح في ملفات PDF منفصلة.`; ui.commonUIElements.authStatusEl.className = 'success';}
-            } catch (error) {
-                console.error("Error exporting all users separate data to PDF: ", error);
-                let errMessage = "خطأ أثناء تصدير بيانات المدخلين (PDF): " + error.message;
-                if (error.code === 'failed-precondition' && error.message.includes('index')) {
-                     errMessage = "خطأ: يتطلب هذا التصدير فهرسًا مركبًا في Firebase. يرجى مراجعة إعدادات الفهرسة.";
-                }
-                if (ui.commonUIElements.authStatusEl) {
-                    ui.commonUIElements.authStatusEl.textContent = errMessage;
-                    ui.commonUIElements.authStatusEl.className = 'error';
-                }
-            }
-        });
-    } else {
-        console.error("ui.adminViewElements.exportAllUsersSeparatePdfButton not found. (DOMContentLoaded)");
-    }
 }); 
 
-authModule.onAuthStateChanged(updateUIVisibility);
+authModule.onAuthStateChanged(updateUIVisibility); // استدعاء دالة تحديث الواجهة عند تغيير حالة المصادقة

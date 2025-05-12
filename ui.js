@@ -78,8 +78,6 @@ export function getAdminViewElements() {
         filterAllButton: document.getElementById('filterAll'),
         exportAllToExcelButton: document.getElementById('exportAllToExcelButton'),
         exportAllUsersSeparateExcelButton: document.getElementById('exportAllUsersSeparateExcelButton'),
-        exportAllToPdfButton: document.getElementById('exportAllToPdfButton'),
-        exportAllUsersSeparatePdfButton: document.getElementById('exportAllUsersSeparatePdfButton'),
         sacrificesSummaryDiv: document.getElementById('sacrificesSummary'),
         summaryGazaEl: document.getElementById('summaryGaza'),
         summarySolidarityEl: document.getElementById('summarySolidarity'),
@@ -109,8 +107,6 @@ export function cacheFormElements(elements) {
 }
 function getFormElements() {
     if (!formElementsCache) {
-        // هذا لا ينبغي أن يحدث إذا تم استدعاء cacheFormElements بشكل صحيح من main.js
-        // console.warn("[UI_LOG] formElementsCache was null in getFormElements. Fetching directly.");
         formElementsCache = getDataEntryFormElements(); 
     }
     return formElementsCache;
@@ -159,7 +155,6 @@ export function resetAdahiFormToEntryMode(setCurrentEditingDocIdCallback) {
         if (elements.receiptNumberInput) elements.receiptNumberInput.value = '';
         if (elements.broughtByOtherNameInput) elements.broughtByOtherNameInput.value = '';
         if (elements.assistanceForSelect) elements.assistanceForSelect.value = 'inside_ramtha';
-
         if (elements.wantsToAttendNoRadio) elements.wantsToAttendNoRadio.checked = true;
         if (elements.wantsPortionNoRadio) elements.wantsPortionNoRadio.checked = true;
         if (elements.paymentDoneNoRadio) elements.paymentDoneNoRadio.checked = true;   
@@ -167,9 +162,7 @@ export function resetAdahiFormToEntryMode(setCurrentEditingDocIdCallback) {
     }
     if (setCurrentEditingDocIdCallback) setCurrentEditingDocIdCallback(null);
     if (elements.adahiFormSubmitButton) elements.adahiFormSubmitButton.textContent = 'تسجيل البيانات';
-    
     updateAllConditionalFieldsVisibility();
-
     if (elements.statusMessageEl) { elements.statusMessageEl.textContent = ''; elements.statusMessageEl.className = '';}
 }
 
@@ -196,10 +189,8 @@ export function populateAdahiFormForEdit(docId, data, setCurrentEditingDocIdCall
     if (elements.broughtByOtherNameInput) elements.broughtByOtherNameInput.value = data.broughtByOtherName || '';
 
     updateAllConditionalFieldsVisibility(); 
-
     if (setCurrentEditingDocIdCallback) setCurrentEditingDocIdCallback(docId);
     if (elements.adahiFormSubmitButton) elements.adahiFormSubmitButton.textContent = 'تحديث البيانات';
-    
     if (elements.statusMessageEl) {
         elements.statusMessageEl.textContent = `وضع التعديل للسجل (رقم المرجع: ${docId}). قم بالتعديل ثم اضغط "تحديث البيانات".`;
         elements.statusMessageEl.className = '';
@@ -226,24 +217,20 @@ export function formatFirestoreTimestamp(timestamp) {
 
 export function setupConditionalFieldListeners() {
     const elements = getFormElements(); 
-
     if (elements.wantsPortionYesRadio && elements.wantsPortionNoRadio) {
         [elements.wantsPortionYesRadio, elements.wantsPortionNoRadio].forEach(radio => {
             if (radio) radio.addEventListener('change', updateWantsPortionVisibility);
         });
     }
-
     if (elements.paymentDoneYesRadio && elements.paymentDoneNoRadio) {
         [elements.paymentDoneYesRadio, elements.paymentDoneNoRadio].forEach(radio => {
             if (radio) radio.addEventListener('change', updatePaymentDetailsVisibility);
         });
     }
-
     if (elements.broughtByOtherYesRadio && elements.broughtByOtherNoRadio) {
         [elements.broughtByOtherYesRadio, elements.broughtByOtherNoRadio].forEach(radio => {
             if (radio) radio.addEventListener('change', updateBroughtByOtherVisibility);
         });
     }
-    
     updateAllConditionalFieldsVisibility(); 
 }
