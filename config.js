@@ -10,4 +10,4 @@ export const firebaseConfig = {
 };
 
 // هذا الرقم ستحصل عليه لاحقاً من قسم الـ Users في فيربيس لتصبح أنت المسؤول
-export const ADMIN_UID = "تغيير_هذا_لاحقا";
+export const ADMIN_UID = "EQKIYG5b8sZqNaLZCL5Da2aD7uk2";
