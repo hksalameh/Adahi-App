@@ -1,12 +1,16 @@
 // config.js
+
+// 1. بيانات مشروع فيربيس الجديد الذي أنشأته
 export const firebaseConfig = {
-    apiKey: "AIzaSyAOV5iF6t5kdAeBIZPNcmINB4Ya66Yx9Pg", // استبدل بمفتاحك الفعلي
-    authDomain: "adahi-app.firebaseapp.com",
-    projectId: "adahi-app",
-    storageBucket: "adahi-app.firebasestorage.app",
-    messagingSenderId: "42370235858",
-    appId: "1:42370235858:web:6f839b92404afafdae9c0b",
-    measurementId: "G-1T2TGPK72K"
+  apiKey: "AIzaSyA1flOt_nu7Z86Fx5kxsYG-ltSnM0pWqsA",
+  authDomain: "adahi-project.firebaseapp.com",
+  projectId: "adahi-project",
+  storageBucket: "adahi-project.firebasestorage.app",
+  messagingSenderId: "157383113576",
+  appId: "1:157383113576:web:e1de3febcdcc284368f4dd"
 };
 
-export const ADMIN_UID = 'AKpJLStGGnRC2Albb8bpZ0KtTGq1'; // استبدل بالـ UID الفعلي للمسؤول
+// 2. معرف المسؤول (ADMIN_UID)
+// ملاحظة: هذا المعرف هو الذي سيسمح لك برؤية لوحة تحكم المسؤول (تصدير الإكسل، حذف البيانات، إلخ)
+// يمكنك الحصول عليه من Firebase Console -> Authentication بعد أن تسجل حساباً في موقعك
+export const ADMIN_UID = "هنا_تضع_الـ_UID_الخاص_بك";
